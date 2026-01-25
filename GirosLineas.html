@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Padrón de Proveedores</title>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="menu.js"></script>
+  </head>
+  <body>
+    <div id="nav-placeholder"></div>
+
+    <main>
+      <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+      <section class="seccion-giros lieas">
+        <div class="titulo-principal">
+          CATÁLOGO DE <span>GIROS-LÍNEAS</span>
+        </div>
+        <div class="table-responsive" id="contenedor-tablas"></div>
+
+        <div style="text-align: center; margin: 20px">
+          <button
+            onclick="generarPDF()"
+            class="mi-btn-guinda"
+            style="padding: 10px 20px; cursor: pointer"
+          >
+            DESCARGAR CATÁLOGO EN PDF
+          </button>
+        </div>
+      </section>
+    </main>
+    <div id="footer-placeholder"></div>
+
+    <script src="menu.js"></script>
+    <script src="datos.js"></script>
+  </body>
+</html>

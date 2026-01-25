@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Padrón de Proveedores</title>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="menu.js"></script>
+  </head>
+  <body>
+    <div id="nav-placeholder"></div>
+
+    <main>
+      <section class="seccion-catalogo">
+        <div class="titulo-principal">CONSULTAR <span>HISTORIAL</span></div>
+
+        <div id="Historial" class="container">
+          <div class="cuadro-blanco">
+            <form
+              action="Historial.html"
+              method="post"
+              name="FormHistorias"
+              class="form-horizontal"
+            >
+              <div class="form-group row" align="left">
+                <label for="Anio" class="col-sm-1 control-label Etiqueta"
+                  >Año:</label
+                >
+                <div class="col-sm-3">
+                  <select class="form-control delgado" name="Anio" id="Anio">
+                    <option value="0">Seleccione...</option>
+                    <option value="2025">2025</option>
+                    <option value="2024">2024</option>
+                    <option value="2023">2023</option>
+                    <option value="2022">2022</option>
+                    <option value="2021">2021</option>
+                    <option value="2020">2020</option>
+                  </select>
+                </div>
+
+                <label for="Folio" class="col-sm-1 control-label Etiqueta"
+                  >Folio:</label
+                >
+                <div class="col-sm-3">
+                  <input
+                    type="text"
+                    class="form-control delgado InputMayus"
+                    id="Folio"
+                    name="Folio"
+                    placeholder="FOLIO"
+                  />
+                </div>
+
+                <label for="RFC" class="col-sm-1 control-label Etiqueta"
+                  >RFC:</label
+                >
+                <div class="col-sm-3">
+                  <input
+                    type="text"
+                    class="form-control delgado InputMayus"
+                    id="RFC"
+                    name="RFC"
+                    placeholder="RFC"
+                    maxlength="13"
+                  />
+                </div>
+              </div>
+
+              <div class="form-group row" align="left">
+                <label for="RazonSocial" class="col-sm-2 control-label Etiqueta"
+                  >Razón Social:</label
+                >
+                <div class="col-sm-4">
+                  <input
+                    type="text"
+                    class="form-control delgado InputMayus"
+                    id="RazonSocial"
+                    name="RazonSocial"
+                    placeholder="RAZON SOCIAL"
+                  />
+                </div>
+
+                <label
+                  for="NombreComercial"
+                  class="col-sm-2 control-label Etiqueta"
+                  >Nombre Comercial:</label
+                >
+                <div class="col-sm-4">
+                  <input
+                    type="text"
+                    class="form-control delgado InputMayus"
+                    id="NombreComercial"
+                    name="NombreComercial"
+                    placeholder="NOMBRE COMERCIAL"
+                  />
+                </div>
+              </div>
+
+              <div class="form-group row" align="left">
+                <label for="SelectGiro" class="col-sm-2 control-label Etiqueta"
+                  >Giro:</label
+                >
+                <div class="col-sm-4">
+                  <select
+                    class="form-control delgado"
+                    name="SelectGiro"
+                    id="SelectGiro"
+                    onchange="actualizarLineas()"
+                  >
+                    <option value="0">Seleccione...</option>
+                  </select>
+                </div>
+
+                <label for="LineaSel" class="col-sm-2 control-label Etiqueta"
+                  >Línea:</label
+                >
+                <div class="col-sm-4">
+                  <select
+                    class="form-control delgado"
+                    name="LineaSel"
+                    id="LineaSel"
+                    disabled
+                  >
+                    <option value="0">Seleccione...</option>
+                  </select>
+                </div>
+              </div>
+
+              <div
+                class="btn-contenedor"
+                style="text-align: center; margin-top: 20px"
+              >
+                <button type="button" class="btn-buscar" onclick="Consultar()">
+                  <i class="fas fa-search"></i> BUSCAR
+                </button>
+                <button
+                  type="button"
+                  class="btn-nueva"
+                  onclick="location.reload()"
+                >
+                  <i class="fas fa-plus"></i> NUEVA BÚSQUEDA
+                </button>
+              </div>
+
+              <input type="hidden" name="Buscar" id="Buscar" value="1" />
+            </form>
+          </div>
+        </div>
+      </section>
+    </main>
+    <div id="footer-placeholder"></div>
+
+    <script src="funciones-padron.js"></script>
+    <script src="datos-padron.js"></script>
+    <script src="funciones-padron.js"></script>
+  </body>
+</html>

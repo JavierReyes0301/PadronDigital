@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Padrón de Proveedores</title>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="menu.js"></script>
+  </head>
+  <body>
+    <div id="nav-placeholder"></div>
+
+    <main>
+      <section class="seccion-catalogo">
+        <div class="titulo-principal">CONSULTAR EL <span>PADRÓN</span></div>
+
+        <div id="Padron" class="container">
+          <div class="cuadro-blanco">
+            <form action="Padron.html" method="post" name="FormPadron">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group row">
+                    <label class="col-sm-4 control-label">Folio:</label>
+                    <div class="col-sm-7">
+                      <input
+                        type="text"
+                        class="form-control delgado"
+                        id="Folio"
+                        name="Folio"
+                        placeholder="Folio"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group row">
+                    <label class="col-sm-4 control-label">RFC:</label>
+                    <div class="col-sm-7">
+                      <input
+                        type="text"
+                        class="form-control delgado"
+                        id="RFC"
+                        name="RFC"
+                        placeholder="RFC"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="form-group row">
+                    <label class="col-sm-4 control-label">Razón Social:</label>
+                    <div class="col-sm-7">
+                      <input
+                        type="text"
+                        class="form-control delgado"
+                        id="RazonSocial"
+                        name="RazonSocial"
+                        placeholder="Razon Social"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group row">
+                    <label class="col-sm-4 control-label"
+                      >Nombre Comercial:</label
+                    >
+                    <div class="col-sm-7">
+                      <input
+                        type="text"
+                        class="form-control delgado"
+                        id="NombreComercial"
+                        name="NombreComercial"
+                        placeholder="Nombre Comercial"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="form-group row">
+                    <label class="col-sm-4 control-label">Giro:</label>
+                    <div class="col-sm-7">
+                      <select
+                        class="form-control delgado"
+                        name="SelectGiro"
+                        id="SelectGiro"
+                        onchange="actualizarLineas()"
+                      >
+                        <option value="0">-- Seleccione un Giro --</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group row">
+                    <label class="col-sm-4 control-label">Línea:</label>
+                    <div class="col-sm-7">
+                      <select
+                        class="form-control delgado"
+                        name="LineaSel"
+                        id="LineaSel"
+                        disabled
+                      >
+                        <option value="0">Seleccione un giro primero...</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="btn-contenedor">
+                <button type="button" class="btn-buscar" onclick="Consultar()">
+                  <i class="fas fa-search"></i> BUSCAR
+                </button>
+                <button
+                  type="button"
+                  class="btn-nueva"
+                  onclick="location.reload()"
+                >
+                  <i class="fas fa-plus"></i> NUEVA BÚSQUEDA
+                </button>
+              </div>
+              <input type="hidden" name="Buscar" id="Buscar" value="1" />
+            </form>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="funciones-padron.js"></script>
+    <script src="datos-padron.js"></script>
+  </body>
+</html>
