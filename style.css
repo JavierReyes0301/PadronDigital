@@ -1305,3 +1305,88 @@ input,
 button {
   font-family: inherit; /* Hereda la fuente definida en el body/html del proyecto */
 }
+
+/* --- FORMATO PARA HOJA ACTUALIZAR DATOS --- */
+
+/* Tipografía y Fondo General */
+body {
+  font-family: "Montserrat", sans-serif !important;
+  background-color: #f5f5f5 !important;
+}
+
+/* Encabezado: "Actualizar Datos" */
+.page-header {
+  border-bottom: none;
+  margin-top: 40px;
+  font-weight: 900;
+}
+
+.page-header span {
+  color: #ab0a3d; /* Color Guinda */
+}
+
+/* Tabs (Pestañas de navegación) */
+.nav-tabs {
+  border-bottom: 2px solid #ab0a3d !important;
+}
+
+.nav-tabs > li > a {
+  font-family: "Montserrat", sans-serif;
+  font-weight: 700;
+  color: #333 !important;
+  border: none !important;
+}
+
+.nav-tabs > li.active > a,
+.nav-tabs > li.active > a:hover,
+.nav-tabs > li.active > a:focus {
+  color: #fff !important;
+  background-color: #ab0a3d !important; /* Fondo Guinda para la activa */
+  border-radius: 5px 5px 0 0;
+}
+
+/* Personalización de los Iconos SVG dentro de los botones/tabs */
+.nav-tabs .svg-inline--fa,
+.page-header .svg-inline--fa {
+  margin-right: 10px;
+}
+
+/* Formato de la Caja Blanca (bg-white) */
+.bg-white {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+  padding: 20px;
+}
+
+/* Ajuste de los títulos H3 dentro de la tabla */
+.enlace h3 {
+  font-size: 16px;
+  margin: 0;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+/* Estilo para los inputs y selects para que coincidan con el diseño */
+input[type="text"],
+input[type="password"],
+select.form-control {
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-family: "Montserrat", sans-serif;
+  height: 40px;
+}
+
+input:focus,
+select:focus {
+  border-color: #235baf !important; /* Azul al enfocar */
+  outline: none;
+  box-shadow: 0 0 5px rgba(35, 91, 175, 0.2);
+}
+
+/* Radio Buttons y Checkboxes personalizados por CSS */
+input[type="radio"]:checked + label:before,
+input[type="checkbox"]:checked + label:before {
+  color: #ab0a3d !important;
+}

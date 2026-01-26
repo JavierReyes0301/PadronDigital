@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-  // --- 0. INYECCIÓN DE ESTILOS Y FUENTES (Lo que antes tenías en el head) ---
+  // --- 0. INYECCIÓN DE ESTILOS Y FUENTES ---
   const headContenido = `
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", function () {
   `;
   document.head.insertAdjacentHTML("beforeend", headContenido);
 
-  // --- 1. HTML DEL NAVBAR (CON TUS ICONOS RECUPERADOS) Y MODAL ---
+  // --- 1. HTML DEL NAVBAR Y MODAL (Actualizado con enlace de restauración) ---
   const navbarHTML = `
     <nav class="mi-navbar">
       <div class="mi-container">
@@ -63,11 +63,10 @@ document.addEventListener("DOMContentLoaded", function () {
             <button type="submit" class="mi-btn-guinda">INICIAR SESIÓN</button>
           </form>
           <div style="text-align: right; margin-top: 15px">
-            <a href="javascript:void(0);" onclick="enviarRestauracion()" style="color: #666; font-size: 13px; text-decoration: none; font-family: sans-serif;">
+            <a href="restaurar.html#Restaurar" style="color: #666; font-size: 13px; text-decoration: none; font-family: sans-serif;">
               <small>¿Olvidó su contraseña?</small>
             </a>
           </div>
-          <form name="FormRestaura" action="restaura.php" method="POST" style="display:none;"></form>
         </div>
       </div>
     </div>
@@ -101,7 +100,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Lógica Iconos Amarillos (Solo en Index)
+  // Lógica Iconos Amarillos
   const secciones = document.querySelectorAll("section[id]");
   const enlacesMenu = document.querySelectorAll(".nav-link-item");
   if (secciones.length > 0) {
@@ -126,11 +125,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // FUNCIONES GLOBALES
 function abrirEmergente() {
-  document.getElementById("ContenedorEmergente").style.display = "block";
+  const modal = document.getElementById("ContenedorEmergente");
+  if (modal) modal.style.display = "block";
 }
 function cerrarEmergente() {
-  document.getElementById("ContenedorEmergente").style.display = "none";
-}
-function enviarRestauracion() {
-  document.getElementsByName("FormRestaura")[0].submit();
+  const modal = document.getElementById("ContenedorEmergente");
+  if (modal) modal.style.display = "none";
 }
