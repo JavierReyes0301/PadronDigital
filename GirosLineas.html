@@ -2,13 +2,34 @@
 <html lang="es">
   <head>
     <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Padrón de Proveedores</title>
+    <title>Padrón de Proveedores | Atlixco</title>
+
+    <link rel="canonical" href="https://padron.digital/" />
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
+    />
+    <link rel="stylesheet" href="style.css" />
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
 
-    <script src="menu.js"></script>
+    <script src="menu.js" defer></script>
+    <script src="formularios.js" defer></script>
+
+    <style>
+      /* Asegura que el contenido no se encime con la barra de navegación */
+      #nav-placeholder {
+        min-height: 75px;
+      }
+      body {
+        margin: 0;
+        font-family: "Montserrat", sans-serif;
+      }
+    </style>
   </head>
   <body>
     <div id="nav-placeholder"></div>

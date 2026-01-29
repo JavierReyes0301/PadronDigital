@@ -1202,7 +1202,7 @@ section {
   border: 1px solid #e0e0e0;
   border-radius: 4px;
   box-shadow: none;
-  color: #333;
+  color: #323232;
 }
 
 /* 5. BOTÓN GUINDA (Aquí es donde fallaba el color) */
@@ -1222,7 +1222,7 @@ section {
 #Padron .btn-nueva,
 #Historial .btn-nueva,
 #Restaurar .btn-nueva {
-  background-color: #2d2d2d !important;
+  background-color: #323232 !important;
   color: #fff !important;
   border: none;
   padding: 10px 25px;

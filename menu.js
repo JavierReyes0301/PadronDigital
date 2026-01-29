@@ -1,16 +1,38 @@
 document.addEventListener("DOMContentLoaded", function () {
-  // --- 0. INYECCIÓN DE ESTILOS Y FUENTES ---
+  // --- 0. INYECCIÓN DE RECURSOS Y AJUSTES DE ESPACIO ---
   const headContenido = `
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
-    <link rel="stylesheet" href="style.css" />
+    <style>
+      /* Elimina el hueco entre el navbar y el contenido */
+      body { 
+        margin: 0 !important; 
+        padding: 0 !important; 
+      }
+      #nav-placeholder { 
+        margin-bottom: 0 !important; 
+        padding-bottom: 0 !important;
+      }
+      .mi-navbar { 
+        margin-bottom: 0 !important; 
+      }
+      /* Ajuste para que los títulos de sección suban */
+      section { 
+        padding-top: 20px !important; 
+        margin-top: 0 !important; 
+      }
+      /* Si usas contenedores de Bootstrap con mucho margen */
+      .mt-5, .py-5 { 
+        margin-top: 1rem !important; 
+        padding-top: 1rem !important; 
+      }
+    </style>
   `;
   document.head.insertAdjacentHTML("beforeend", headContenido);
 
-  // --- 1. HTML DEL NAVBAR Y MODAL (Actualizado con enlace de restauración) ---
+  // --- 1. HTML DEL NAVBAR Y MODAL ---
   const navbarHTML = `
     <nav class="mi-navbar">
       <div class="mi-container">
@@ -74,9 +96,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // --- 2. HTML DEL FOOTER ---
   const footerHTML = `
-    <footer class="section_footer" style="background-color: #ab0a3d; color: white; padding: 15px 0; font-family: 'Montserrat', sans-serif;">
+    <footer style="background-color: #ab0a3d; color: white; padding: 10px 0; font-family: 'Montserrat', sans-serif;">
       <div class="container" style="text-align: center">
-        <p style="font-size: 0.75rem; opacity: 0.8; margin: 0; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">
+        <p style="font-size: 0.7rem; margin: 0; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; opacity: 0.9;">
           &copy; 2026 H. Ayuntamiento del Municipio de Atlixco
         </p>
       </div>
@@ -85,12 +107,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // --- 3. INYECCIÓN ---
   const navPlaceholder = document.getElementById("nav-placeholder");
-  if (navPlaceholder) navPlaceholder.innerHTML = navbarHTML;
+  if (navPlaceholder) {
+    navPlaceholder.innerHTML = navbarHTML;
+  }
 
   const footerPlaceholder = document.getElementById("footer-placeholder");
-  if (footerPlaceholder) footerPlaceholder.innerHTML = footerHTML;
+  if (footerPlaceholder) {
+    footerPlaceholder.innerHTML = footerHTML;
+  }
 
-  // Lógica Hamburguesa
+  // --- 4. LÓGICA DE INTERACCIÓN ---
   const btnToggle = document.getElementById("btn-toggle");
   const navMenu = document.getElementById("nav-menu");
   if (btnToggle && navMenu) {
@@ -100,17 +126,18 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Lógica Iconos Amarillos
+  // Scroll Spy (Iconos Amarillos)
   const secciones = document.querySelectorAll("section[id]");
   const enlacesMenu = document.querySelectorAll(".nav-link-item");
-  if (secciones.length > 0) {
+  if (secciones.length > 0 && enlacesMenu.length > 0) {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             enlacesMenu.forEach((enlace) => {
               enlace.classList.remove("seccion-activa");
-              if (enlace.getAttribute("href").includes(entry.target.id)) {
+              const href = enlace.getAttribute("href");
+              if (href && href.includes(entry.target.id)) {
                 enlace.classList.add("seccion-activa");
               }
             });
