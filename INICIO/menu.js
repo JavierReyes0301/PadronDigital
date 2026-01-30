@@ -26,46 +26,24 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const seccionesHTML = secciones
     .map(
-      (sec) => `
-    <li>
-      <a href="${baseRuta}#${sec.id}" class="nav-link-item" onclick="mostrarSeccionDirecto('${sec.id}')">
-        ${sec.svg}
-        ${sec.label}
-      </a>
-    </li>
-  `,
+      (sec) =>
+        `<li><a href="${baseRuta}#${sec.id}" class="nav-link-item" onclick="mostrarSeccionDirecto('${sec.id}')">${sec.svg}${sec.label}</a></li>`,
     )
     .join("");
 
-  // --- 1. INYECCIÓN DE ESTILOS Y FUENTES ---
+  // --- 1. INYECCIÓN DE ESTILOS Y ESTRUCTURA ---
   const headContenido = `
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
     <style>
-      html, body { height: 100%; margin: 0; }
-      body { display: flex; flex-direction: column; }
-      .flex-grow-content { flex: 1 0 auto; }
-      #nav-placeholder, #footer-placeholder { flex-shrink: 0; }
-
-      /* Clase para ocultar secciones */
       .seccion-oculta { display: none !important; }
-
-      .mi-navbar .mi-menu svg {
-        width: 1.1em !important; 
-        height: 1.1em !important;
-        margin-right: 10px;
-        fill: currentColor;
-        vertical-align: middle;
-      }
-      .dropdown-item i { margin-right: 8px; width: 1.2em; text-align: center; }
+      .mi-navbar .mi-menu svg { width: 1.1em !important; height: 1.1em !important; margin-right: 10px; fill: currentColor; vertical-align: middle; }
     </style>
   `;
   document.head.insertAdjacentHTML("beforeend", headContenido);
 
-  // --- 2. HTML DEL NAVBAR ---
+  // --- 2. HTML DINÁMICO ---
   const navbarHTML = `
     <nav class="mi-navbar">
       <div class="mi-container">
@@ -76,95 +54,86 @@ document.addEventListener("DOMContentLoaded", function () {
         <ul class="mi-menu" id="nav-menu">
           ${seccionesHTML}
           <li class="nav-item dropdown">
-            <a class="nav-link-item dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <svg viewBox="0 0 448 512"><path d="M224 256c70.7 0 128-57.3 128-128S294.7 0 224 0 96 57.3 96 128s57.3 128 128 128zm89.6 32h-16.7c-22.2 10.2-46.9 16-72.9 16s-50.6-5.8-72.9-16h-16.7C60.2 288 0 348.2 0 422.4V464c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48v-41.6c0-74.2-60.2-134.4-134.4-134.4z"></path></svg>
-              Mi Cuenta
+            <a class="nav-link-item dropdown-toggle" href="#" id="navbarDropdown" data-toggle="dropdown">
+              <svg viewBox="0 0 448 512"><path d="M224 256c70.7 0 128-57.3 128-128S294.7 0 224 0 96 57.3 96 128s57.3 128 128 128zm89.6 32h-16.7c-22.2 10.2-46.9 16-72.9 16s-50.6-5.8-72.9-16h-16.7C60.2 288 0 348.2 0 422.4V464c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48v-41.6c0-74.2-60.2-134.4-134.4-134.4z"></path></svg> Mi Cuenta
             </a>
-            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-              <a class="dropdown-item" style="color: #323232 !important;" href="javascript:void(0);" onclick="enviarFormSeguro('FormaIndex');"><i class="fas fa-info-circle"></i> Estado de Perfil</a>
-              <a class="dropdown-item" style="color: #323232 !important;" href="javascript:void(0);" onclick="enviarFormSeguro('FormaUpdate');"><i class="fas fa-edit"></i> Actualizar Datos</a>
-              <a class="dropdown-item" style="color: #323232 !important;" href="javascript:void(0);" onclick="enviarFormSeguro('FormaConfig');"><i class="fas fa-cogs"></i> Configuración</a>
-              <div class="dropdown-divider"></div>
-              <a class="dropdown-item text-danger" style="color: #ab0a3d !important;" href="javascript:void(0);" onclick="enviarFormSeguro('FormaSesion');"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
-            </div>
+            <div class="dropdown-menu dropdown-menu-right">
+  <a class="dropdown-item" href="javascript:void(0);" onclick="enviarFormSeguro('FormaIndex');">
+    <i class="fas fa-user-check"></i> Estado de Perfil
+  </a>
+  
+  <a class="dropdown-item" href="javascript:void(0);" onclick="enviarFormSeguro('FormaUpdate');">
+    <i class="fas fa-user-edit"></i> Actualizar Datos
+  </a>
+  
+  <a class="dropdown-item" href="javascript:void(0);" onclick="enviarFormSeguro('FormaConfig');">
+    <i class="fas fa-cog"></i> Configuración
+  </a>
+  
+  <div class="dropdown-divider"></div>
+  
+  <a class="dropdown-item text-danger" href="javascript:void(0);" onclick="enviarFormSeguro('FormaSesion');">
+    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+  </a>
+</div>
           </li>
         </ul>
       </div>
     </nav>
   `;
 
-  // --- 3. HTML DEL FOOTER ---
-  const footerHTML = `
-    <footer style="background-color: #ab0a3d; color: white; padding: 15px 0; font-family: 'Montserrat', sans-serif;">
-      <div class="container" style="text-align: center">
-        <p style="font-size: 0.75rem; margin: 0; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; opacity: 0.9;">
-          &copy; 2026 H. Ayuntamiento del Municipio de Atlixco
-        </p>
-      </div>
-    </footer>
-  `;
-
-  // --- 4. INYECCIÓN FINAL ---
+  // --- 3. INYECCIÓN FINAL ---
   const navPlaceholder = document.getElementById("nav-placeholder");
   if (navPlaceholder) navPlaceholder.innerHTML = navbarHTML;
 
-  const footerPlaceholder = document.getElementById("footer-placeholder");
-  if (footerPlaceholder) footerPlaceholder.innerHTML = footerHTML;
-
-  // --- 5. INYECCIÓN DE FORMULARIOS GLOBALES ---
-  const formulariosHTML = `
+  // Inyección de todos los formularios (Normales + Adicionales)
+  const formsHTML = `
     <div id="global-forms" style="display:none;">
       <form name="FormaIndex" action="index.html#estado-perfil" method="GET"></form>
       <form name="FormaUpdate" action="index.html#registro" method="GET"></form>
-      <form name="FormaConfig" action="configuracion.php" method="POST"></form>
       <form name="FormaSesion" action="php/logout.php" method="POST"></form>
+      <form name="FormSesion" id="FormSesion" action="/portal" method="post"></form>
+      <form name="FormaPrimera" action="https://proveedores.qroo.gob.mx/portal/registrarse.php" method="post"></form>
+      <form name="FormaUpdateEmp" action="https://proveedores.qroo.gob.mx/portal/Empresas/ActualizaDatos.php" method="post"></form>
     </div>
   `;
-  document.body.insertAdjacentHTML("beforeend", formulariosHTML);
+  document.body.insertAdjacentHTML("beforeend", formsHTML);
 
-  // Lógica del menú móvil (Toggle)
+  // --- 4. EVENT LISTENERS (Mejora de programación) ---
   const btnToggle = document.getElementById("btn-toggle");
-  const navMenu = document.getElementById("nav-menu");
-  if (btnToggle && navMenu) {
+  if (btnToggle) {
     btnToggle.addEventListener("click", () => {
+      const navMenu = document.getElementById("nav-menu");
       navMenu.classList.toggle("active");
       btnToggle.classList.toggle("open");
     });
   }
 });
 
-// --- FUNCIONES GLOBALES ---
+// --- FUNCIONES GLOBALES (Fuera del DOMContentLoaded para ser accesibles) ---
 
 function enviarFormSeguro(nombreForm) {
-  // Mapeo de formularios a IDs de sección
   const mapaSecciones = {
     FormaIndex: "estado-perfil",
     FormaUpdate: "registro",
   };
-
   const idSeccion = mapaSecciones[nombreForm];
 
   if (idSeccion) {
-    // Ocultar todas las secciones con clase 'contenido-seccion'
     document
       .querySelectorAll(".contenido-seccion")
       .forEach((s) => s.classList.add("seccion-oculta"));
-    // Mostrar la elegida
     const destino = document.getElementById(idSeccion);
     if (destino) {
       destino.classList.remove("seccion-oculta");
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
-    return;
-  }
-
-  const formulario = document.forms[nombreForm];
-  if (formulario) {
-    formulario.submit();
+  } else {
+    const f = document.forms[nombreForm];
+    if (f) f.submit();
   }
 }
 
-// Función auxiliar para los clics directos del menú superior
 function mostrarSeccionDirecto(id) {
   document
     .querySelectorAll(".contenido-seccion")
@@ -173,12 +142,66 @@ function mostrarSeccionDirecto(id) {
   if (destino) destino.classList.remove("seccion-oculta");
 }
 
-function abrirEmergente() {
-  const modal = document.getElementById("ContenedorEmergente");
-  if (modal) modal.style.display = "block";
+function Salir() {
+  const f = document.getElementById("FormSesion");
+  if (f) f.submit();
 }
 
-function cerrarEmergente() {
-  const modal = document.getElementById("ContenedorEmergente");
-  if (modal) modal.style.display = "none";
+function actualizarNombreArchivo(input) {
+  const txt = document.getElementById("nombre-archivo");
+  if (input.files && input.files[0]) txt.value = input.files[0].name;
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  // --- 1. ACTIVAR EL DROPDOWN (Sin romper el CSS) ---
+  // Buscamos el botón de "Mi Cuenta" por su ID o clase
+  const btnMiCuenta = document.getElementById("navbarDropdown");
+
+  if (btnMiCuenta) {
+    btnMiCuenta.addEventListener("click", function (e) {
+      e.preventDefault();
+      // Buscamos el contenedor de las opciones (el que tiene las opciones de perfil)
+      const menuOpciones = this.nextElementSibling;
+      if (menuOpciones) {
+        // Alternamos una clase de visibilidad en lugar de reescribir el HTML
+        menuOpciones.classList.toggle("show");
+      }
+    });
+  }
+
+  // --- 2. INYECTAR SOLO LOS FORMULARIOS (Invisibles) ---
+  const formsHTML = `
+    <div id="global-forms-logic" style="display:none;">
+      <form name="FormaIndex" action="index.html#estado-perfil" method="GET"></form>
+      <form name="FormaUpdate" action="index.html#registro" method="GET"></form>
+      <form name="FormaSesion" action="php/logout.php" method="POST"></form>
+      <form name="FormSesion" id="FormSesion" action="/portal" method="post"></form>
+    </div>
+  `;
+  document.body.insertAdjacentHTML("beforeend", formsHTML);
+});
+
+// --- 3. FUNCIONES DE NAVEGACIÓN ---
+function enviarFormSeguro(nombreForm) {
+  const mapaSecciones = {
+    FormaIndex: "estado-perfil",
+    FormaUpdate: "registro",
+  };
+  const idSeccion = mapaSecciones[nombreForm];
+
+  if (idSeccion) {
+    // Ocultar secciones actuales
+    document
+      .querySelectorAll(".contenido-seccion")
+      .forEach((s) => s.classList.add("seccion-oculta"));
+    // Mostrar la nueva
+    const destino = document.getElementById(idSeccion);
+    if (destino) {
+      destino.classList.remove("seccion-oculta");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  } else {
+    const f = document.forms[nombreForm];
+    if (f) f.submit();
+  }
 }

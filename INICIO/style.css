@@ -158,10 +158,8 @@ body {
    ESTILOS EXCLUSIVOS: SECCIÓN ESTADO DE PERFIL
    ============================================================ */
 #estado-perfil {
-  /* SOLUCIÓN AL HUECO: Padding en lugar de Margin */
   padding-top: 85px !important;
   margin-top: 0 !important;
-
   padding-bottom: 0px !important;
   margin-bottom: 0 !important;
   width: 100% !important;
@@ -190,7 +188,7 @@ body {
   align-items: center !important;
   justify-content: center !important;
   gap: 15px !important;
-  margin-bottom: 5px !important;
+  margin-bottom: 20px !important;
 }
 
 .titulo-principal::before,
@@ -252,17 +250,20 @@ body {
   color: #ffffff !important;
 }
 
+/* AJUSTE EN BOTÓN ADJUNTAR PARA ALINEACIÓN */
 .btn-perfil-primario,
 .btn-perfil-adjuntar {
   background-color: #ab0a3d !important;
   color: #fff !important;
   border: none;
-  padding: 10px 25px;
+  padding: 0 25px !important; /* Ajuste de padding */
+  height: 40px !important; /* Altura fija */
   font-weight: 700;
   border-radius: 4px;
   text-transform: uppercase;
   margin-bottom: 15px !important;
-  display: inline-block;
+  display: inline-flex !important; /* Cambiado para alinear icono y texto */
+  align-items: center !important;
 }
 
 .btn-perfil-secundario {
@@ -286,8 +287,67 @@ body {
   border: 1px solid #630623 !important;
 }
 
-.line-decor {
-  height: 3px;
-  width: 60px;
-  background-color: #ab0a3d;
+/* --- SOLUCIÓN PARA QUE ESTÉN EN EL MISMO RENGLÓN --- */
+.contenedor-adjuntar {
+  display: flex !important;
+  align-items: center !important; /* Los centra verticalmente entre sí */
+  flex-wrap: nowrap !important; /* Impide que se salte de renglón */
+  gap: 10px !important; /* Espacio entre el botón y el cuadro */
+  margin-bottom: 15px !important;
+}
+
+.contenedor-adjuntar input[type="text"] {
+  width: 500px !important; /* Más largo según tu petición */
+  height: 40px !important; /* Exactamente la misma altura del botón */
+  margin: 0 !important; /* Quitamos el margen manual anterior */
+  border: 1px solid #ccc !important;
+  border-radius: 4px !important;
+  padding: 0 15px !important;
+  background-color: #fff !important;
+  box-sizing: border-box !important;
+  font-family: "Montserrat", sans-serif !important;
+}
+
+/* ============================================================
+   SOLUCIÓN DEFINITIVA: ALINEACIÓN EN UN SOLO RENGLÓN
+   ============================================================ */
+
+.contenedor-adjuntar {
+  display: flex !important;
+  align-items: center !important; /* Alineación vertical perfecta */
+  flex-wrap: nowrap !important; /* Prohíbe el salto de línea */
+  gap: 10px !important; /* Espacio entre los 3 elementos */
+  margin-bottom: 20px !important;
+}
+
+/* El texto "* Adjuntar..." */
+.contenedor-adjuntar span {
+  white-space: nowrap !important; /* Evita que el texto se rompa */
+}
+
+/* El botón (label con clase btn) */
+.btn-perfil-adjuntar {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 40px !important; /* Altura fija */
+  margin: 0 !important; /* Quitamos márgenes de Bootstrap */
+  padding: 0 20px !important;
+  cursor: pointer;
+}
+
+/* El cuadro de "Ningún archivo..." */
+.input-archivo-texto {
+  flex: 0 0 auto !important; /* Evita que se deforme */
+  width: 450px !important; /* Longitud que pediste */
+  height: 40px !important; /* Misma altura que el botón */
+
+  background-color: #ffffff !important;
+  border: 1px solid #ccc !important;
+  border-radius: 4px !important;
+  padding: 0 15px !important;
+
+  box-sizing: border-box !important;
+  color: #666 !important;
+  font-size: 14px !important;
 }
