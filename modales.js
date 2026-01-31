@@ -78,12 +78,7 @@ const modalesPadron = `
                 Capture los siguientes datos para iniciar su proceso:
               </h4>
 
-              <form
-                name="FormRegistro"
-                method="post"
-                action="sesion.php"
-                autocomplete="off"
-              >
+              <form id="FormRegistro" autocomplete="on">
                 <div class="row">
                   <div class="col-md-6">
                     <div class="form-group" style="margin-bottom: 20px">
@@ -112,7 +107,7 @@ const modalesPadron = `
                           <input
                             type="radio"
                             name="tipo-persona"
-                            value="F"
+                            value="Física"
                             style="transform: scale(1.3); margin-right: 8px"
                           />
                           Física
@@ -123,7 +118,7 @@ const modalesPadron = `
                           <input
                             type="radio"
                             name="tipo-persona"
-                            value="M"
+                            value="Moral"
                             style="transform: scale(1.3); margin-right: 8px"
                           />
                           Moral
@@ -1194,8 +1189,54 @@ const modalesPadron = `
       </div>
 `;
 
-// Inyectar los modales al final del body cuando el DOM esté listo
-document.addEventListener("DOMContentLoaded", function () {
-  document.body.insertAdjacentHTML("beforeend", modalesPadron);
-  console.log("Modales del Padrón cargados correctamente.");
+// Inyectar los modales al body
+document.body.insertAdjacentHTML("beforeend", modalesPadron);
+
+// Usamos delegación de eventos para evitar errores de carga
+document.addEventListener("submit", async (e) => {
+  if (e.target && e.target.id === "FormRegistro") {
+    e.preventDefault();
+    const form = e.target;
+
+    // Captura de datos
+    const rfc = form
+      .querySelector('input[name="rfc"]')
+      .value.trim()
+      .toUpperCase();
+    const correoReal = form.querySelector('input[name="correo"]').value.trim();
+    const tipoPersona = form.querySelector(
+      'input[name="tipo-persona"]:checked',
+    )?.value;
+    const password = form.querySelector('input[name="pwd"]').value;
+
+    try {
+      // A. Crear el usuario en Authentication
+      const { data, error: authError } = await _supabase.auth.signUp({
+        email: `${rfc}@proveedor.com`,
+        password: password,
+      });
+
+      if (authError) throw authError;
+
+      // B. Insertar manualmente en la tabla proveedores
+      // Esto reemplaza al Trigger que te fallaba
+      const { error: dbError } = await _supabase.from("proveedores").insert([
+        {
+          id: data.user.id,
+          rfc: rfc,
+          correo_contacto: correoReal,
+          tipo_persona: tipoPersona,
+        },
+      ]);
+
+      if (dbError) throw dbError;
+
+      alert("¡Registro exitoso! Los datos se guardaron en el padrón.");
+      $("#ModalRegistro").modal("hide");
+      form.reset();
+    } catch (err) {
+      alert("Error: " + err.message);
+      console.error(err);
+    }
+  }
 });

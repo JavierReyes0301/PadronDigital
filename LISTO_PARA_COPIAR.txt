@@ -1,1 +1,0 @@
-<option value="">-- Seleccione un Giro --</option>

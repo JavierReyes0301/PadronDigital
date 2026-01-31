@@ -54,29 +54,26 @@ document.addEventListener("DOMContentLoaded", function () {
         <ul class="mi-menu" id="nav-menu">
           ${seccionesHTML}
           <li class="nav-item dropdown">
-            <a class="nav-link-item dropdown-toggle" href="#" id="navbarDropdown" data-toggle="dropdown">
-              <svg viewBox="0 0 448 512"><path d="M224 256c70.7 0 128-57.3 128-128S294.7 0 224 0 96 57.3 96 128s57.3 128 128 128zm89.6 32h-16.7c-22.2 10.2-46.9 16-72.9 16s-50.6-5.8-72.9-16h-16.7C60.2 288 0 348.2 0 422.4V464c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48v-41.6c0-74.2-60.2-134.4-134.4-134.4z"></path></svg> Mi Cuenta
-            </a>
-            <div class="dropdown-menu dropdown-menu-right">
-  <a class="dropdown-item" href="javascript:void(0);" onclick="enviarFormSeguro('FormaIndex');">
-    <i class="fas fa-user-check"></i> Estado de Perfil
+  <a class="nav-link-item dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    <svg viewBox="0 0 448 512"><path d="M224 256c70.7 0 128-57.3 128-128S294.7 0 224 0 96 57.3 96 128s57.3 128 128 128zm89.6 32h-16.7c-22.2 10.2-46.9 16-72.9 16s-50.6-5.8-72.9-16h-16.7C60.2 288 0 348.2 0 422.4V464c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48v-41.6c0-74.2-60.2-134.4-134.4-134.4z"></path></svg> 
+    MI CUENTA
   </a>
-  
-  <a class="dropdown-item" href="javascript:void(0);" onclick="enviarFormSeguro('FormaUpdate');">
-    <i class="fas fa-user-edit"></i> Actualizar Datos
-  </a>
-  
-  <a class="dropdown-item" href="javascript:void(0);" onclick="enviarFormSeguro('FormaConfig');">
-    <i class="fas fa-cog"></i> Configuración
-  </a>
-  
-  <div class="dropdown-divider"></div>
-  
-  <a class="dropdown-item text-danger" href="javascript:void(0);" onclick="enviarFormSeguro('FormaSesion');">
-    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-  </a>
-</div>
-          </li>
+  <div class="dropdown-menu dropdown-menu-right menu-guinda-compacto" aria-labelledby="navbarDropdown">
+    <a class="dropdown-item" href="javascript:void(0);" onclick="enviarFormSeguro('FormaIndex');">
+      <i class="fas fa-info-circle"></i> ESTADO DE PERFIL
+    </a>
+    <a class="dropdown-item" href="javascript:void(0);" onclick="enviarFormSeguro('FormaUpdate');">
+      <i class="fas fa-edit"></i> ACTUALIZAR DATOS
+    </a>
+    <a class="dropdown-item" href="javascript:void(0);" onclick="enviarFormSeguro('FormaUpdateEmp');">
+      <i class="fas fa-user-cog"></i> DATOS DE EMPRESA
+    </a>
+    <div class="dropdown-divider"></div>
+    <a class="dropdown-item" href="javascript:void(0);" onclick="enviarFormSeguro('FormaSesion');">
+      <i class="fas fa-external-link-alt"></i> CERRAR SESIÓN
+    </a>
+  </div>
+</li>
         </ul>
       </div>
     </nav>

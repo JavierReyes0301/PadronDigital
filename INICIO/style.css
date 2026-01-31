@@ -115,7 +115,7 @@ footer p {
 }
 
 /* ============================================================
-   3. RESPONSIVE NAVBAR - CORREGIDO
+   3. RESPONSIVE NAVBAR - MODIFICADO PARA SER MÁS COMPACTO
    ============================================================ */
 @media (max-width: 1200px) {
   .mi-navbar .mi-container {
@@ -123,7 +123,7 @@ footer p {
     gap: 0;
   }
   .mi-navbar .menu-toggle {
-    display: flex !important; /* Cambiado a flex para alinear barras */
+    display: flex !important;
   }
   .mi-navbar .mi-menu {
     display: none;
@@ -133,7 +133,7 @@ footer p {
     left: 0;
     width: 100%;
     background: #ab0a3d;
-    padding: 20px 0;
+    padding: 10px 0 !important; /* REDUCIDO DE 20px A 10px PARA HACERLO MÁS PEQUEÑO */
     z-index: 999;
   }
   .mi-navbar .mi-menu.active {
@@ -142,7 +142,7 @@ footer p {
   .mi-navbar .mi-menu li {
     width: 100%;
     text-align: center;
-    padding: 10px 0;
+    padding: 5px 0 !important; /* REDUCIDO DE 10px A 5px PARA HACERLO MÁS PEQUEÑO */
   }
 }
 
@@ -152,6 +152,56 @@ body {
   flex-direction: column;
   min-height: 100vh;
   margin: 0 !important;
+}
+
+/* Contenedor principal del dropdown */
+.menu-guinda-compacto {
+  background-color: #ab0a3d !important;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0 !important;
+  min-width: 200px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Cada opción del menú */
+.menu-guinda-compacto .dropdown-item {
+  color: white !important;
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.75rem !important;
+  font-weight: 700;
+  padding: 10px 15px !important;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  transition: background 0.2s;
+}
+
+/* Iconos blancos y alineados */
+.menu-guinda-compacto .dropdown-item i {
+  margin-right: 12px;
+  font-size: 0.9rem;
+  width: 18px;
+  text-align: center;
+}
+
+/* Efecto Hover */
+.menu-guinda-compacto .dropdown-item:hover {
+  background-color: #8c0832 !important;
+}
+
+/* Separador delgado */
+.menu-guinda-compacto .dropdown-divider {
+  margin: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Ajuste para que el dropdown no flote lejos en escritorio */
+@media (min-width: 1201px) {
+  .dropdown-menu-right {
+    right: 0;
+    left: auto;
+    margin-top: 5px;
+  }
 }
 
 /* ============================================================
@@ -169,6 +219,8 @@ body {
   background-color: #f4f4f4 !important;
   min-height: 100vh;
 }
+
+/* ... (el resto de tus estilos de títulos y tablas se mantienen igual) ... */
 
 .header-container {
   display: flex !important;
@@ -250,32 +302,19 @@ body {
   color: #ffffff !important;
 }
 
-/* AJUSTE EN BOTÓN ADJUNTAR PARA ALINEACIÓN */
 .btn-perfil-primario,
 .btn-perfil-adjuntar {
   background-color: #ab0a3d !important;
   color: #fff !important;
   border: none;
-  padding: 0 25px !important; /* Ajuste de padding */
-  height: 40px !important; /* Altura fija */
+  padding: 0 25px !important;
+  height: 40px !important;
   font-weight: 700;
   border-radius: 4px;
   text-transform: uppercase;
   margin-bottom: 15px !important;
-  display: inline-flex !important; /* Cambiado para alinear icono y texto */
+  display: inline-flex !important;
   align-items: center !important;
-}
-
-.btn-perfil-secundario {
-  background-color: #2d2d2d !important;
-  color: #fff !important;
-  border: none;
-  padding: 10px 25px;
-  font-weight: 700;
-  border-radius: 4px;
-  text-transform: uppercase;
-  margin-bottom: 15px !important;
-  display: inline-block;
 }
 
 .tabla-estilo-atlixco thead {
@@ -287,67 +326,51 @@ body {
   border: 1px solid #630623 !important;
 }
 
-/* --- SOLUCIÓN PARA QUE ESTÉN EN EL MISMO RENGLÓN --- */
-.contenedor-adjuntar {
-  display: flex !important;
-  align-items: center !important; /* Los centra verticalmente entre sí */
-  flex-wrap: nowrap !important; /* Impide que se salte de renglón */
-  gap: 10px !important; /* Espacio entre el botón y el cuadro */
-  margin-bottom: 15px !important;
-}
-
-.contenedor-adjuntar input[type="text"] {
-  width: 500px !important; /* Más largo según tu petición */
-  height: 40px !important; /* Exactamente la misma altura del botón */
-  margin: 0 !important; /* Quitamos el margen manual anterior */
-  border: 1px solid #ccc !important;
-  border-radius: 4px !important;
-  padding: 0 15px !important;
-  background-color: #fff !important;
-  box-sizing: border-box !important;
-  font-family: "Montserrat", sans-serif !important;
-}
-
 /* ============================================================
-   SOLUCIÓN DEFINITIVA: ALINEACIÓN EN UN SOLO RENGLÓN
+   SECCIÓN ADJUNTAR - MODIFICADO PARA NO DESBORDAR
    ============================================================ */
-
 .contenedor-adjuntar {
   display: flex !important;
-  align-items: center !important; /* Alineación vertical perfecta */
-  flex-wrap: nowrap !important; /* Prohíbe el salto de línea */
-  gap: 10px !important; /* Espacio entre los 3 elementos */
+  align-items: center !important;
+  flex-wrap: nowrap !important;
+  gap: 10px !important;
   margin-bottom: 20px !important;
 }
 
-/* El texto "* Adjuntar..." */
 .contenedor-adjuntar span {
-  white-space: nowrap !important; /* Evita que el texto se rompa */
+  white-space: nowrap !important;
 }
 
-/* El botón (label con clase btn) */
 .btn-perfil-adjuntar {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  height: 40px !important; /* Altura fija */
-  margin: 0 !important; /* Quitamos márgenes de Bootstrap */
+  height: 40px !important;
+  margin: 0 !important;
   padding: 0 20px !important;
   cursor: pointer;
 }
 
-/* El cuadro de "Ningún archivo..." */
+/* REEMPLAZADA LA REGLA ANTERIOR PARA EVITAR EL ERROR DE LA IMAGEN */
 .input-archivo-texto {
-  flex: 0 0 auto !important; /* Evita que se deforme */
-  width: 450px !important; /* Longitud que pediste */
-  height: 40px !important; /* Misma altura que el botón */
-
+  flex: 1 1 auto !important; /* PERMITE QUE EL CUADRO SE AJUSTE AL ESPACIO DISPONIBLE */
+  width: auto !important;
+  max-width: 450px !important; /* MANTIENE EL LARGO EN ESCRITORIO */
+  min-width: 0 !important; /* EVITA QUE SE SALGA DE LA PANTALLA EN MÓVIL */
+  height: 40px !important;
   background-color: #ffffff !important;
   border: 1px solid #ccc !important;
   border-radius: 4px !important;
   padding: 0 15px !important;
-
   box-sizing: border-box !important;
   color: #666 !important;
   font-size: 14px !important;
+}
+
+/* AJUSTE PARA MÓVILES MUY PEQUEÑOS DONDE EL TEXTO NO CABE */
+@media (max-width: 768px) {
+  .contenedor-adjuntar {
+    flex-wrap: wrap !important; /* PERMITE QUE EL CUADRO BAJE SI LA PANTALLA ES DEMASIADO ESTRECHA */
+    gap: 8px !important;
+  }
 }

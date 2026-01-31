@@ -1169,8 +1169,7 @@ section {
   font-family: "Montserrat", sans-serif !important;
   margin-top: 20px;
   margin-bottom: 15px;
-  /* Esta línea soluciona lo del footer: */
-  min-height: 65vh;
+  min-height: auto; /* Cambiado de 65vh a auto para eliminar el hueco */
 }
 
 /* 2. El Cuadro Blanco para los tres */
@@ -1291,11 +1290,11 @@ body {
 }
 
 .seccion-catalogo {
-  flex: 1 0 auto; /* Esto hace que la sección crezca y empuje al footer hacia abajo */
+  flex: 1 0 auto; /* <--- ESTO ES LO QUE ESTÁ GENERANDO EL ESPACIO */
 }
 
 footer {
-  flex-shrink: 0; /* Evita que el footer se comprima */
+  flex-shrink: 0;
 }
 
 /* Tipografía uniforme */

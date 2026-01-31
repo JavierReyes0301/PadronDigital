@@ -18,7 +18,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <script src="menu.js" defer></script>
-    <script src="formularios.js" defer></script>
 
     <style>
       /* Asegura que el contenido no se encime con la barra de navegación */
@@ -44,20 +43,14 @@
         </div>
         <div class="table-responsive" id="contenedor-tablas"></div>
 
-        <div style="text-align: center; margin: 20px">
-          <button
-            onclick="generarPDF()"
-            class="mi-btn-guinda"
-            style="padding: 10px 20px; cursor: pointer"
-          >
-            DESCARGAR CATÁLOGO EN PDF
-          </button>
-        </div>
+        <div style="display: flex; justify-content: center; margin: 5px"></div>
       </section>
     </main>
     <div id="footer-placeholder"></div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <script src="menu.js"></script>
-    <script src="datos.js"></script>
+    <script src="conexion-supabase.js"></script>
+
+    <script src="gestion-sistema.js"></script>
   </body>
 </html>
