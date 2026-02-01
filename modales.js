@@ -2,7 +2,7 @@
 // Contiene la estructura de los modales para el Padrón de Proveedores
 
 const modalesPadron = `
- <div id="ContenedorEmergente" class="mi-overlay-unico" style="display:none;">
+<div id="ContenedorEmergente" class="mi-overlay-unico" style="display:none;">
       <div class="mi-modal-caja">
         <div class="mi-modal-header" style="background: #ab0a3d; padding: 20px; text-align: center; position: relative;">
           <span class="mi-cerrar" onclick="cerrarEmergente()" style="position: absolute; top: 10px; right: 15px; color: white; font-size: 28px; cursor: pointer;">&times;</span>
@@ -21,6 +21,8 @@ const modalesPadron = `
         </div>
       </div>
     </div>
+
+ 
 <div class="modal fade" id="ModalRegistro" role="dialog" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content reg-content">

@@ -3,7 +3,7 @@
    ============================================================ */
 body {
   margin: 0;
-  padding-top: 65px;
+  padding-top: 0px;
   font-family: "Montserrat", sans-serif;
   background-color: #f4f4f4;
   display: flex;
@@ -372,13 +372,13 @@ section {
   font-size: 1.1rem; /* Tamaño real de la imagen */
   line-height: 1.2;
 }
+
 /* ============================================================
    5. SECCIÓN ATENCIÓN Y ACLARACIONES (UNIFICADA)
    ============================================================ */
 
 #atencion-aclaraciones {
   background-color: #f4f4f4;
-  padding-bottom: 70px;
   width: 100%;
 }
 
@@ -452,4 +452,67 @@ section {
   #atencion-aclaraciones .custom-main-box {
     grid-template-columns: 1fr !important;
   }
+}
+
+/* ============================================================
+   6. SECCIÓN MARCO LEGAL
+   ============================================================ */
+
+#marco {
+  background-color: #f4f4f4;
+}
+
+/* El título ya usa .titulo-seccion del bloque global, así que no hay que repetirlo */
+
+.mi-container-legal {
+  width: 90%;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.lista-articulos-unificada {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.lista-articulos-unificada li {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 25px;
+}
+
+.flecha-guinda-unificada svg {
+  width: 12px;
+  fill: #ab0a3d;
+  margin-right: 15px;
+  margin-top: 6px; /* Alinea la flecha con la primera línea de texto */
+  flex-shrink: 0;
+}
+
+.lista-articulos-unificada p {
+  font-family: "Montserrat", sans-serif; /* Misma fuente que todo el sitio */
+  font-size: 1.1rem; /* Tamaño de lectura cómodo */
+  color: #323232; /* Mismo color de los títulos */
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Estilo para el link de descarga tipo texto */
+.link-descarga-unificado {
+  color: #ab0a3d;
+  font-weight: 700;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.link-descarga-unificado svg {
+  width: 20px;
+  fill: #ab0a3d;
+  margin-right: 8px;
+}
+
+.link-descarga-unificado:hover {
+  text-decoration: underline;
 }
