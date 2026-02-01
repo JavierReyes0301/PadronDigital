@@ -24,7 +24,7 @@
     <style>
       /* Asegura que el contenido no se encime con la barra de navegación */
       #nav-placeholder {
-        min-height: 75px;
+        min-height: 65px;
       }
       body {
         margin: 0;
@@ -183,7 +183,8 @@
             <div class="custom-col-4">
               <div
                 class="icon-box border-dashed"
-                onclick="abrirEmergente()"
+                data-toggle="modal"
+                data-target="#ContenedorEmergente"
                 style="cursor: pointer"
               >
                 <div class="icon-wrapper">
@@ -233,8 +234,7 @@
 
       <section id="consultar">
         <h2 class="titulo-seccion">CONSULTAR</h2>
-        <div class="container-universal"></div>
-         
+        <div class="container-universal">
           <div class="custom-main-box">
             <div class="custom-col-4">
               <div
@@ -330,72 +330,96 @@
       </section>
 
       <section id="atencion-aclaraciones">
-  <h2 class="titulo-seccion">ATENCIÓN Y <span>ACLARACIONES</span></h2>
-  
-  <div class="custom-main-box"> 
-    
-    <div class="project-box">
-      <div class="box-imagen">
-        <div class="box-title-imagen">¡Oficina de la Contraloría Municipal!</div>
-        <hr class="hr-dorada" />
-        <a href="https://www.google.com/maps/place/Palacio+Municipal/@18.9092814,-98.4384761,622m/data=!3m1!1e3!4m10!1m2!2m1!1sayuntamiento+atlixco!3m6!1s0x85cfb47b90b54167:0x1ae3061408f2f147!8m2!3d18.9092814!4d-98.43397!15sChRheXVudGFtaWVudG8gYXRsaXhjb1oWIhRheXVudGFtaWVudG8gYXRsaXhjb5IBF2xvY2FsX2dvdmVybm1lbnRfb2ZmaWNlmgEjQ2haRFNVaE5NRzluUzBWSlEwRm5UVVJuYmkxbWMwMVJFQUXgAQD6AQUInwEQFQ!16s%2Fg%2F11f2642nr4?entry=ttu&g_ep=EgoyMDI2MDExMy4wIKXMDSoKLDEwMDc5MjA3MUgBUAM%3D" class="enlace-mapa" target="_blank" rel="noopener">
-          <span class="icon-svg">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path d="M172.3 501.7C27 291 0 269.4 0 192 0 86 86 0 192 0s192 86 192 192c0 77.4-27 99-172.3 309.7-9.5 13.8-29.9 13.8-39.4 0zM192 272c44.2 0 80-35.8 80-80s-35.8-80-80-80-80 35.8-80 80 35.8 80 80 80z"/></svg>
-          </span>
-          <span class="text-mapa">Calle 3ra de Benito Juárez 317, Col. Ricardo Flores Magón, Atlixco, Puebla.</span>
-        </a>
-      </div>
-    </div>
+        <h2 class="titulo-seccion">ACLARACIONES</h2>
 
-    <div class="project-box">
-      <div class="box-imagen">
-        <div class="box-title-imagen">¡Horarios de Atención y Contacto!</div>
-        <hr class="hr-dorada" />
-        <p style="text-align: center">Lunes a Viernes de 8:00 a 16:00 horas.</p>
-        <p style="text-align: center">Tel. 244 44 5 69 69, ext. 2001 y 2010.</p>
-      </div>
-    </div>
+        <div class="custom-main-box">
+          <div class="project-box">
+            <div class="box-imagen">
+              <div class="box-title-imagen">
+                ¡Oficina de la Contraloría Municipal!
+              </div>
+              <hr class="hr-dorada" />
+              <a
+                href="https://www.google.com/maps/place/Palacio+Municipal/@18.9092814,-98.4384761,622m/data=!3m1!1e3!4m10!1m2!2m1!1sayuntamiento+atlixco!3m6!1s0x85cfb47b90b54167:0x1ae3061408f2f147!8m2!3d18.9092814!4d-98.43397!15sChRheXVudGFtaWVudG8gYXRsaXhjb1oWIhRheXVudGFtaWVudG8gYXRsaXhjb5IBF2xvY2FsX2dvdmVybm1lbnRfb2ZmaWNlmgEjQ2haRFNVaE5NRzluUzBWSlEwRm5UVVJuYmkxbWMwMVJFQUXgAQD6AQUInwEQFQ!16s%2Fg%2F11f2642nr4?entry=ttu&g_ep=EgoyMDI2MDExMy4wIKXMDSoKLDEwMDc5MjA3MUgBUAM%3D"
+                class="enlace-mapa"
+                target="_blank"
+                rel="noopener"
+              >
+                <span class="icon-svg">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
+                    <path
+                      d="M172.3 501.7C27 291 0 269.4 0 192 0 86 86 0 192 0s192 86 192 192c0 77.4-27 99-172.3 309.7-9.5 13.8-29.9 13.8-39.4 0zM192 272c44.2 0 80-35.8 80-80s-35.8-80-80-80-80 35.8-80 80 35.8 80 80 80z"
+                    />
+                  </svg>
+                </span>
+                <span class="text-mapa"
+                  >Calle 3ra de Benito Juárez 317, Col. Ricardo Flores Magón,
+                  Atlixco, Puebla.</span
+                >
+              </a>
+            </div>
+          </div>
 
-    <div class="project-box">
-      <div class="box-imagen">
-        <div class="box-title-imagen">¡Costo por el Trámite!</div>
-        <hr class="hr-dorada" />
-        <p style="text-align: justify">El costo por la expedición de constancia o cédula de registro o revalidación en el Padron de Proveedores es de $1,844.50</p>
-      </div>
-    </div>
+          <div class="project-box">
+            <div class="box-imagen">
+              <div class="box-title-imagen">
+                ¡Horarios de Atención y Contacto!
+              </div>
+              <hr class="hr-dorada" />
+              <p style="text-align: center">
+                Lunes a Viernes de 8:00 a 16:00 horas.
+              </p>
+              <p style="text-align: center">
+                Tel. 244 44 5 69 69, ext. 2001 y 2010.
+              </p>
+            </div>
+          </div>
 
-  </div>
-</section>
+          <div class="project-box">
+            <div class="box-imagen">
+              <div class="box-title-imagen">¡Costo por el Trámite!</div>
+              <hr class="hr-dorada" />
+              <p style="text-align: justify">
+                El costo por la expedición de constancia o cédula de registro o
+                revalidación en el Padron de Proveedores es de $1,844.50
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
 
-     <section id="marco">
-  <h2 class="titulo-seccion">MARCO <span>LEGAL</span></h2>
-  
-  <div class="mi-container-legal">
-    <ul class="lista-articulos-unificada">
-      <li>
-        <span class="flecha-guinda-unificada">
-          <svg viewBox="0 0 192 512"><path d="M0 384.6V127.3c0-17.8 21.5-26.7 34.1-14.1l128.7 128.7c7.8 7.8 7.8 20.5 0 28.3L34.1 398.8C21.5 411.4 0 402.5 0 384.6z"/></svg>
-        </span>
-        <p>Ley Adquisiciones, Arrendamientos y Servicios del Sector Público Estatal y Municipal; Artículo 6 Fracción XIX, 24, 25, 26, 27, 28, 29, 30, 31 y 32.</p>
-      </li>
-      
-      
-    </ul>
-  </div>
-</section>
+      <section id="marco">
+        <h2 class="titulo-seccion">MARCO <span>LEGAL</span></h2>
+
+        <div class="mi-container-legal">
+          <ul class="lista-articulos-unificada">
+            <li>
+              <span class="flecha-guinda-unificada">
+                <svg viewBox="0 0 192 512">
+                  <path
+                    d="M0 384.6V127.3c0-17.8 21.5-26.7 34.1-14.1l128.7 128.7c7.8 7.8 7.8 20.5 0 28.3L34.1 398.8C21.5 411.4 0 402.5 0 384.6z"
+                  />
+                </svg>
+              </span>
+              <p>
+                Ley Adquisiciones, Arrendamientos y Servicios del Sector Público
+                Estatal y Municipal; Artículo 6 Fracción XIX, 24, 25, 26, 27,
+                28, 29, 30, 31 y 32.
+              </p>
+            </li>
+          </ul>
+        </div>
+      </section>
     </main>
-    
 
     <script src="modales.js"></script>
-
-    <script src="registro.js"></script>
 
     <div id="footer-placeholder"></div>
 
     <script
       src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit"
-      async=""
-      defer=""
+      async
+      defer
     ></script>
   </body>
 </html>

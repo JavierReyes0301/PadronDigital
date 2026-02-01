@@ -516,3 +516,201 @@ section {
 .link-descarga-unificado:hover {
   text-decoration: underline;
 }
+
+/* ============================================================
+   7. SECCIÓN: CATÁLOGO DE GIROS Y TABLAS
+   ============================================================ */
+
+/* Contenedor principal de la tabla */
+.seccion-giros .table-responsive {
+  border-radius: 8px;
+  overflow: hidden; /* Para que las esquinas redondeadas se vean en la tabla */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilo general de la tabla */
+#contenedor-tablas table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  font-family: "Montserrat", sans-serif;
+}
+
+/* ENCABEZADO NEGRO: El nombre del Giro (Ej: AGROPECUARIA) */
+/* Se aplica a la fila que tiene el atributo colspan */
+#contenedor-tablas thead tr:first-child th {
+  background-color: #2d2d2d; /* Gris casi negro */
+  color: #ffffff;
+  text-align: center;
+  padding: 5px;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 1px;
+  border: none;
+}
+
+/* ENCABEZADO GRIS CLARO: Títulos de columna (Giro, Línea, Descripción) */
+#contenedor-tablas thead tr:last-child th {
+  background-color: #f1f1f1; /* Gris claro de la imagen */
+  background-color: #2d2d2d; /* Gris casi negro */
+  padding: 2px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-bottom: 0px solid #e0e0e0;
+  text-align: left;
+}
+
+/* Alineación específica para las columnas numéricas */
+#contenedor-tablas thead tr:last-child th:nth-child(1),
+#contenedor-tablas thead tr:last-child th:nth-child(2) {
+  text-align: center;
+  width: 100px;
+}
+
+/* Celdas del cuerpo de la tabla */
+#contenedor-tablas tbody td {
+  padding: 2px;
+  border-bottom: 0px solid #eeeeee;
+  color: #444444;
+  font-size: 0.95rem;
+}
+
+/* Resaltar números en negrita como en la imagen */
+#contenedor-tablas tbody td:nth-child(1),
+#contenedor-tablas tbody td:nth-child(2) {
+  font-weight: 700;
+  text-align: center;
+}
+
+/* Efecto Hover para mejorar la lectura */
+#contenedor-tablas tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+/* ============================================================
+   EFECTO HOVER: Color amarillo en la descripción
+   ============================================================ */
+
+/* 1. Cambia el fondo de la fila completa al pasar el mouse */
+#contenedor-tablas tbody tr:hover {
+  background-color: #fff9c4; /* Un amarillo muy claro para no cansar la vista */
+  transition: background-color 0.2s ease; /* Hace que el cambio sea suave */
+}
+
+/* 2. Si quieres que SOLO el texto de la descripción cambie a amarillo fuerte */
+#contenedor-tablas tbody tr:hover td:last-child {
+  color: #856404; /* Un tono café/oro para que sea legible sobre el amarillo */
+  font-weight: bold;
+}
+
+/* 3. Opcional: Cambia el cursor para indicar que es interactivo */
+#contenedor-tablas tbody tr {
+  cursor: pointer;
+}
+
+/* ============================================================
+   ESTILO MAESTRO: PADRÓN, HISTORIAL Y RESTAURAR
+   ============================================================ */
+
+/* 2. El Cuadro Blanco (Contenedor Elevado) */
+.cuadro-blanco {
+  background-color: #ffffff;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f0f0f0;
+  margin-bottom: 50px;
+}
+
+/* 3. Etiquetas (Labels) */
+.control-label {
+  font-weight: 700;
+  color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  font-size: 0.95rem;
+}
+
+/* 4. Inputs y Selects */
+.form-control.delgado {
+  background-color: #f4f7ff;
+  border: 1px solid #e1e8f5;
+  border-radius: 6px;
+  height: 45px;
+  color: #555;
+  transition: all 0.3s ease;
+}
+
+.form-control.delgado:focus {
+  background-color: #fff;
+  border-color: #ab0a3d;
+  box-shadow: 0 0 0 0.2rem rgba(171, 10, 61, 0.1);
+  outline: none;
+}
+
+/* 5. Contenedor de Botones y Estilos Homologados */
+.btn-contenedor {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 30px;
+}
+
+.btn-buscar,
+.btn-restaurar,
+.btn-nueva {
+  padding: 12px 30px;
+  border-radius: 6px;
+  font-weight: 700;
+  border: none;
+  transition:
+    transform 0.2s,
+    background 0.3s,
+    opacity 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: white;
+  cursor: pointer;
+}
+
+/* Estilo Guinda para Buscar y Restaurar */
+.btn-buscar,
+.btn-restaurar {
+  background-color: #ab0a3d;
+}
+
+.btn-buscar:hover,
+.btn-restaurar:hover {
+  background-color: #8a0831;
+  transform: translateY(-2px);
+}
+
+/* Estado Desactivado (Mantiene Guinda con Opacidad) */
+.btn-buscar:disabled,
+.btn-restaurar:disabled {
+  background-color: #ab0a3d !important;
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Estilo Gris para Botones Secundarios */
+.btn-nueva {
+  background-color: #2d2d2d;
+}
+
+.btn-nueva:hover {
+  background-color: #1a1a1a;
+  transform: translateY(-2px);
+}
+
+/* 6. Instrucciones */
+.instrucciones-formulario {
+  font-size: 1.1rem;
+  color: #555;
+  margin-bottom: 25px;
+  text-align: justify;
+  line-height: 1.5;
+}

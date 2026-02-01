@@ -22,10 +22,9 @@
     <style>
       /* Asegura que el contenido no se encime con la barra de navegación */
       #nav-placeholder {
-        min-height: 75px;
+        min-height: 65px;
       }
       body {
-        margin: 0;
         font-family: "Montserrat", sans-serif;
       }
     </style>
@@ -37,10 +36,8 @@
       <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-      <section class="seccion-giros lieas">
-        <div class="titulo-principal">
-          CATÁLOGO DE <span>GIROS-LÍNEAS</span>
-        </div>
+      <section id="giroslineas" class="seccion-giros">
+        <div class="titulo-seccion">CATÁLOGO DE <span>GIROS-LÍNEAS</span></div>
         <div class="table-responsive" id="contenedor-tablas"></div>
 
         <div style="display: flex; justify-content: center; margin: 5px"></div>
