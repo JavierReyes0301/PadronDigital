@@ -1,0 +1,314 @@
+/* ============================================================
+   ESTRUCTURA BASE PARA TODOS LOS MODALES
+   ============================================================ */
+
+/* Contenedor principal del modal */
+.modal-content {
+  font-family: "Montserrat", sans-serif !important;
+  border: none !important;
+  border-radius: 12px !important; /* Esquinas redondeadas suaves */
+  overflow: hidden !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Encabezado guinda universal */
+.modal-header {
+  background-color: #ab0a3d !important;
+  color: white !important;
+  padding: 20px !important;
+  border: none !important;
+  display: flex !important;
+  justify-content: center !important;
+  position: relative !important;
+}
+
+/* Título del modal */
+.modal-title {
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  font-size: 1.4rem !important;
+  letter-spacing: 1px !important;
+}
+
+/* Botón de cerrar (X) */
+.modal-header .close,
+.modal-header .btn-close {
+  color: white !important;
+  opacity: 1 !important;
+  position: absolute !important;
+  right: 20px !important;
+}
+
+/* Cuerpo del modal */
+.modal-body {
+  padding: 30px !important;
+  background-color: #ffffff !important;
+}
+
+/* Inputs elegantes para cualquier modal */
+.modal-body .form-control {
+  background-color: #f0f5ff !important; /* Azul muy pálido de fondo */
+  border: 1px solid #dce4f2 !important;
+  border-radius: 6px !important;
+  height: 45px !important;
+  padding: 10px 15px !important;
+  font-size: 0.95rem !important;
+  transition: all 0.3s ease !important;
+}
+
+.modal-body .form-control:focus {
+  background-color: #ffffff !important;
+  border-color: #ab0a3d !important;
+  box-shadow: 0 0 8px rgba(171, 10, 61, 0.1) !important;
+  outline: none !important;
+}
+
+/* ============================================================
+   ESTILOS ESPECÍFICOS: MODAL REGISTRO
+   ============================================================ */
+
+/* El cuadro rosa que querías (Imagen 1) */
+#ModalRegistro .reg-aviso-box {
+  background-color: #fdf2f5 !important;
+  border: 1px solid #f9d6de !important;
+  padding: 20px !important;
+  border-radius: 8px !important;
+  margin-top: 20px !important;
+}
+
+#ModalRegistro .reg-aviso-box p {
+  font-size: 13px !important;
+  color: #555 !important;
+  line-height: 1.5 !important;
+}
+
+/* El botón guinda llamativo */
+#ModalRegistro .reg-footer {
+  text-align: center !important;
+  margin-top: 25px !important;
+}
+
+#ModalRegistro .btn-final-registro {
+  background-color: #ab0a3d !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 6px !important;
+  padding: 15px 60px !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 12px rgba(171, 10, 61, 0.2) !important;
+  transition:
+    transform 0.2s,
+    background 0.2s !important;
+}
+
+#ModalRegistro .btn-final-registro:hover {
+  background-color: #8a0831 !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Estilo para los radio buttons (Física/Moral) */
+#ModalRegistro .tipo-persona-bg {
+  background-color: #f0f5ff !important;
+  padding: 10px !important;
+  border-radius: 4px !important;
+}
+
+/* ============================================================
+   ESTILOS ESPECÍFICOS: MODAL REQUISITOS
+   ============================================================ */
+
+/* Subtítulos de las columnas (Personal y Fiscal) */
+#modalRequisitos .req-subtitle {
+  font-weight: 700;
+  color: #333;
+  font-size: 1.1rem;
+  margin-bottom: 15px;
+}
+
+/* Listas de requisitos */
+#modalRequisitos .req-list {
+  font-size: 0.9rem;
+  line-height: 1.8;
+  color: #444;
+  padding-left: 20px;
+  list-style-type: square;
+  text-align: justify;
+}
+
+/* El cuadro rosa inferior */
+#modalRequisitos .req-formatos-box {
+  background-color: #fdf2f5;
+  padding: 25px;
+  border-radius: 8px;
+  margin-top: 25px;
+  border: 1px solid #f9d6de;
+}
+
+#modalRequisitos .formatos-title {
+  font-weight: 700;
+  color: #ab0a3d;
+  font-size: 1.1rem;
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+
+#modalRequisitos .formatos-list {
+  font-size: 0.85rem;
+  color: #444;
+  padding-left: 20px;
+  margin-bottom: 0;
+  line-height: 1.7;
+  text-align: justify;
+}
+
+/* Botón PDF */
+#modalRequisitos .req-footer {
+  text-align: center;
+  margin-top: 35px;
+}
+
+#modalRequisitos .btn-descarga-pdf {
+  display: inline-block;
+  background-color: #f4f4f4;
+  color: #ab0a3d;
+  padding: 12px 30px;
+  border-radius: 5px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.9rem;
+  border: 1px solid #ab0a3d;
+  transition: 0.3s ease;
+}
+
+#modalRequisitos .btn-descarga-pdf:hover {
+  background-color: #ab0a3d;
+  color: white;
+  text-decoration: none;
+}
+
+/* ============================================================
+   ESTILOS ESPECÍFICOS: MODAL FORMATOS
+   ============================================================ */
+
+/* Párrafo introductorio con borde lateral */
+#modalFormatos .formatos-intro {
+  margin-bottom: 30px;
+  color: #555;
+  font-size: 1rem;
+  text-align: justify;
+  border-left: 5px solid #ab0a3d;
+  padding-left: 15px;
+  line-height: 1.6;
+}
+
+/* Fila de cada formato */
+#modalFormatos .formato-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 0;
+  border-bottom: 1px solid #eee;
+}
+
+#modalFormatos .formato-item.border-none {
+  border-bottom: none;
+}
+
+#modalFormatos .formato-texto {
+  padding-right: 25px;
+  text-align: justify;
+}
+
+#modalFormatos .formato-nombre {
+  margin: 0;
+  font-weight: 700;
+  color: #333;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* El botón de Anexo (reutilizable) */
+#modalFormatos .btn-anexo {
+  white-space: nowrap;
+  background-color: #ab0a3d;
+  color: white;
+  padding: 12px 25px;
+  border-radius: 5px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.85rem;
+  border: 1px solid #ab0a3d;
+  transition: 0.3s ease;
+  min-width: 140px;
+  text-align: center;
+  display: inline-block;
+}
+
+#modalFormatos .btn-anexo:hover {
+  background-color: #8a0831;
+  border-color: #8a0831;
+  color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================================
+   ESTILOS ESPECÍFICOS: MODAL PREGUNTAS
+   ============================================================ */
+
+#ModalPreguntas .modal-body {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+#ModalPreguntas .faq-item {
+  margin-bottom: 25px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 15px;
+}
+
+#ModalPreguntas .faq-item.no-border {
+  border-bottom: none;
+}
+
+#ModalPreguntas .faq-pregunta {
+  color: #ab0a3d !important;
+  font-weight: 700 !important;
+  font-size: 1.1rem !important;
+  margin-bottom: 10px !important;
+}
+
+#ModalPreguntas .faq-respuesta {
+  margin-left: 20px !important;
+  color: #555 !important;
+  line-height: 1.6 !important;
+}
+
+#ModalPreguntas .faq-respuesta.text-justify {
+  text-align: justify !important;
+}
+
+/* Listas internas de requisitos */
+#ModalPreguntas .faq-sub-list {
+  margin-left: 40px !important;
+  margin-top: 10px !important;
+  font-size: 0.95rem !important;
+  color: #555 !important;
+}
+
+/* Recuadro de Fundamento Legal */
+#ModalPreguntas .faq-fundamento {
+  margin-left: 40px !important;
+  margin-top: 10px !important;
+  font-size: 0.85rem !important;
+  color: #777 !important;
+  background: #f9f9f9 !important;
+  padding: 15px !important;
+  border-radius: 8px !important;
+}
+
+#ModalPreguntas a {
+  color: #ab0a3d !important;
+  font-weight: bold;
+}
