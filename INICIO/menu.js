@@ -169,7 +169,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // --- 2. INYECTAR SOLO LOS FORMULARIOS (Invisibles) ---
   const formsHTML = `
     <div id="global-forms-logic" style="display:none;">
-      <form name="FormaIndex" action="index.html#estado-perfil" method="GET"></form>
+      <form name="FormaIndex" action="inicio.html#estado-perfil" method="GET"></form>
       <form name="FormaUpdate" action="index.html#registro" method="GET"></form>
       <form name="FormaSesion" action="php/logout.php" method="POST"></form>
       <form name="FormSesion" id="FormSesion" action="/portal" method="post"></form>

@@ -45,8 +45,7 @@ document.addEventListener("DOMContentLoaded", function () {
           <li><a href="index.html#consultar" class="nav-link-item">${iconos.consultar}Consultar</a></li>
           <li><a href="index.html#atencion-aclaraciones" class="nav-link-item">${iconos.atencion}Atención</a></li>
           <li><a href="index.html#marco" class="nav-link-item">${iconos.marco}Marco Legal</a></li>
-          <li><a href="javascript:void(0);" onclick="abrirEmergente()" class="nav-link-item">${iconos.user}Acceder</a></li>
-        </ul>
+          <li><a href="#" data-toggle="modal" data-target="#ModalLogin" class="nav-link-item">${iconos.user}Acceder</a></li></ul>
       </div>
     </nav>
   `;
@@ -121,12 +120,10 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
-// Funciones globales para modales (se mantienen para compatibilidad con el onclick)
-function abrirEmergente() {
-  const modal = document.getElementById("ContenedorEmergente");
-  if (modal) modal.style.display = "block";
-}
-function cerrarEmergente() {
-  const modal = document.getElementById("ContenedorEmergente");
-  if (modal) modal.style.display = "none";
-}
+window.abrirEmergente = function () {
+  $("#ContenedorEmergente").modal("show");
+};
+
+window.cerrarEmergente = function () {
+  $("#ContenedorEmergente").modal("hide");
+};

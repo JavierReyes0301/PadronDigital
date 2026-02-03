@@ -196,7 +196,7 @@ section {
   justify-content: center;
   background:
     linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.5)),
-    url("Img/Panel.jpg");
+    url("https://maopuzbvxucsarrydmte.supabase.co/storage/v1/object/public/Imag/Panel.jpg");
   background-size: cover;
   background-position: center;
   color: white;
@@ -284,12 +284,19 @@ section {
   flex: 1.2;
   min-width: 320px;
 }
+
 #inicio .titulo {
   font-size: clamp(2rem, 5vw, 2.8rem);
   font-weight: 800;
   text-align: center;
   color: white;
   margin-bottom: 15px;
+}
+
+#inicio .banner-text p {
+  font-size: 1.4rem; /* <--- ESTA ES LA LÍNEA RESPONSABLE */
+  line-height: 1.6;
+  text-align: justify;
 }
 
 #inicio .btn {
