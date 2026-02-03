@@ -8,16 +8,16 @@ const modalesPadron = `
             </div>
             <div class="modal-body" style="padding: 30px;">
                 <form id="FormaLogin">
-                    <div class="form-group-custom">
-                        <label>RFC / Usuario:</label>
-                        <input type="text" name="rfc" class="input-institucional" placeholder="USUARIO" required />
-                    </div>
-                    <div class="form-group-custom">
-                        <label>Contraseña:</label>
-                        <input type="password" name="Password" class="input-institucional" placeholder="********" required />
-                    </div>
-                    <button type="submit" class="btn-registro-continuar" style="width:100%; margin-top:10px;">INICIAR SESIÓN</button>
-                </form>
+    <div class="form-group-custom">
+        <label>Correo Electrónico:</label>
+        <input type="email" name="correo_login" class="input-institucional" placeholder="ejemplo@correo.com" required />
+    </div>
+    <div class="form-group-custom">
+        <label>Contraseña:</label>
+        <input type="password" name="password_login" class="input-institucional" placeholder="********" required />
+    </div>
+    <button type="submit" class="btn-registro-continuar" style="width:100%; margin-top:10px;">INICIAR SESIÓN</button>
+</form>
                 <div style="text-align:center; margin-top:20px;">
                     <a href="restaurar.html" style="font-size:0.9rem; color:#ab0a3d; font-weight:700; text-decoration:none;">¿Olvidó su contraseña?</a>
                 </div>
@@ -27,7 +27,7 @@ const modalesPadron = `
 </div>
 
 <div class="modal fade" id="ModalRegistro" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header-registro">
                 <h2>Registro al Padrón de Proveedores</h2>
@@ -36,50 +36,52 @@ const modalesPadron = `
             <div class="modal-body" style="padding: 25px 40px;">
                 <div class="instruccion-registro">Capture los siguientes datos para iniciar su proceso:</div>
                 
-                <form class="grid-registro" id="FormRegistro">
-                    <div class="columna-izq">
-                        <div class="form-group-custom">
-                            <label>Tipo de Persona:</label>
-                            <div class="input-institucional d-flex align-items-center" style="background:#f8f9fa !important; border:1px solid #ddd !important; height:45px;">
-                                <label class="mr-4 mb-0"><input type="radio" name="tipo-persona" value="Fisica" required> Física</label>
-                                <label class="mb-0"><input type="radio" name="tipo-persona" value="Moral"> Moral</label>
+                <form id="FormRegistro">
+                    <div class="grid-registro">
+                        <div class="columna-izq">
+                            <div class="form-group-custom">
+                                <label>Tipo de Persona:</label>
+                                <div class="input-institucional d-flex align-items-center" style="background:#f8f9fa !important; border:1px solid #ddd !important; height:45px;">
+                                    <label class="mr-4 mb-0"><input type="radio" name="tipo-persona" value="Fisica" required> Física</label>
+                                    <label class="mb-0"><input type="radio" name="tipo-persona" value="Moral"> Moral</label>
+                                </div>
+                            </div>
+                            <div class="form-group-custom">
+                                <label>RFC:</label>
+                                <input type="text" name="rfc" class="input-institucional" placeholder="RFC CON HOMOCLAVE" required>
+                            </div>
+                            <div class="form-group-custom">
+                                <label>Correo Electrónico:</label>
+                                <input type="email" name="correo" class="input-institucional" placeholder="ejemplo@correo.com" required>
                             </div>
                         </div>
-                        <div class="form-group-custom">
-                            <label>RFC:</label>
-                            <input type="text" name="rfc" class="input-institucional" placeholder="RFC CON HOMOCLAVE" required>
-                        </div>
-                        <div class="form-group-custom">
-                            <label>Correo Electrónico:</label>
-                            <input type="email" name="correo" class="input-institucional" placeholder="ejemplo@correo.com" required>
-                        </div>
-                    </div>
-                    
-                    <div class="columna-der">
-                        <div class="form-group-custom">
-                            <label>Contraseña:</label>
-                            <input type="password" name="pwd" class="input-institucional" placeholder="Mínimo 8 caracteres" required>
-                        </div>
-                        <div class="form-group-custom">
-                            <label>Confirmar Contraseña:</label>
-                            <input type="password" name="confirm-pwd" class="input-institucional" required>
+                        
+                        <div class="columna-der">
+                            <div class="form-group-custom">
+                                <label>Contraseña:</label>
+                                <input type="password" name="pwd" class="input-institucional" placeholder="Mínimo 8 caracteres" required>
+                            </div>
+                            <div class="form-group-custom">
+                                <label>Confirmar Contraseña:</label>
+                                <input type="password" name="confirm-pwd" class="input-institucional" required>
+                            </div>
                         </div>
                     </div>
-                </form>
 
-                <div class="caja-aviso">
-                    <p class="texto-aviso">
-                        <strong>Aviso de Privacidad:</strong> Sus datos serán protegidos de acuerdo a la Ley General de Protección de Datos Personales en Posesión de Sujetos Obligados. El registro constituye una fuente de acceso público conforme a la normatividad vigente.
-                    </p>
-                    <div class="contenedor-check">
-                        <input type="checkbox" id="checkAviso"> 
-                        <label for="checkAviso" style="margin:0; cursor:pointer;">Acepto el aviso de privacidad y autorizo la publicación de mis datos.</label>
+                    <div class="caja-aviso">
+                        <p class="texto-aviso">
+                            <strong>Aviso de Privacidad:</strong> Sus datos serán protegidos de acuerdo a la Ley General de Protección de Datos Personales en Posesión de Sujetos Obligados.
+                        </p>
+                        <div class="contenedor-check">
+                            <input type="checkbox" id="checkAviso"> 
+                            <label for="checkAviso" style="margin:0; cursor:pointer;">Acepto el aviso de privacidad y autorizo la publicación de mis datos.</label>
+                        </div>
                     </div>
-                </div>
-                <div class="footer-registro-fuera" style="display: flex; justify-content: center;">
-                <button type="submit" form="FormRegistro" class="btn-registro-continuar">Continuar Registro</button>
-                </div>
-            </div>
+
+                    <div class="footer-registro-fuera" style="display: flex; justify-content: center; margin-top: 20px;">
+                        <button type="submit" class="btn-registro-continuar">Continuar Registro</button>
+                    </div>
+                </form> </div>
         </div>
     </div>
 </div>
@@ -90,52 +92,6 @@ const modalesPadron = `
       <div class="modal-header modal-header-registro">
         <button type="button" class="close" data-dismiss="modal">&times;</button>
         <h2 class="modal-title">Requisitos</h2>
-      </div>
-      
-      <div class="modal-body body-requisitos">
-        <div class="row">
-          <div class="col-md-6">
-            <h4 class="subtitulo-requisito">Documentación Personal</h4>
-            <ul class="lista-requisitos">
-              <li>Acta de nacimiento (Persona Física).</li>
-              <li>CURP (Persona Física).</li>
-              <li>Acta constitutiva y poderes (Persona Moral).</li>
-              <li>Identificación oficial con fotografía.</li>
-              <li>Comprobante de domicilio.</li>
-              <li>Currículum Vitae.</li>
-              <li>Reporte fotográfico del domicilio fiscal.</li>
-            </ul>
-          </div>
-          <div class="col-md-6">
-            <h4 class="subtitulo-requisito">Documentación Fiscal</h4>
-            <ul class="lista-requisitos">
-              <li>Comprobante de pago de derechos.</li>
-              <li>Constancia de Situación Fiscal.</li>
-              <li>Opinión de cumplimiento SAT.</li>
-              <li>Constancia de no adeudo municipal.</li>
-              <li>Declaración anual de impuestos.</li>
-              <li>Últimas 3 declaraciones parciales.</li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="caja-formatos-municipio">
-          <h4 class="subtitulo-requisito">Formatos Proporcionados por el Municipio</h4>
-          <ul class="lista-requisitos">
-            <li>Solicitud de registro/revalidación.</li>
-            <li>Carta de no impedimento (Art. 77).</li>
-            <li>Carta de manifiesto de no inhabilitado.</li>
-            <li>Carta de no conflicto de interés.</li>
-            <li>Carta de cumplimiento fiscal.</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
-</div><div class="modal fade" id="modalRequisitos" tabindex="-1" role="dialog" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered"> <div class="modal-content">
-      <div class="modal-header-registro"> <h2 class="modal-title" style="color:white; font-weight:800; font-size:1.3rem; margin:0;">REQUISITOS</h2>
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
       </div>
       
       <div class="modal-body body-requisitos">
@@ -280,51 +236,160 @@ const modalesPadron = `
 </div>
 `;
 
+// Inyectar HTML al inicio para que el DOM lo reconozca rápido
 document.body.insertAdjacentHTML("beforeend", modalesPadron);
 
-// --- LÓGICA DE CONTROL ---
-
-// Función para abrir el modal de registro (Asegúrate de que tu botón HTML llame a esta función)
+// --- FUNCIONES DE APERTURA ---
 window.abrirRegistro = function () {
   $("#ModalRegistro").modal("show");
 };
 
-// Función para abrir el login
 window.abrirLogin = function () {
   $("#ModalLogin").modal("show");
 };
 
+// --- MANEJO DE ENVÍO A SUPABASE AUTH ---
 document.addEventListener("submit", async (e) => {
-  // Manejo de Registro
   if (e.target && e.target.id === "FormRegistro") {
     e.preventDefault();
+
+    // 1. Validaciones de interfaz
     const checkbox = document.getElementById("checkAviso");
+    if (!checkbox.checked) return alert("Debe aceptar el aviso de privacidad.");
 
-    if (!checkbox.checked) {
-      alert("Debe aceptar el aviso de privacidad.");
-      return;
+    const formData = new FormData(e.target);
+    const pass = formData.get("pwd");
+    const confirm = formData.get("confirm-pwd");
+    const rfc = formData.get("rfc").trim().toUpperCase();
+    const correo = formData.get("correo").toLowerCase().trim();
+
+    if (pass.length < 8)
+      return alert("La contraseña debe tener al menos 8 caracteres.");
+    if (pass !== confirm) return alert("Las contraseñas no coinciden.");
+
+    // 2. Validación de RFC (Formato oficial Mexicano)
+    const regexRFC =
+      /^([A-ZÑ&]{3,4})(\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01]))([A-Z\d]{2})([A\d])$/;
+    if (!regexRFC.test(rfc)) {
+      return alert("El formato del RFC es inválido. Por favor, verifíquelo.");
     }
 
-    const pass = e.target.querySelector('input[name="pwd"]').value;
-    const confirm = e.target.querySelector('input[name="confirm-pwd"]').value;
+    try {
+      // Bloquear botón para evitar doble clic
+      const btn = e.target.querySelector('button[type="submit"]');
+      btn.disabled = true;
+      btn.innerText = "Procesando...";
 
-    if (pass !== confirm) {
-      alert("Las contraseñas no coinciden.");
-      return;
+      // 3. Registro en Supabase Auth
+      // Esto crea el usuario en 'auth.users' y el TRIGGER lo copia a tu tabla 'usuarios'
+      const { data, error } = await window.clientSupa.auth.signUp({
+        email: correo,
+        password: pass,
+        options: {
+          data: {
+            rfc: rfc,
+            tipo_persona: formData.get("tipo-persona"),
+          },
+        },
+      });
+
+      if (error) throw error;
+
+      alert(
+        "¡Registro enviado! Revisa tu correo electrónico para confirmar tu cuenta y activar tu acceso.",
+      );
+      $("#ModalRegistro").modal("hide");
+      e.target.reset();
+    } catch (err) {
+      alert("Error: " + err.message);
+    } finally {
+      // Desbloquear botón
+      const btn = e.target.querySelector('button[type="submit"]');
+      btn.disabled = false;
+      btn.innerText = "Continuar Registro";
     }
-
-    console.log("Formulario válido, enviando...");
-    alert("Registro enviado con éxito.");
   }
 });
 
-// Esto asegura que cualquier clic en un elemento con data-target
-// funcione incluso si el modal se cargó después
+// Listener para disparar modales desde botones con data-target
 $(document).on("click", '[data-toggle="modal"]', function () {
-  const target = $(this).data("target");
+  const target = $(this).attr("data-target");
   $(target).modal("show");
 });
 
-const boton = document.querySelector(".tu-clase-de-boton");
-boton.style.display = "block";
-boton.style.margin = "0 auto"; // Atajo: 0 arriba/abajo, auto a los lados
+// --- MANEJO DE INICIO DE SESIÓN CORREGIDO ---
+document.addEventListener("submit", async (e) => {
+  if (e.target && e.target.id === "FormaLogin") {
+    e.preventDefault();
+
+    const formData = new FormData(e.target);
+    // Extraemos los datos usando los NOMBRES EXACTOS de tu HTML
+    const email = formData.get("correo_login")
+      ? formData.get("correo_login").trim().toLowerCase()
+      : "";
+    const password = formData.get("password_login");
+
+    const btn = e.target.querySelector('button[type="submit"]');
+
+    try {
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = "Verificando...";
+      }
+
+      console.log("Intentando login con:", email);
+
+      const { data, error } = await window.clientSupa.auth.signInWithPassword({
+        email: email,
+        password: password,
+      });
+
+      if (error) throw error;
+
+      // Si el login es exitoso
+      alert("¡Acceso correcto! Bienvenido.");
+
+      // REDIRECCIÓN FORZADA
+      window.location.assign("inicio.html");
+    } catch (err) {
+      let mensaje = "Error de acceso: " + err.message;
+      if (err.message === "Invalid login credentials") {
+        mensaje = "Correo o contraseña incorrectos.";
+      }
+      alert(mensaje);
+      console.error("Error detallado:", err);
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerText = "INICIAR SESIÓN";
+      }
+    }
+  }
+});
+
+window.cerrarSesion = async function () {
+  const { error } = await window.clientSupa.auth.signOut();
+  if (error) throw error;
+
+  alert("¡Acceso correcto! Bienvenido.");
+
+  // Usamos la ruta relativa correcta según tu VS Code
+  window.location.assign("inicio/inicio.html");
+};
+
+// Función para verificar sesión activa al cargar
+async function revisarSesion() {
+  const {
+    data: { session },
+  } = await window.clientSupa.auth.getSession();
+
+  if (session) {
+    console.log("Usuario conectado:", session.user.email);
+    // Aquí podrías ocultar el botón de "Login" y mostrar uno de "Salir"
+  } else {
+    console.log("No hay sesión activa");
+  }
+}
+
+// Ejecutar al cargar la web
+revisarSesion();

@@ -70,8 +70,8 @@ document.addEventListener("DOMContentLoaded", function () {
     </a>
     <div class="dropdown-divider"></div>
     <a class="dropdown-item" href="javascript:void(0);" onclick="enviarFormSeguro('FormaSesion');">
-      <i class="fas fa-external-link-alt"></i> CERRAR SESIÓN
-    </a>
+  <i class="fas fa-external-link-alt"></i> CERRAR SESIÓN
+</a>
   </div>
 </li>
         </ul>
@@ -88,12 +88,13 @@ document.addEventListener("DOMContentLoaded", function () {
     <div id="global-forms" style="display:none;">
       <form name="FormaIndex" action="index.html#estado-perfil" method="GET"></form>
       <form name="FormaUpdate" action="index.html#registro" method="GET"></form>
-      <form name="FormaSesion" action="php/logout.php" method="POST"></form>
+      <form name="FormaSesion" action="index.html" method="POST"></form>
       <form name="FormSesion" id="FormSesion" action="/portal" method="post"></form>
       <form name="FormaPrimera" action="https://proveedores.qroo.gob.mx/portal/registrarse.php" method="post"></form>
       <form name="FormaUpdateEmp" action="https://proveedores.qroo.gob.mx/portal/Empresas/ActualizaDatos.php" method="post"></form>
     </div>
   `;
+
   document.body.insertAdjacentHTML("beforeend", formsHTML);
 
   // --- 4. EVENT LISTENERS (Mejora de programación) ---
@@ -197,6 +198,25 @@ function enviarFormSeguro(nombreForm) {
       destino.classList.remove("seccion-oculta");
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
+  } else {
+    const f = document.forms[nombreForm];
+    if (f) f.submit();
+  }
+}
+
+function enviarFormSeguro(nombreForm) {
+  // ... (tu código anterior de mapaSecciones)
+
+  if (idSeccion) {
+    // ... (tu código anterior de mostrar sección)
+  } else if (nombreForm === "FormaSesion") {
+    // LÓGICA DE CIERRE DE SESIÓN
+    console.log("Cerrando sesión...");
+
+    // Si usas Supabase u otro sistema, aquí iría el await supabase.auth.signOut()
+
+    // Redirección al index que está una carpeta atrás
+    window.location.href = "../index.html";
   } else {
     const f = document.forms[nombreForm];
     if (f) f.submit();
