@@ -311,7 +311,12 @@ document.addEventListener("submit", async (e) => {
 
       // Redirección a la carpeta específica
       // Por esto (añadiendo el punto al inicio):
-      window.location.assign("./inicio/inicio.html");
+      // En lugar de window.location.assign("inicio.html")
+      // Usa una ruta relativa que obligue al navegador a buscar la carpeta correcta
+      window.location.href =
+        window.location.origin +
+        window.location.pathname.replace("index.html", "") +
+        "inicio/inicio.html";
     } catch (err) {
       alert(
         "Error: " +
