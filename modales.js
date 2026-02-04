@@ -319,19 +319,12 @@ document.addEventListener("submit", async (e) => {
         password: formData.get("password_login"),
       });
 
-      if (error) throw error;
+      if (data.user) {
+        localStorage.setItem("userEmail", data.user.email);
 
-      localStorage.setItem("userEmail", data.user.email);
-
-      // REDIRECCIÓN DINÁMICA: Funciona en Local y en GitHub Pages
-      // Detecta la carpeta 'inicio' sin importar el dominio
-      const folderPath = window.location.pathname.substring(
-        0,
-        window.location.pathname.lastIndexOf("/"),
-      );
-      const destination =
-        window.location.origin + folderPath + "/inicio/inicio.html";
-
+        // Esta ruta funciona SIEMPRE en línea porque es relativa al servidor
+        window.location.assign("./inicio/inicio.html");
+      }
       console.log("Redirigiendo a:", destination);
       window.location.assign(destination);
     } catch (err) {
