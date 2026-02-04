@@ -301,7 +301,7 @@ document.addEventListener("submit", async (e) => {
 });
 
 // ==========================================
-// 3. LÓGICA DE LOGIN (Solución al Error 404)
+// 3. LÓGICA DE LOGIN (CORREGIDA)
 // ==========================================
 document.addEventListener("submit", async (e) => {
   if (e.target && e.target.id === "FormaLogin") {
@@ -319,24 +319,29 @@ document.addEventListener("submit", async (e) => {
         password: formData.get("password_login"),
       });
 
+      // Si Supabase devuelve un error, lo lanzamos para que lo atrape el 'catch'
+      if (error) throw error;
+
       if (data.user) {
         localStorage.setItem("userEmail", data.user.email);
 
-        // Esta ruta funciona SIEMPRE en línea porque es relativa al servidor
+        // Redirección directa y limpia
+        console.log("Acceso correcto, moviendo a inicio...");
         window.location.assign("./inicio/inicio.html");
       }
-      console.log("Redirigiendo a:", destination);
-      window.location.assign(destination);
     } catch (err) {
       alert(
         "Acceso denegado: " +
           (err.message === "Invalid login credentials"
-            ? "Credenciales inválidas"
+            ? "Correo o contraseña incorrectos"
             : err.message),
       );
     } finally {
-      btn.disabled = false;
-      btn.innerText = "INICIAR SESIÓN";
+      // Importante: Solo readecuamos el botón si NO hubo redirección exitosa
+      if (btn) {
+        btn.disabled = false;
+        btn.innerText = "INICIAR SESIÓN";
+      }
     }
   }
 });
