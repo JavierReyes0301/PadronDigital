@@ -235,7 +235,10 @@ const modalesPadron = `
     </div>
 </div>
 `;
-// 1. INYECCIÓN Y APERTURA (Garantiza que los botones funcionen)
+
+// ==========================================
+// 1. INYECCIÓN Y CONTROL DE INTERFAZ
+// ==========================================
 document.body.insertAdjacentHTML("beforeend", modalesPadron);
 
 window.abrirRegistro = () => $("#ModalRegistro").modal("show");
@@ -245,59 +248,71 @@ $(document).on("click", '[data-toggle="modal"]', function () {
   $($(this).attr("data-target")).modal("show");
 });
 
-// --- MANEJO DE ENVÍO A SUPABASE AUTH ---
+// ==========================================
+// 2. LÓGICA DE REGISTRO (Solución al Database Error)
+// ==========================================
 document.addEventListener("submit", async (e) => {
   if (e.target && e.target.id === "FormRegistro") {
     e.preventDefault();
 
+    const checkbox = document.getElementById("checkAviso");
+    if (!checkbox.checked) return alert("Debe aceptar el aviso de privacidad.");
+
     const formData = new FormData(e.target);
     const pass = formData.get("pwd");
-    const rfc = formData.get("rfc").trim().toUpperCase();
-    // IMPORTANTE: Aquí cambiamos el nombre para que coincida con tu SQL
-    const tipoPersona = formData.get("tipo-persona");
+    const confirm = formData.get("confirm-pwd");
+
+    if (pass !== confirm) return alert("Las contraseñas no coinciden.");
 
     try {
       const btn = e.target.querySelector('button[type="submit"]');
       btn.disabled = true;
-      btn.innerText = "Procesando...";
+      btn.innerText = "PROCESANDO...";
+
+      // EXTRAEMOS LOS DATOS
+      const correo = formData.get("correo").toLowerCase().trim();
+      const rfc = formData.get("rfc").trim().toUpperCase();
+      const tipo = formData.get("tipo-persona"); // Valor del radio: "Fisica" o "Moral"
 
       const { data, error } = await window.clientSupa.auth.signUp({
-        email: formData.get("correo").toLowerCase().trim(),
+        email: correo,
         password: pass,
         options: {
           data: {
             rfc: rfc,
-            tipo_persona: tipoPersona, // <--- AQUÍ: Usamos guion bajo como en tu SQL
+            tipo_persona: tipo, // <--- DEBE SER IGUAL AL SQL
           },
         },
       });
 
       if (error) throw error;
 
-      alert("¡Registro enviado! Revisa tu correo electrónico para confirmar.");
+      alert("¡Registro exitoso! Revisa tu correo para confirmar.");
       $("#ModalRegistro").modal("hide");
       e.target.reset();
     } catch (err) {
-      // Si esto falla ahora, es que el usuario ya existe o el RFC está repetido
-      alert("Error: " + err.message);
+      alert("Error de Registro: " + err.message);
     } finally {
       const btn = e.target.querySelector('button[type="submit"]');
       btn.disabled = false;
-      btn.innerText = "Continuar Registro";
+      btn.innerText = "CONTINUAR REGISTRO";
     }
   }
 });
 
-// 3. LOGICA DE LOGIN (Con la redirección que pediste)
+// ==========================================
+// 3. LÓGICA DE LOGIN (Solución al Error 404)
+// ==========================================
 document.addEventListener("submit", async (e) => {
   if (e.target && e.target.id === "FormaLogin") {
     e.preventDefault();
+
     const formData = new FormData(e.target);
     const btn = e.target.querySelector('button[type="submit"]');
 
     try {
       btn.disabled = true;
-      btn.innerText = "Entrando...";
+      btn.innerText = "VERIFICANDO...";
 
       const { data, error } = await window.clientSupa.auth.signInWithPassword({
         email: formData.get("correo_login").trim().toLowerCase(),
@@ -306,22 +321,24 @@ document.addEventListener("submit", async (e) => {
 
       if (error) throw error;
 
-      // Guardamos el email para usarlo en la página de inicio
       localStorage.setItem("userEmail", data.user.email);
 
-      // Redirección a la carpeta específica
-      // Por esto (añadiendo el punto al inicio):
-      // En lugar de window.location.assign("inicio.html")
-      // Usa una ruta relativa que obligue al navegador a buscar la carpeta correcta
-      window.location.href =
-        window.location.origin +
-        window.location.pathname.replace("index.html", "") +
-        "inicio/inicio.html";
+      // REDIRECCIÓN DINÁMICA: Funciona en Local y en GitHub Pages
+      // Detecta la carpeta 'inicio' sin importar el dominio
+      const folderPath = window.location.pathname.substring(
+        0,
+        window.location.pathname.lastIndexOf("/"),
+      );
+      const destination =
+        window.location.origin + folderPath + "/inicio/inicio.html";
+
+      console.log("Redirigiendo a:", destination);
+      window.location.assign(destination);
     } catch (err) {
       alert(
-        "Error: " +
+        "Acceso denegado: " +
           (err.message === "Invalid login credentials"
-            ? "Datos incorrectos"
+            ? "Credenciales inválidas"
             : err.message),
       );
     } finally {
