@@ -310,7 +310,8 @@ document.addEventListener("submit", async (e) => {
       localStorage.setItem("userEmail", data.user.email);
 
       // Redirección a la carpeta específica
-      window.location.assign("inicio/inicio.html");
+      // Por esto (añadiendo el punto al inicio):
+      window.location.assign("./inicio/inicio.html");
     } catch (err) {
       alert(
         "Error: " +
