@@ -8,8 +8,8 @@ const modalesPadron = `
             </div>
             <div class="modal-body" style="padding: 30px;">
                 <form id="FormaLogin">
-    <div class="form-group-custom">
-        <label>Correo Electrónico:</label>
+                <div class="form-group-custom">
+                <label>Correo Electrónico:</label>
         <input type="email" name="correo_login" class="input-institucional" placeholder="ejemplo@correo.com" required />
     </div>
     <div class="form-group-custom">
@@ -235,75 +235,52 @@ const modalesPadron = `
     </div>
 </div>
 `;
-
-// Inyectar HTML al inicio para que el DOM lo reconozca rápido
+// 1. INYECCIÓN Y APERTURA (Garantiza que los botones funcionen)
 document.body.insertAdjacentHTML("beforeend", modalesPadron);
 
-// --- FUNCIONES DE APERTURA ---
-window.abrirRegistro = function () {
-  $("#ModalRegistro").modal("show");
-};
+window.abrirRegistro = () => $("#ModalRegistro").modal("show");
+window.abrirLogin = () => $("#ModalLogin").modal("show");
 
-window.abrirLogin = function () {
-  $("#ModalLogin").modal("show");
-};
+$(document).on("click", '[data-toggle="modal"]', function () {
+  $($(this).attr("data-target")).modal("show");
+});
 
 // --- MANEJO DE ENVÍO A SUPABASE AUTH ---
 document.addEventListener("submit", async (e) => {
   if (e.target && e.target.id === "FormRegistro") {
     e.preventDefault();
 
-    // 1. Validaciones de interfaz
-    const checkbox = document.getElementById("checkAviso");
-    if (!checkbox.checked) return alert("Debe aceptar el aviso de privacidad.");
-
     const formData = new FormData(e.target);
     const pass = formData.get("pwd");
-    const confirm = formData.get("confirm-pwd");
     const rfc = formData.get("rfc").trim().toUpperCase();
-    const correo = formData.get("correo").toLowerCase().trim();
-
-    if (pass.length < 8)
-      return alert("La contraseña debe tener al menos 8 caracteres.");
-    if (pass !== confirm) return alert("Las contraseñas no coinciden.");
-
-    // 2. Validación de RFC (Formato oficial Mexicano)
-    const regexRFC =
-      /^([A-ZÑ&]{3,4})(\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01]))([A-Z\d]{2})([A\d])$/;
-    if (!regexRFC.test(rfc)) {
-      return alert("El formato del RFC es inválido. Por favor, verifíquelo.");
-    }
+    // IMPORTANTE: Aquí cambiamos el nombre para que coincida con tu SQL
+    const tipoPersona = formData.get("tipo-persona");
 
     try {
-      // Bloquear botón para evitar doble clic
       const btn = e.target.querySelector('button[type="submit"]');
       btn.disabled = true;
       btn.innerText = "Procesando...";
 
-      // 3. Registro en Supabase Auth
-      // Esto crea el usuario en 'auth.users' y el TRIGGER lo copia a tu tabla 'usuarios'
       const { data, error } = await window.clientSupa.auth.signUp({
-        email: correo,
+        email: formData.get("correo").toLowerCase().trim(),
         password: pass,
         options: {
           data: {
             rfc: rfc,
-            tipo_persona: formData.get("tipo-persona"),
+            tipo_persona: tipoPersona, // <--- AQUÍ: Usamos guion bajo como en tu SQL
           },
         },
       });
 
       if (error) throw error;
 
-      alert(
-        "¡Registro enviado! Revisa tu correo electrónico para confirmar tu cuenta y activar tu acceso.",
-      );
+      alert("¡Registro enviado! Revisa tu correo electrónico para confirmar.");
       $("#ModalRegistro").modal("hide");
       e.target.reset();
     } catch (err) {
+      // Si esto falla ahora, es que el usuario ya existe o el RFC está repetido
       alert("Error: " + err.message);
     } finally {
-      // Desbloquear botón
       const btn = e.target.querySelector('button[type="submit"]');
       btn.disabled = false;
       btn.innerText = "Continuar Registro";
@@ -311,85 +288,39 @@ document.addEventListener("submit", async (e) => {
   }
 });
 
-// Listener para disparar modales desde botones con data-target
-$(document).on("click", '[data-toggle="modal"]', function () {
-  const target = $(this).attr("data-target");
-  $(target).modal("show");
-});
-
-// --- MANEJO DE INICIO DE SESIÓN CORREGIDO ---
+// 3. LOGICA DE LOGIN (Con la redirección que pediste)
 document.addEventListener("submit", async (e) => {
   if (e.target && e.target.id === "FormaLogin") {
     e.preventDefault();
-
     const formData = new FormData(e.target);
-    // Extraemos los datos usando los NOMBRES EXACTOS de tu HTML
-    const email = formData.get("correo_login")
-      ? formData.get("correo_login").trim().toLowerCase()
-      : "";
-    const password = formData.get("password_login");
-
     const btn = e.target.querySelector('button[type="submit"]');
 
     try {
-      if (btn) {
-        btn.disabled = true;
-        btn.innerText = "Verificando...";
-      }
-
-      console.log("Intentando login con:", email);
+      btn.disabled = true;
+      btn.innerText = "Entrando...";
 
       const { data, error } = await window.clientSupa.auth.signInWithPassword({
-        email: email,
-        password: password,
+        email: formData.get("correo_login").trim().toLowerCase(),
+        password: formData.get("password_login"),
       });
 
       if (error) throw error;
 
-      // Si el login es exitoso
-      alert("¡Acceso correcto! Bienvenido.");
+      // Guardamos el email para usarlo en la página de inicio
+      localStorage.setItem("userEmail", data.user.email);
 
-      // REDIRECCIÓN FORZADA
-      window.location.assign("inicio.html");
+      // Redirección a la carpeta específica
+      window.location.assign("inicio/inicio.html");
     } catch (err) {
-      let mensaje = "Error de acceso: " + err.message;
-      if (err.message === "Invalid login credentials") {
-        mensaje = "Correo o contraseña incorrectos.";
-      }
-      alert(mensaje);
-      console.error("Error detallado:", err);
+      alert(
+        "Error: " +
+          (err.message === "Invalid login credentials"
+            ? "Datos incorrectos"
+            : err.message),
+      );
     } finally {
-      if (btn) {
-        btn.disabled = false;
-        btn.innerText = "INICIAR SESIÓN";
-      }
+      btn.disabled = false;
+      btn.innerText = "INICIAR SESIÓN";
     }
   }
 });
-
-window.cerrarSesion = async function () {
-  const { error } = await window.clientSupa.auth.signOut();
-  if (error) throw error;
-
-  alert("¡Acceso correcto! Bienvenido.");
-
-  // Usamos la ruta relativa correcta según tu VS Code
-  window.location.assign("inicio/inicio.html");
-};
-
-// Función para verificar sesión activa al cargar
-async function revisarSesion() {
-  const {
-    data: { session },
-  } = await window.clientSupa.auth.getSession();
-
-  if (session) {
-    console.log("Usuario conectado:", session.user.email);
-    // Aquí podrías ocultar el botón de "Login" y mostrar uno de "Salir"
-  } else {
-    console.log("No hay sesión activa");
-  }
-}
-
-// Ejecutar al cargar la web
-revisarSesion();

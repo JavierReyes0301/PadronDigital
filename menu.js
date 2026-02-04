@@ -119,26 +119,3 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 });
-
-window.abrirEmergente = function () {
-  $("#ContenedorEmergente").modal("show");
-};
-
-window.cerrarEmergente = function () {
-  $("#ContenedorEmergente").modal("hide");
-};
-
-document.addEventListener("submit", function (e) {
-  // 1. Validamos que el formulario sea el de Login
-  if (e.target && e.target.id === "FormaLogin") {
-    e.preventDefault(); // Evita que la página se recargue
-
-    // Aquí normalmente validarías con Supabase (vimos que tienes la conexión)
-    // Por ahora, forzamos la redirección para probar:
-
-    console.log("Redirigiendo a inicio/inicio.html...");
-
-    // 2. Redirección a la carpeta específica
-    window.location.href = "inicio/inicio.html";
-  }
-});
