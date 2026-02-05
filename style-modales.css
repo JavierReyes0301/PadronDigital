@@ -103,7 +103,7 @@
   margin: 20px 0;
   font-weight: 700;
   font-size: 1.1rem;
-  color: #333;
+  color: #323232;
   text-align: justify; /* TEXTO JUSTIFICADO */
 }
 
@@ -199,7 +199,7 @@
 
 .subtitulo-requisito {
   font-family: "Montserrat", sans-serif !important;
-  color: #000000 !important;
+  color: #323232 !important;
   font-weight: 700;
   font-size: 1.1rem;
   border-bottom: 2px solid #ab0a3d;
@@ -217,7 +217,7 @@
   margin-bottom: 10px;
   position: relative;
   padding-left: 25px;
-  color: #333;
+  color: #323232;
   text-align: justify; /* TEXTO JUSTIFICADO */
 }
 
@@ -338,7 +338,7 @@
 .faq-sub-list p {
   margin-bottom: 10px;
   font-size: 0.9rem;
-  color: #333;
+  color: #323232;
 }
 
 .faq-sub-list p:last-child {

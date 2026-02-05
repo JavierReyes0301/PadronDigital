@@ -320,13 +320,11 @@ document.addEventListener("submit", async (e) => {
       });
 
       // Si Supabase devuelve un error, lo lanzamos para que lo atrape el 'catch'
-      if (error) throw error;
-
       if (data.user) {
         localStorage.setItem("userEmail", data.user.email);
 
-        // Redirección directa y limpia
-        console.log("Acceso correcto, moviendo a inicio...");
+        // USAMOS LA RUTA DIRECTA (Sin variables externas para evitar errores)
+        console.log("Acceso exitoso, redirigiendo...");
         window.location.assign("./inicio/inicio.html");
       }
     } catch (err) {

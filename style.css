@@ -416,7 +416,7 @@ section {
 }
 
 .box-title-imagen {
-  color: #333333;
+  color: #323232;
   font-weight: 800;
   font-size: 1.05rem;
   text-transform: uppercase;
@@ -546,7 +546,7 @@ section {
 /* ENCABEZADO NEGRO: El nombre del Giro (Ej: AGROPECUARIA) */
 /* Se aplica a la fila que tiene el atributo colspan */
 #contenedor-tablas thead tr:first-child th {
-  background-color: #2d2d2d; /* Gris casi negro */
+  background-color: #323232; /* Gris casi negro */
   color: #ffffff;
   text-align: center;
   padding: 5px;
@@ -559,7 +559,7 @@ section {
 /* ENCABEZADO GRIS CLARO: Títulos de columna (Giro, Línea, Descripción) */
 #contenedor-tablas thead tr:last-child th {
   background-color: #f1f1f1; /* Gris claro de la imagen */
-  background-color: #2d2d2d; /* Gris casi negro */
+  background-color: #323232; /* Gris casi negro */
   padding: 2px;
   font-size: 0.9rem;
   font-weight: 600;
@@ -690,7 +690,7 @@ section {
 
 .btn-buscar:hover,
 .btn-restaurar:hover {
-  background-color: #8a0831;
+  background-color: #ab0a3d;
   transform: translateY(-2px);
 }
 
@@ -705,11 +705,11 @@ section {
 
 /* Estilo Gris para Botones Secundarios */
 .btn-nueva {
-  background-color: #2d2d2d;
+  background-color: #323232;
 }
 
 .btn-nueva:hover {
-  background-color: #1a1a1a;
+  background-color: #323232;
   transform: translateY(-2px);
 }
 
