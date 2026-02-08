@@ -1,36 +1,31 @@
-document.addEventListener("DOMContentLoaded", function () {
-  // --- 0. INYECCIÓN DE RECURSOS ---
-  const headContenido = `
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
-    <style>
-      .mi-navbar .mi-menu svg { 
-        width: 1.1em !important; 
-        height: 1.1em !important; 
-        margin-right: 8px; 
-        fill: currentColor; 
-        vertical-align: middle; 
-      }
-      /* Estilos específicos para el dropdown de Mi Cuenta */
-      .menu-guinda-compacto { background-color: #ab0a3d !important; border: none; margin-top: 0; }
-      .menu-guinda-compacto .dropdown-item { 
-        color: white !important; display: flex; align-items: center; padding: 10px 20px; font-size: 0.9rem;
-      }
-      .menu-guinda-compacto .dropdown-item:hover { background-color: #8a0831 !important; }
-      .menu-guinda-compacto .dropdown-item i { margin-right: 10px; width: 20px; text-align: center; }
-      .dropdown-divider { border-top: 1px solid rgba(255,255,255,0.2); }
-      
-      /* Forzar visibilidad del dropdown cuando tiene la clase .show */
-      .dropdown-menu.show { display: block !important; }
-      .nav-item.dropdown { list-style: none; }
+document.addEventListener("DOMContentLoaded", () => {
+  /**
+   * 0. RECURSOS Y ESTILOS
+   */
+  const injectStyles = () => {
+    const headHTML = `
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" />
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+      <style>
+        .mi-navbar .mi-menu svg { width: 1.1em !important; height: 1.1em !important; margin-right: 8px; fill: currentColor; vertical-align: middle; }
+        .menu-guinda-compacto { background-color: #ab0a3d !important; border: none; margin-top: 0; }
+        .menu-guinda-compacto .dropdown-item { color: white !important; display: flex; align-items: center; padding: 10px 20px; font-size: 0.9rem; transition: 0.3s; }
+        .menu-guinda-compacto .dropdown-item:hover { background-color: #8a0831 !important; color: #ffc107 !important; }
+        .menu-guinda-compacto .dropdown-item i { margin-right: 10px; width: 20px; text-align: center; }
+        /* Clase para el item activo en amarillo */
+        .menu-guinda-compacto .dropdown-item.active-perfil { color: #ffc107 !important; font-weight: bold; background-color: rgba(255,255,255,0.1); }
+        .dropdown-divider { border-top: 1px solid rgba(255,255,255,0.2); }
+        .dropdown-menu.show { display: block !important; }
+        .nav-item.dropdown { list-style: none; }
+        #footer-placeholder { margin-top: auto; }
+      </style>`;
+    document.head.insertAdjacentHTML("beforeend", headHTML);
+  };
 
-      #footer-placeholder { margin-top: auto; }
-    </style>
-  `;
-  document.head.insertAdjacentHTML("beforeend", headContenido);
-
-  // --- 1. ICONOS SVG ---
-  const iconos = {
+  /**
+   * 1. DICCIONARIO DE ICONOS (SVG)
+   */
+  const ICONOS = {
     inicio:
       '<svg viewBox="0 0 576 512"><path d="M280.37 148.26L96 300.11V464a16 16 0 0 0 16 16l112.06-.29a16 16 0 0 0 15.92-16V368a16 16 0 0 1 16-16h64a16 16 0 0 1 16 16v95.64a16 16 0 0 0 16 16.05L464 480a16 16 0 0 0 16-16V300L295.67 148.26a12.19 12.19 0 0 0-15.3 0zM571.6 251.47L488 182.56V44.05a12 12 0 0 0-12-12h-56a12 12 0 0 0-12 12v72.61L318.47 43a48 48 0 0 0-61 0L4.34 251.47a12 12 0 0 0-1.6 16.9l25.5 31A12 12 0 0 0 45.15 301l235.22-193.74a12.19 12.19 0 0 1 15.3 0L530.9 301a12 12 0 0 0 16.9-1.6l25.5-31a12 12 0 0 0-1.7-16.93z"></path></svg>',
     registro:
@@ -44,72 +39,69 @@ document.addEventListener("DOMContentLoaded", function () {
     user: '<svg viewBox="0 0 448 512"><path d="M224 256c70.7 0 128-57.3 128-128S294.7 0 224 0 96 57.3 96 128s57.3 128 128 128zm89.6 32h-16.7c-22.2 10.2-46.9 16-72.9 16s-50.6-5.8-72.9-16h-16.7C60.2 288 0 348.2 0 422.4V464c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48v-41.6c0-74.2-60.2-134.4-134.4-134.4z"></path></svg>',
   };
 
-  // --- 2. HTML NAVBAR (CORREGIDO PARA CARPETAS HIJAS) ---
-  const navbarHTML = `
-    <nav class="mi-navbar">
-      <div class="mi-container">
-        <a href="../index.html" class="mi-brand">Padrón de Proveedores</a>
-        <button class="menu-toggle" id="btn-toggle">
-          <span class="bar"></span><span class="bar"></span><span class="bar"></span>
-        </button>
-        <ul class="mi-menu" id="nav-menu">
-          <li><a href="../index.html#inicio" class="nav-link-item">${iconos.inicio}Inicio</a></li>
-          <li><a href="../index.html#registro" class="nav-link-item">${iconos.registro}Registro</a></li>
-          <li><a href="../index.html#consultar" class="nav-link-item">${iconos.consultar}Consultar</a></li>
-          <li><a href="../index.html#atencion-aclaraciones" class="nav-link-item">${iconos.atencion}Atención</a></li>
-          <li><a href="../index.html#marco" class="nav-link-item">${iconos.marco}Marco Legal</a></li>
-          
-          <li class="nav-item dropdown">
-            <a class="nav-link-item dropdown-toggle" href="javascript:void(0);" id="navbarDropdown" role="button">
-              ${iconos.user} MI CUENTA
-            </a>
-            <div class="dropdown-menu dropdown-menu-right menu-guinda-compacto" id="dropdownMenuCuenta">
-              <a class="dropdown-item" href="javascript:void(0);" onclick="enviarFormSeguro('FormaIndex');">
-                <i class="fas fa-info-circle"></i> ESTADO DE PERFIL
+  /**
+   * 2. GENERACIÓN DE COMPONENTES
+   */
+  const renderNavbar = () => {
+    const navHTML = `
+      <nav class="mi-navbar">
+        <div class="mi-container">
+          <a href="../index.html" class="mi-brand">Padrón de Proveedores</a>
+          <button class="menu-toggle" id="btn-toggle">
+            <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+          </button>
+          <ul class="mi-menu" id="nav-menu">
+            <li><a href="../index.html#inicio" class="nav-link-item">${ICONOS.inicio}Inicio</a></li>
+            <li><a href="../index.html#registro" class="nav-link-item">${ICONOS.registro}Registro</a></li>
+            <li><a href="../index.html#consultar" class="nav-link-item">${ICONOS.consultar}Consultar</a></li>
+            <li><a href="../index.html#atencion-aclaraciones" class="nav-link-item">${ICONOS.atencion}Atención</a></li>
+            <li><a href="../index.html#marco" class="nav-link-item">${ICONOS.marco}Marco Legal</a></li>
+            <li class="nav-item dropdown">
+              <a class="nav-link-item dropdown-toggle" href="javascript:void(0);" id="navbarDropdown">
+                ${ICONOS.user} MI CUENTA
               </a>
-              <a class="dropdown-item" href="javascript:void(0);" onclick="enviarFormSeguro('FormaUpdate');">
-                <i class="fas fa-edit"></i> ACTUALIZAR DATOS
-              </a>
-              <a class="dropdown-item" href="javascript:void(0);" onclick="enviarFormSeguro('FormaUpdateEmp');">
-                <i class="fas fa-user-cog"></i> DATOS DE EMPRESA
-              </a>
-              <div class="dropdown-divider"></div>
-              <a class="dropdown-item" href="javascript:void(0);" onclick="enviarFormSeguro('FormaSesion');">
-                <i class="fas fa-external-link-alt"></i> CERRAR SESIÓN
-              </a>
-            </div>
-          </li>
-        </ul>
-      </div>
-    </nav>
-  `;
+              <div class="dropdown-menu dropdown-menu-right menu-guinda-compacto" id="dropdownMenuCuenta">
+                <a class="dropdown-item" href="javascript:void(0);" onclick="mostrarSeccion('estado-perfil', this);"><i class="fas fa-info-circle"></i> ESTADO DE PERFIL</a>
+                <a class="dropdown-item" href="javascript:void(0);" onclick="mostrarSeccion('actualizar-datos', this);"><i class="fas fa-edit"></i> ACTUALIZAR DATOS</a>
+                <a class="dropdown-item" href="javascript:void(0);" onclick="mostrarSeccion('actualizar-datos', this);"><i class="fas fa-user-cog"></i> DATOS DE EMPRESA</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="javascript:void(0);" onclick="enviarFormSeguro('FormaSesion');"><i class="fas fa-external-link-alt"></i> CERRAR SESIÓN</a>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </nav>`;
+    const placeholder = document.getElementById("nav-placeholder");
+    if (placeholder) placeholder.innerHTML = navHTML;
+  };
 
-  // --- 3. HTML FOOTER (FIJO) ---
-  const footerHTML = `
-    <footer style="background-color: #ab0a3d; color: white; padding: 10px 0; width: 100%;">
-      <div class="mi-container" style="text-align: center">
-        <p style="font-size: 0.7rem; margin: 0; text-transform: uppercase; font-weight: 600;">
-          &copy; 2026 H. Ayuntamiento del Municipio de Atlixco
-        </p>
-      </div>
-    </footer>
-  `;
+  const renderFooter = () => {
+    const footerHTML = `
+      <footer style="background-color: #ab0a3d; color: white; padding: 10px 0; width: 100%;">
+        <div class="mi-container" style="text-align: center">
+          <p style="font-size: 0.7rem; margin: 0; text-transform: uppercase; font-weight: 600;">
+            &copy; 2026 H. Ayuntamiento del Municipio de Atlixco
+          </p>
+        </div>
+      </footer>`;
+    const placeholder = document.getElementById("footer-placeholder");
+    if (placeholder) placeholder.innerHTML = footerHTML;
+  };
 
-  // --- 4. INYECCIÓN ---
-  const navPlaceholder = document.getElementById("nav-placeholder");
-  if (navPlaceholder) navPlaceholder.innerHTML = navbarHTML;
+  /**
+   * 3. INICIALIZACIÓN
+   */
+  injectStyles();
+  renderNavbar();
+  renderFooter();
 
-  const footerPlaceholder = document.getElementById("footer-placeholder");
-  if (footerPlaceholder) footerPlaceholder.innerHTML = footerHTML;
-
-  // --- 5. LÓGICA DE INTERACCIÓN (CORREGIDA) ---
+  // Referencias y eventos post-renderizado
   const btnToggle = document.getElementById("btn-toggle");
   const navMenu = document.getElementById("nav-menu");
   const dropdownBtn = document.getElementById("navbarDropdown");
   const dropdownMenu = document.getElementById("dropdownMenuCuenta");
 
-  // Menú móvil
-  if (btnToggle && navMenu) {
+  if (btnToggle) {
     btnToggle.addEventListener("click", (e) => {
       e.stopPropagation();
       navMenu.classList.toggle("active");
@@ -117,8 +109,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Lógica manual para el dropdown de "MI CUENTA"
-  if (dropdownBtn && dropdownMenu) {
+  if (dropdownBtn) {
     dropdownBtn.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -126,44 +117,58 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Cerrar todo al hacer clic fuera
   document.addEventListener("click", () => {
-    if (dropdownMenu) dropdownMenu.classList.remove("show");
-    if (navMenu) {
-      navMenu.classList.remove("active");
-      if (btnToggle) btnToggle.classList.remove("open");
-    }
+    dropdownMenu?.classList.remove("show");
+    navMenu?.classList.remove("active");
+    btnToggle?.classList.remove("open");
   });
 
-  // --- 6. LÓGICA SCROLLSPY ---
-  window.addEventListener("scroll", () => {
-    const sections = document.querySelectorAll("section[id]");
-    const scrollY = window.pageYOffset;
-    const isAtBottom =
-      window.innerHeight + window.scrollY >= document.body.offsetHeight - 100;
-
-    sections.forEach((current) => {
-      const sectionHeight = current.offsetHeight;
-      const sectionTop = current.offsetTop - 150;
-      const sectionId = current.getAttribute("id");
-      const navLink = document.querySelector(
-        `.mi-menu a[href*="${sectionId}"]`,
-      );
-
-      if (navLink) {
-        const isLast = sectionId === "marco";
-        if (
-          (scrollY > sectionTop && scrollY <= sectionTop + sectionHeight) ||
-          (isAtBottom && isLast)
-        ) {
-          document
-            .querySelectorAll(".nav-link-item")
-            .forEach((el) => el.classList.remove("active-scroll"));
-          navLink.classList.add("active-scroll");
-        } else {
-          navLink.classList.remove("active-scroll");
-        }
-      }
-    });
-  });
+  // Selección inicial por defecto (Estado de Perfil al cargar)
+  const primerItem = document.querySelector(
+    "#dropdownMenuCuenta .dropdown-item",
+  );
+  if (primerItem) mostrarSeccion("estado-perfil", primerItem);
 });
+
+/**
+ * 4. FUNCIONES GLOBALES (ACCESIBLES DESDE EL HTML)
+ */
+function mostrarSeccion(idSeccion, elementoClicado = null) {
+  // 1. Ocultar todas las secciones
+  const secciones = document.querySelectorAll(".contenido-seccion");
+  secciones.forEach((s) => s.style.setProperty("display", "none", "important"));
+
+  // 2. Mostrar la sección deseada
+  const target = document.getElementById(idSeccion);
+  if (target) {
+    target.style.setProperty("display", "block", "important");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  // 3. RESALTADO AMARILLO (Solo en el menú de Mi Cuenta)
+  const linksCuenta = document.querySelectorAll(
+    "#dropdownMenuCuenta .dropdown-item",
+  );
+  linksCuenta.forEach((link) => link.classList.remove("active-perfil"));
+
+  if (elementoClicado) {
+    elementoClicado.classList.add("active-perfil");
+  } else {
+    // Si no viene el elemento (ej. carga inicial), buscar por idSeccion
+    linksCuenta.forEach((link) => {
+      if (link.getAttribute("onclick").includes(idSeccion))
+        link.classList.add("active-perfil");
+    });
+  }
+
+  // 4. Lógica de Pestañas Bootstrap
+  if (idSeccion === "actualizar-datos" && typeof $ !== "undefined") {
+    // Usamos un pequeño timeout para asegurar que el contenedor es visible antes de activar el tab
+    setTimeout(() => {
+      $('#actualizar-datos .nav-tabs a[href="#Instrucciones"]').tab("show");
+    }, 10);
+  }
+
+  // 5. Cerrar menús desplegables
+  document.getElementById("dropdownMenuCuenta")?.classList.remove("show");
+}

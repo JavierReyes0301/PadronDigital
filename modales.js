@@ -8,16 +8,16 @@ const modalesPadron = `
             </div>
             <div class="modal-body" style="padding: 30px;">
                 <form id="FormaLogin">
-                <div class="form-group-custom">
-                <label>Correo Electrónico:</label>
-        <input type="email" name="correo_login" class="input-institucional" placeholder="ejemplo@correo.com" required />
-    </div>
-    <div class="form-group-custom">
-        <label>Contraseña:</label>
-        <input type="password" name="password_login" class="input-institucional" placeholder="********" required />
-    </div>
-    <button type="submit" class="btn-registro-continuar" style="width:100%; margin-top:10px;">INICIAR SESIÓN</button>
-</form>
+                    <div class="form-group-custom">
+                        <label>Correo Electrónico:</label>
+                        <input type="email" name="correo_login" class="input-institucional" placeholder="ejemplo@correo.com" required />
+                    </div>
+                    <div class="form-group-custom">
+                        <label>Contraseña:</label>
+                        <input type="password" name="password_login" class="input-institucional" placeholder="********" required />
+                    </div>
+                    <button type="submit" class="btn-registro-continuar" style="width:100%; margin-top:10px;">INICIAR SESIÓN</button>
+                </form>
                 <div style="text-align:center; margin-top:20px;">
                     <a href="restaurar.html" style="font-size:0.9rem; color:#ab0a3d; font-weight:700; text-decoration:none;">¿Olvidó su contraseña?</a>
                 </div>
@@ -34,7 +34,12 @@ const modalesPadron = `
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body" style="padding: 25px 40px;">
-                <div class="instruccion-registro">Capture los siguientes datos para iniciar su proceso:</div>
+                <div id="instruccionesNuevoModal" style="display:none;" class="instruccion-registro">
+                    <strong>¡Eres nuevo!</strong> Capture los siguientes datos para iniciar su proceso de registro:
+                </div>
+                <div id="instruccionesRegistradoModal" style="display:none;" class="instruccion-registro">
+                    <strong>¡Bienvenido de nuevo!</strong> Inicie sesión para continuar con su trámite pendiente:
+                </div>
                 
                 <form id="FormRegistro">
                     <div class="grid-registro">
@@ -70,18 +75,19 @@ const modalesPadron = `
 
                     <div class="caja-aviso">
                         <p class="texto-aviso">
-                            <strong>Aviso de Privacidad:</strong> Sus datos serán protegidos de acuerdo a la Ley General de Protección de Datos Personales en Posesión de Sujetos Obligados.
+                            <strong>Aviso de Privacidad:</strong> Sus datos serán protegidos de acuerdo a la Ley General de Protección de Datos Personales.
                         </p>
                         <div class="contenedor-check">
                             <input type="checkbox" id="checkAviso"> 
-                            <label for="checkAviso" style="margin:0; cursor:pointer;">Acepto el aviso de privacidad y autorizo la publicación de mis datos.</label>
+                            <label for="checkAviso" style="margin:0; cursor:pointer;">Acepto el aviso de privacidad.</label>
                         </div>
                     </div>
 
                     <div class="footer-registro-fuera" style="display: flex; justify-content: center; margin-top: 20px;">
                         <button type="submit" class="btn-registro-continuar">Continuar Registro</button>
                     </div>
-                </form> </div>
+                </form> 
+            </div>
         </div>
     </div>
 </div>
@@ -234,53 +240,63 @@ const modalesPadron = `
         </div>
     </div>
 </div>
+<div class="modal fade" id="ModalBienvenida" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 400px;">
+        <div class="modal-content text-center" style="border-radius: 20px; padding: 30px; border: none; font-family: 'Montserrat', sans-serif;">
+            <div class="modal-body">
+                <div class="mb-4 d-flex justify-content-center">
+                    <div style="width: 100px; height: 100px; border-radius: 50%; border: 4px solid #28a745; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-check" style="font-size: 50px; color: #28a745;"></i>
+                    </div>
+                </div>
+                <h1 style="font-weight: 800; color: #323232; font-size: 1.8rem; margin-bottom: 5px;">¡Bienvenido!</h1>
+                <p id="txtRFCBienvenida" style="font-size: 1.3rem; color: #666; font-weight: 500; margin-bottom: 30px;"></p>
+                <button id="btnAccesarInicio" class="btn-sitio" 
+                    style="width: 100%; background-color: #ab0a3d !important; color: #ffffff !important; font-weight: 700 !important; border: none; padding: 15px 0; border-radius: 8px;">
+                    ACCESAR
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 `;
-
 // ==========================================
-// 1. INYECCIÓN Y CONTROL DE INTERFAZ
+// 1. INYECCIÓN Y CONTROL DE INTERFAZ (Sustituido)
 // ==========================================
 document.body.insertAdjacentHTML("beforeend", modalesPadron);
 
 window.abrirRegistro = () => $("#ModalRegistro").modal("show");
 window.abrirLogin = () => $("#ModalLogin").modal("show");
 
-$(document).on("click", '[data-toggle="modal"]', function () {
-  $($(this).attr("data-target")).modal("show");
-});
-
 // ==========================================
-// 2. LÓGICA DE REGISTRO (Solución al Database Error)
+// 2. CONTROLADOR DE FORMULARIOS CONSOLIDADO
 // ==========================================
 document.addEventListener("submit", async (e) => {
-  if (e.target && e.target.id === "FormRegistro") {
-    e.preventDefault();
+  const targetId = e.target.id;
 
+  // --- LÓGICA DE REGISTRO ---
+  if (targetId === "FormRegistro") {
+    e.preventDefault();
     const checkbox = document.getElementById("checkAviso");
     if (!checkbox.checked) return alert("Debe aceptar el aviso de privacidad.");
 
     const formData = new FormData(e.target);
-    const pass = formData.get("pwd");
-    const confirm = formData.get("confirm-pwd");
+    if (formData.get("pwd") !== formData.get("confirm-pwd")) {
+      return alert("Las contraseñas no coinciden.");
+    }
 
-    if (pass !== confirm) return alert("Las contraseñas no coinciden.");
-
+    const btn = e.target.querySelector('button[type="submit"]');
     try {
-      const btn = e.target.querySelector('button[type="submit"]');
       btn.disabled = true;
       btn.innerText = "PROCESANDO...";
 
-      // EXTRAEMOS LOS DATOS
-      const correo = formData.get("correo").toLowerCase().trim();
-      const rfc = formData.get("rfc").trim().toUpperCase();
-      const tipo = formData.get("tipo-persona"); // Valor del radio: "Fisica" o "Moral"
-
       const { data, error } = await window.clientSupa.auth.signUp({
-        email: correo,
-        password: pass,
+        email: formData.get("correo").toLowerCase().trim(),
+        password: formData.get("pwd"),
         options: {
           data: {
-            rfc: rfc,
-            tipo_persona: tipo, // <--- DEBE SER IGUAL AL SQL
+            rfc: formData.get("rfc").trim().toUpperCase(),
+            tipo_persona: formData.get("tipo-persona"),
           },
         },
       });
@@ -293,53 +309,80 @@ document.addEventListener("submit", async (e) => {
     } catch (err) {
       alert("Error de Registro: " + err.message);
     } finally {
-      const btn = e.target.querySelector('button[type="submit"]');
       btn.disabled = false;
       btn.innerText = "CONTINUAR REGISTRO";
     }
   }
-});
 
-// ==========================================
-// 3. LÓGICA DE LOGIN (CORREGIDA)
-// ==========================================
-document.addEventListener("submit", async (e) => {
-  if (e.target && e.target.id === "FormaLogin") {
+  // --- LÓGICA DE LOGIN ---
+  if (targetId === "FormaLogin") {
     e.preventDefault();
-
     const formData = new FormData(e.target);
     const btn = e.target.querySelector('button[type="submit"]');
 
     try {
       btn.disabled = true;
-      btn.innerText = "VERIFICANDO...";
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> VERIFICANDO...';
 
       const { data, error } = await window.clientSupa.auth.signInWithPassword({
         email: formData.get("correo_login").trim().toLowerCase(),
         password: formData.get("password_login"),
       });
 
-      // Si Supabase devuelve un error, lo lanzamos para que lo atrape el 'catch'
+      if (error) throw error;
+
       if (data.user) {
         localStorage.setItem("userEmail", data.user.email);
+        const rfcUsuario = data.user.user_metadata?.rfc || "S/R";
 
-        // USAMOS LA RUTA DIRECTA (Sin variables externas para evitar errores)
-        console.log("Acceso exitoso, redirigiendo...");
-        window.location.assign("./inicio/inicio.html");
+        // Lógica para detectar usuario nuevo (margen de 20 segundos desde su creación)
+        const fechaCreacion = new Date(data.user.created_at).getTime();
+        const ahora = new Date().getTime();
+        const esNuevo = ahora - fechaCreacion < 20000;
+
+        $("#ModalLogin").modal("hide");
+
+        $("#ModalLogin").one("hidden.bs.modal", function () {
+          const modalB = $("#ModalBienvenida");
+          if (modalB.length > 0) {
+            const txtRFC = document.getElementById("txtRFCBienvenida");
+            if (txtRFC) txtRFC.innerText = rfcUsuario;
+            modalB.modal("show");
+
+            document.getElementById("btnAccesarInicio").onclick = function () {
+              this.innerHTML =
+                '<i class="fas fa-sync fa-spin"></i> REDIRECCIONANDO...';
+
+              // Definimos el modo: 'n' para nuevo, 'r' para registrado
+              const modo = esNuevo ? "n" : "r";
+              // Redirección con parámetro de URL y Hash de pestaña
+              window.location.assign(
+                `./inicio/inicio.html?u=${modo}#Instrucciones`,
+              );
+            };
+          } else {
+            const modo = esNuevo ? "n" : "r";
+            window.location.assign(
+              `./inicio/inicio.html?u=${modo}#Instrucciones`,
+            );
+          }
+        });
       }
     } catch (err) {
       alert(
-        "Acceso denegado: " +
+        "Error: " +
           (err.message === "Invalid login credentials"
-            ? "Correo o contraseña incorrectos"
+            ? "Datos incorrectos"
             : err.message),
       );
-    } finally {
-      // Importante: Solo readecuamos el botón si NO hubo redirección exitosa
-      if (btn) {
-        btn.disabled = false;
-        btn.innerText = "INICIAR SESIÓN";
-      }
+      btn.disabled = false;
+      btn.innerText = "INICIAR SESIÓN";
     }
   }
+});
+
+// Manejador genérico para data-toggle
+$(document).on("click", '[data-toggle="modal"]', function (e) {
+  const target = $(this).attr("data-target");
+  if (target) $(target).modal("show");
 });

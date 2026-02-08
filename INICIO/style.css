@@ -137,6 +137,16 @@ section[id] {
   }
 }
 
+/* ... tus estilos anteriores ... */
+.contenido-seccion {
+  display: none !important;
+}
+
+/* Forzamos que la primera sección sea la única visible al entrar */
+#estado-perfil {
+  display: block !important;
+}
+
 /* ============================================================
    REGLAS GLOBALES PARA TODAS LAS SECCIONES
    ============================================================ */
@@ -497,4 +507,69 @@ body {
   font-family: "Montserrat", sans-serif;
   color: #555;
   width: 100%;
+}
+
+.disabled-tab {
+  pointer-events: none;
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.icon-success {
+  color: var(--color-primario-fondo);
+}
+
+/* Color guinda para resaltar texto dentro de párrafos */
+.color-guinda {
+  color: #ab0a3d;
+  font-weight: 700;
+}
+
+/* Ajuste específico para el contenedor de instrucciones */
+.instrucciones-perfil {
+  text-align: justify;
+  font-size: 1.15rem; /* Un poco más grande para legibilidad */
+  max-width: 900px;
+  margin: 0 auto 20px auto;
+}
+
+/* Estilo para que el botón luzca como el de la captura de "Estado de Perfil" */
+#BtnIniciar {
+  padding: 5px 0px;
+  font-size: 1rem;
+  letter-spacing: 1px;
+}
+
+/* Estilos para limpiar el HTML de instrucciones */
+.instrucciones-lista li {
+  margin-bottom: 2px;
+}
+
+.instrucciones-texto {
+  font-size: 1.1rem !important;
+  line-height: 1.6;
+  font-weight: 500;
+  color: #444;
+}
+
+.badge-instruccion {
+  padding: 4px 8px;
+  border: 1px solid #323232;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  display: inline-block;
+  background: #f9f9f9;
+  color: #323232;
+  font-weight: 700;
+}
+
+/* 1. Reducir el tamaño del texto y las líneas laterales */
+.titulo-ajustado {
+  font-size: clamp(
+    1.2rem,
+    3vw,
+    1.6rem
+  ) !important; /* Más pequeño que el original */
+  margin-top: 0 !important; /* Elimina espacio superior */
+  margin-bottom: 5px !important;
 }

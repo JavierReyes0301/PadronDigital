@@ -495,3 +495,44 @@
   padding: 8px !important;
   font-size: 0.85rem !important;
 }
+
+/* Ajuste para que el modal sea responsivo en celulares y tablets */
+@media (max-width: 576px) {
+  #ModalBienvenida .modal-dialog {
+    margin: 1.5rem auto;
+    width: 90%;
+  }
+  #ModalBienvenida .modal-content {
+    padding: 20px;
+  }
+  #ModalBienvenida h1 {
+    font-size: 1.5rem !important;
+  }
+}
+
+/* Asegurar que el botón siempre sea guinda incluso en hover */
+#btnAccesarInicio:hover {
+  background-color: #8a0831 !important; /* Un guinda ligeramente más oscuro al pasar el mouse */
+  transform: translateY(-2px);
+  transition: 0.3s;
+}
+
+#btnAccesarInicio {
+  transition: all 0.3s ease;
+  cursor: pointer;
+  outline: none;
+}
+
+#btnAccesarInicio:hover {
+  background-color: #8e0a32 !important; /* Guinda un poco más oscuro */
+  box-shadow: 0 4px 12px rgba(171, 10, 61, 0.4);
+  transform: translateY(-1px);
+}
+
+/* Asegura que el texto sea legible en móviles */
+@media (max-width: 480px) {
+  #btnAccesarInicio {
+    font-size: 1rem !important;
+    padding: 12px 0 !important;
+  }
+}

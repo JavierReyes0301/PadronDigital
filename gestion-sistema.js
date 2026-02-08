@@ -1,15 +1,23 @@
+// gestion-sistema.js
+
 // 1. Variable global para almacenar los datos procesados de Supabase
 let mapaDatos = {};
 
-// 2. Función principal que descarga y procesa los datos
+/**
+ * ADECUACIÓN: Función principal mejorada.
+ * Se encarga de descargar y procesar los datos de giros y líneas.
+ */
 async function cargarDatosSupabase() {
   try {
-    console.log("Consultando base de datos...");
-
+    // Verificamos si la conexión global existe
     if (!window.clientSupa) {
-      console.error("❌ Error: No se detectó la conexión a Supabase.");
+      console.warn("⏳ Esperando a que 'window.clientSupa' esté disponible...");
+      // Reintenta en 500ms si la conexión aún no carga
+      setTimeout(cargarDatosSupabase, 500);
       return;
     }
+
+    console.log("Consultando base de datos...");
 
     const { data, error } = await window.clientSupa
       .from("giros_lineas")
@@ -21,6 +29,7 @@ async function cargarDatosSupabase() {
       return;
     }
 
+    // Procesamiento de datos para agrupar líneas por Giro
     mapaDatos = {};
     data.forEach((fila) => {
       if (!mapaDatos[fila.id_giro]) {
@@ -41,16 +50,17 @@ async function cargarDatosSupabase() {
       }
     });
 
+    // Ejecutamos la actualización de la interfaz
     llenarSelectGiros();
     dibujarTablasCatalogo();
 
     console.log("✅ Datos cargados y sistema actualizado");
   } catch (err) {
-    console.error("❌ Error crítico en el script:", err.message);
+    console.error("❌ Error crítico en el script de gestión:", err.message);
   }
 }
 
-// 3. Función para dibujar las tablas en orden (G1, G2, G3...)
+// 2. Función para dibujar las tablas en orden (G1, G2, G3...)
 function dibujarTablasCatalogo() {
   const contenedor = document.getElementById("contenedor-tablas");
   if (!contenedor) return;
@@ -108,7 +118,7 @@ function dibujarTablasCatalogo() {
   });
 }
 
-// 4. Funciones para los menús desplegables
+// 3. Funciones para los menús desplegables (Selects)
 function llenarSelectGiros() {
   const selectGiro = document.getElementById("SelectGiro");
   if (!selectGiro) return;
@@ -150,4 +160,5 @@ function actualizarLineas() {
   selectLinea.disabled = false;
 }
 
+// 4. INICIO AUTOMÁTICO
 document.addEventListener("DOMContentLoaded", cargarDatosSupabase);
