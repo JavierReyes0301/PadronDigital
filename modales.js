@@ -260,9 +260,9 @@ const modalesPadron = `
     </div>
 </div>
 `;
-// ==========================================
-// 1. INYECCIÓN Y CONTROL DE INTERFAZ (Sustituido)
-// ==========================================
+
+// ... (Mantén tu variable const modalesPadron igual)
+
 document.body.insertAdjacentHTML("beforeend", modalesPadron);
 
 window.abrirRegistro = () => $("#ModalRegistro").modal("show");
@@ -335,10 +335,10 @@ document.addEventListener("submit", async (e) => {
         localStorage.setItem("userEmail", data.user.email);
         const rfcUsuario = data.user.user_metadata?.rfc || "S/R";
 
-        // Lógica para detectar usuario nuevo (margen de 20 segundos desde su creación)
+        // Ajuste: Margen de 24 horas para ser considerado nuevo
         const fechaCreacion = new Date(data.user.created_at).getTime();
         const ahora = new Date().getTime();
-        const esNuevo = ahora - fechaCreacion < 20000;
+        const esNuevo = ahora - fechaCreacion < 86400000;
 
         $("#ModalLogin").modal("hide");
 
@@ -351,20 +351,15 @@ document.addEventListener("submit", async (e) => {
 
             document.getElementById("btnAccesarInicio").onclick = function () {
               this.innerHTML =
-                '<i class="fas fa-sync fa-spin"></i> REDIRECCIONANDO...';
+                '<i class="fas fa-sync fa-spin"></i> ENTRANDO...';
 
-              // Definimos el modo: 'n' para nuevo, 'r' para registrado
               const modo = esNuevo ? "n" : "r";
-              // Redirección con parámetro de URL y Hash de pestaña
-              window.location.assign(
-                `./inicio/inicio.html?u=${modo}#Instrucciones`,
-              );
+              // Redirección Limpia: Sin Hash para carga normal
+              window.location.assign(`./inicio/inicio.html?u=${modo}`);
             };
           } else {
             const modo = esNuevo ? "n" : "r";
-            window.location.assign(
-              `./inicio/inicio.html?u=${modo}#Instrucciones`,
-            );
+            window.location.assign(`./inicio/inicio.html?u=${modo}`);
           }
         });
       }
@@ -381,8 +376,38 @@ document.addEventListener("submit", async (e) => {
   }
 });
 
-// Manejador genérico para data-toggle
-$(document).on("click", '[data-toggle="modal"]', function (e) {
-  const target = $(this).attr("data-target");
-  if (target) $(target).modal("show");
+// ==========================================
+// 0. INTERCEPTOR DE SESIÓN ACTIVA (Corregido)
+// ==========================================
+document.addEventListener("DOMContentLoaded", async () => {
+  if (window.clientSupa) {
+    const {
+      data: { session },
+    } = await window.clientSupa.auth.getSession();
+
+    if (session) {
+      const botonesAcceso = document.querySelectorAll(
+        '[onclick*="abrirLogin"], [onclick*="abrirRegistro"], [data-target="#ModalLogin"], [data-target="#ModalRegistro"]',
+      );
+
+      botonesAcceso.forEach((btn) => {
+        btn.removeAttribute("data-toggle");
+        btn.removeAttribute("data-target");
+
+        btn.onclick = (e) => {
+          e.preventDefault();
+          const rfc = session.user.user_metadata?.rfc || "usuario";
+
+          if (
+            confirm(
+              `Actualmente existe una sesión iniciada (${rfc}).\n\n¿Desea ir directamente a su panel de control?`,
+            )
+          ) {
+            // Redirección Limpia
+            window.location.assign("./inicio/inicio.html?u=r");
+          }
+        };
+      });
+    }
+  }
 });

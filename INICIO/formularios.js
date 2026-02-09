@@ -79,7 +79,7 @@ function iniciarActualizacion() {
 
 /**
  * ==========================================
- * 4. GESTIÓN DE INDICADORES (FUNCIÓN MAESTRA)
+ * 4. GESTIÓN DE INDICADORES
  * ==========================================
  */
 function vincularIndicador(idInput, idIcono) {
@@ -99,15 +99,47 @@ function vincularIndicador(idInput, idIcono) {
 
 /**
  * ==========================================
- * 5. GESTIÓN DE ESTATUS E INSTRUCCIONES
+ * 5. GESTIÓN DE ESTATUS E INSTRUCCIONES (ACTUALIZADO)
  * ==========================================
  */
 async function gestionarInstruccionesVisuales() {
   const divNuevo = document.getElementById("instruccionesNuevo");
   const divRegistrado = document.getElementById("instruccionesRegistrado");
-  const params = new URLSearchParams(window.location.search);
-  const modoURL = params.get("u");
 
+  // 1. Obtenemos el parámetro 'u' de la URL (?u=n o ?u=r)
+  const params = new URLSearchParams(window.location.search);
+  let modoURL = params.get("u");
+
+  try {
+    const {
+      data: { user },
+    } = await window.clientSupa.auth.getUser();
+
+    // Si no hay usuario, redirigir a seguridad
+    if (!user) {
+      window.location.href = "../index.html";
+      return;
+    }
+
+    // 2. Verificación de respaldo en Base de Datos
+    const { data: perfil } = await window.clientSupa
+      .from("proveedores")
+      .select("estatus")
+      .eq("id_auth", user.id)
+      .maybeSingle();
+
+    // Si el estatus ya es avanzado, forzamos vista de "Registrado"
+    if (
+      perfil &&
+      (perfil.estatus === "Registrado" || perfil.estatus === "Validado")
+    ) {
+      modoURL = "r";
+    }
+  } catch (err) {
+    console.error("Error validando estatus:", err);
+  }
+
+  // 3. Aplicación visual de los bloques
   if (modoURL === "n") {
     if (divNuevo) divNuevo.style.display = "block";
     if (divRegistrado) divRegistrado.style.display = "none";
@@ -115,42 +147,21 @@ async function gestionarInstruccionesVisuales() {
     if (divNuevo) divNuevo.style.display = "none";
     if (divRegistrado) divRegistrado.style.display = "block";
   }
-
-  try {
-    const {
-      data: { user },
-    } = await window.clientSupa.auth.getUser();
-    if (user) {
-      const { data: perfil } = await window.clientSupa
-        .from("proveedores")
-        .select("estatus")
-        .eq("id_auth", user.id)
-        .maybeSingle();
-
-      if (
-        perfil &&
-        (perfil.estatus === "Registrado" || perfil.estatus === "Validado")
-      ) {
-        if (divNuevo) divNuevo.style.display = "none";
-        if (divRegistrado) divRegistrado.style.display = "block";
-      }
-    }
-  } catch (err) {
-    console.error("Error validando estatus:", err);
-  }
 }
 
 /**
  * ==========================================
- * 6. INICIALIZACIÓN GLOBAL (ÚNICA)
+ * 6. INICIALIZACIÓN GLOBAL
  * ==========================================
  */
 document.addEventListener("DOMContentLoaded", () => {
-  // Lógica de carga inicial
-  configurarSelectsUbicacion();
+  // Verificación de sesión e instrucciones
   gestionarInstruccionesVisuales();
 
-  // Mapeo de Indicadores (Checks de progreso)
+  // Configuración de elementos
+  configurarSelectsUbicacion();
+
+  // Mapeo de Indicadores
   vincularIndicador("txtRFC", "icono-rfc");
   vincularIndicador("txtRazonSocial", "icono-razon");
   vincularIndicador("txtCalle", "icono-calle");
@@ -162,7 +173,7 @@ document.addEventListener("DOMContentLoaded", () => {
     $(`.nav-tabs a[href="${window.location.hash}"]`).tab("show");
   }
 
-  // Formateo automático de inputs
+  // Formateo automático de inputs a MAYÚSCULAS
   document.querySelectorAll("input").forEach((input) => {
     input.addEventListener("input", function () {
       if (this.type !== "password" && this.type !== "email") {
@@ -177,3 +188,24 @@ document.addEventListener("DOMContentLoaded", () => {
     $('[data-toggle="tooltip"]').tooltip();
   }
 });
+
+/**
+ * ==========================================
+ * 7. SEGURIDAD Y SESIÓN
+ * ==========================================
+ */
+async function enviarFormSeguro(idForma) {
+  if (confirm("¿Está seguro que desea cerrar su sesión?")) {
+    try {
+      if (window.clientSupa) {
+        await window.clientSupa.auth.signOut();
+      }
+      sessionStorage.clear();
+      localStorage.clear();
+      window.location.href = "../index.html";
+    } catch (error) {
+      console.error("Error al salir:", error);
+      window.location.href = "../index.html";
+    }
+  }
+}

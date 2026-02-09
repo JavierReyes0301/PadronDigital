@@ -148,6 +148,7 @@
           </div>
         </div>
       </section>
+
       <section id="actualizar-datos" class="contenido-seccion">
         <div class="titulo-seccion">Actualizar <span>Datos</span></div>
         <div class="container">
@@ -193,162 +194,223 @@
               </a>
             </li>
           </ul>
+
           <div class="tab-content">
-           <div id="Instrucciones" class="tab-pane fade show active">
-  <div class="contenedor-bloque-instrucciones">
-    <div class="row">
-      <div
-        id="instruccionesNuevo"
-        class="col-sm-12 text-justify"
-        style="display: none"
-      >
-        <h3>
-          Siga las instrucciones que se indican a continuación para finalizar el
-          proceso de inscripción al padrón:
-        </h3>
-        <br />
-        <ol class="instrucciones-lista">
-          <li>
-            <h3>
-              Ingrese a la pestaña donde desea modificar sus datos (Datos
-              Generales, Domicilio Fiscal, Datos Adicionales, Documentación y
-              Finalizar Captura).
-            </h3>
-          </li>
-          <li>
-            <h3>
-              Para guardar las modificaciones, haga clic en
-              <span class="badge-instruccion-outline"
-                ><i class="fas fa-save"></i> Guardar Datos</span
-              >
-              o en
-              <span class="badge-instruccion-outline"
-                ><i class="fas fa-cloud-upload-alt"></i> Subir Archivo</span
-              >
-              en la pestaña de Documentación.
-            </h3>
-          </li>
-          <li>
-            <h3>
-              Al capturar los datos obligatorios (<i
-                class="fas fa-asterisk text-danger"
-              ></i
-              >), se encenderá el indicador (<i class="far fa-circle"></i>
-              <i class="fas fa-arrow-right"></i>
-              <i class="fas fa-check-circle color-guinda"></i>).
-            </h3>
-          </li>
-          <li>
-            <h3>
-              Al finalizar, se habilitará el botón
-              <span class="badge-instruccion-guinda"
-                ><i class="fas fa-envelope"></i> Enviar Solicitud a
-                Revisión</span
-              >.
-            </h3>
-          </li>
-        </ol>
-      </div>
+            <div id="Instrucciones" class="tab-pane fade show active">
+              <div class="contenedor-bloque-instrucciones">
+                <div class="row">
+                  <div
+                    id="instruccionesNuevo"
+                    class="col-sm-12 text-justify"
+                    style="display: none"
+                  >
+                    <h5>
+                      Siga las instrucciones que se indican a continuación para
+                      finalizar el proceso de inscripción al padrón:
+                    </h5>
+                    <br />
+                    <ol class="instrucciones-lista">
+                      <li>
+                        <h7>
+                          Ingrese a la pestaña donde desea modificar sus datos
+                          (Datos Generales, Domicilio Fiscal, Datos Adicionales,
+                          Documentación y Finalizar Captura).
+                        </h7>
+                      </li>
+                      <li>
+                        <h7>
+                          Para guardar las modificaciones, haga clic en
+                          <span class="badge-instruccion-outline"
+                            ><i class="fas fa-save"></i> Guardar Datos</span
+                          >
+                          o en
+                          <span class="badge-instruccion-outline"
+                            ><i class="fas fa-cloud-upload-alt"></i> Subir
+                            Archivo</span
+                          >
+                          en la pestaña de Documentación.
+                        </h7>
+                      </li>
+                      <li>
+                        <h7>
+                          Al capturar los datos obligatorios (<i
+                            class="fas fa-asterisk text-danger"
+                          ></i
+                          >), se encenderá el indicador (<i
+                            class="far fa-circle"
+                          ></i>
+                          <i class="fas fa-arrow-right"></i>
+                          <i class="fas fa-check-circle color-guinda"></i>).
+                        </h7>
+                      </li>
+                      <li>
+                        <h7>
+                          Al finalizar, se habilitará el botón
+                          <span class="badge-instruccion-guinda"
+                            ><i class="fas fa-envelope"></i> Enviar Solicitud a
+                            Revisión</span
+                          >.
+                        </h7>
+                      </li>
+                    </ol>
+                    <div class="row mt-2">
+                      <div class="col-sm-12 d-flex justify-content-center">
+                        <div
+                          class="alert alert-warning text-center"
+                          style="max-width: 800px; border-radius: 10px"
+                        >
+                          Consulta nuestro
+                          <a
+                            href="AvisoSIMPLIFICADO.pdf"
+                            target="_blank"
+                            style="color: #856404; text-decoration: underline"
+                            ><b>Aviso de Privacidad</b></a
+                          >
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row mt-2">
+                      <div class="col-sm-12 text-center">
+                        <button
+                          type="button"
+                          class="btn-sitio"
+                          id="BtnIniciar"
+                          onclick="iniciarActualizacion()"
+                        >
+                          <i class="fas fa-edit fa-lg mr-2"></i> Iniciar Captura
+                        </button>
+                      </div>
+                    </div>
+                  </div>
 
-      <div
-        id="instruccionesRegistrado"
-        class="col-sm-12 text-justify"
-        style="display: none"
-      >
-        <h3>
-          Aquí podrá hacer las modificaciones a su perfil siguiendo estas
-          instrucciones:
-        </h3>
-        <br />
-        <ol class="instrucciones-lista">
-          <li>
-            <h3>
-              Ingrese a la pestaña correspondiente (Datos Generales, Domicilio
-              Fiscal, etc.).
-            </h3>
-          </li>
-          <li>
-            <h3>
-              Haga clic en el ícono de desbloqueo
-              <i class="fas fa-lock text-warning"></i>; el ícono cambiará a
-              <i class="fas fa-lock-open text-warning"></i> y el campo se
-              resaltará en color
-              <span style="background-color: moccasin; border: 1px solid #ccc"
-                >&nbsp;&nbsp;&nbsp;</span
-              >.
-            </h3>
-          </li>
-          <li>
-            <h3>
-              Guarde los cambios con
-              <span class="badge-instruccion-outline"
-                ><i class="fas fa-save"></i> Guardar Datos</span
-              >
-              o
-              <span class="badge-instruccion-outline"
-                ><i class="fas fa-cloud-upload-alt"></i> Subir Archivo</span
-              >.
-            </h3>
-          </li>
-          <li>
-            <h3>
-              Al completar los datos, el indicador cambiará (<i
-                class="far fa-circle"
-              ></i>
-              <i class="fas fa-arrow-right"></i>
-              <i class="fas fa-check-circle color-guinda"></i>).
-            </h3>
-          </li>
-          <li>
-            <h3>
-              Se habilitará el botón
-              <span class="badge-instruccion-guinda"
-                ><i class="fas fa-envelope"></i> Enviar Actualización</span
-              >.
-            </h3>
-          </li>
-          <li>
-            <h3>
-              Si tiene observaciones de la oficina (<i
-                class="fas fa-exclamation-triangle text-warning"
-              ></i
-              >), haga clic en el ícono para consultarlas.
-            </h3>
-          </li>
-        </ol>
-      </div>
-    </div>
-
-    <div class="row mt-2">
-      <div class="col-sm-12 d-flex justify-content-center">
-        <div
-          class="alert alert-warning text-center"
-          style="max-width: 800px; border-radius: 10px"
-        >
-          Consulta nuestro
-          <a
-            href="AvisoSIMPLIFICADO.pdf"
-            target="_blank"
-            style="color: #856404; text-decoration: underline"
-            ><b>Aviso de Privacidad</b></a
-          >
+                  <div
+                    id="instruccionesRegistrado"
+                    class="col-sm-12 text-justify"
+                    style="display: none"
+                  >
+                    <h5>
+                      Aquí podrá hacer las modificaciones a su perfil, ya sea
+                      por algún cambio hecho por usted o que le haya indicado el
+                      personal de la Oficina de Registro y Control de
+                      Proveedores. Para ello, siga estas instrucciones:
+                    </h5>
+                    <br />
+                    <ol class="instrucciones-lista">
+                      <li>
+                        <h7>
+                          Ingrese a la pestaña donde desea modificar sus datos
+                          (Datos Generales, Domicilio Fiscal, Datos Adicionales,
+                          Documentación y Finalizar Captura).
+                        </h7>
+                      </li>
+                      <li>
+                        <h7>
+                          Para modificar la información, primero haga clic en el
+                          ícono de desbloqueo
+                          <span class="badge-instruccion-outline"
+                            ><i class="fas fa-lock" style="color: orange"></i>
+                            Bloqueado</span
+                          >. El campo cambiará a modo edición (<i
+                            class="fas fa-lock"
+                            style="color: orange"
+                          ></i>
+                          <i class="fas fa-arrow-right"></i>
+                          <i class="fas fa-lock-open" style="color: orange"></i
+                          >) y se resaltará en color crema:
+                          <span
+                            style="
+                              background-color: moccasin;
+                              border: 1px solid #ccc;
+                            "
+                            >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span
+                          >.
+                        </h7>
+                      </li>
+                      <li>
+                        <h7>
+                          Para guardar los cambios, haga clic en
+                          <span class="badge-instruccion-outline"
+                            ><i class="fas fa-save"></i> Guardar Datos</span
+                          >
+                          o en
+                          <span class="badge-instruccion-outline"
+                            ><i class="fas fa-cloud-upload-alt"></i> Subir
+                            Archivo</span
+                          >
+                          en la pestaña de Documentación.
+                        </h7>
+                      </li>
+                      <li>
+                        <h7>
+                          Al capturar los datos obligatorios (<i
+                            class="fas fa-asterisk text-danger"
+                          ></i
+                          >), el indicador cambiará de estado (<i
+                            class="far fa-circle"
+                          ></i>
+                          <i class="fas fa-arrow-right"></i>
+                          <i class="fas fa-check-circle color-guinda"></i>).
+                        </h7>
+                      </li>
+                      <li>
+                        <h7>
+                          Una vez completados los indicadores, en la pestaña
+                          Finalizar Captura se habilitará el botón
+                          <span class="badge-instruccion-guinda"
+                            ><i class="fas fa-envelope"></i> Enviar
+                            Actualización</span
+                          >
+                          para que el personal de la Oficina valide sus cambios.
+                        </h7>
+                      </li>
+                      <li>
+                        <h7>
+                          Si visualiza el ícono
+                          <i
+                            class="fas fa-exclamation-triangle"
+                            style="color: #ffc107"
+                          ></i
+                          >, haga clic en él para consultar las observaciones
+                          realizadas por la autoridad y realice los ajustes
+                          necesarios.
+                        </h7>
+                      </li>
+                    </ol>
+                    <div class="row mt-2">
+                      <div class="col-sm-12 d-flex justify-content-center">
+                        <div
+                          class="alert alert-warning text-center"
+                          style="max-width: 800px; border-radius: 10px"
+                        >
+                          Consulta nuestro
+                          <a
+                            href="AvisoSIMPLIFICADO.pdf"
+                            target="_blank"
+                            style="color: #856404; text-decoration: underline"
+                            ><b>Aviso de Privacidad</b></a
+                          >
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row mt-2">
+                      <div class="col-sm-12 text-center">
+                        <button
+                          type="button"
+                          class="btn-sitio"
+                          id="BtnIniciar"
+                          onclick="iniciarActualizacion()"
+                        >
+                          <i class="fas fa-edit fa-lg mr-2"></i> Iniciar
+                          Actualización
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-    <div class="row mt-2">
-      <div class="col-sm-12 text-center">
-        <button
-          type="button"
-          class="btn-sitio"
-          id="BtnIniciar"
-          onclick="iniciarActualizacion()"
-        >
-          <i class="fas fa-edit fa-lg mr-2"></i> Iniciar Captura
-        </button>
-      </div>
-    </div>
-  </div>
-</div></div>
       </section>
     </main>
   </body>
