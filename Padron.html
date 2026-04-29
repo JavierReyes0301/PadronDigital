@@ -8,9 +8,9 @@
 
     <link rel="canonical" href="https://padron.digital/" />
 
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="css/style.css" />
 
-    <link rel="stylesheet" href="style-modales.css" />
+    <link rel="stylesheet" href="css/style-modales.css" />
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
@@ -23,13 +23,32 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
-      /* Asegura que el contenido no se encime con la barra de navegación */
       #nav-placeholder {
         min-height: 65px;
       }
       body {
         margin: 0;
         font-family: "Montserrat", sans-serif;
+      }
+      .btn-buscar {
+        background-color: #ab0a3d;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+      }
+      .btn-nueva {
+        background-color: #bc955c;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+      }
+      .cuadro-blanco {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
       }
     </style>
   </head>
@@ -38,7 +57,9 @@
 
     <main>
       <section class="seccion-catalogo">
-        <div class="titulo-seccion">CONSULTAR EL <span>PADRÓN</span></div>
+        <div class="titulo-seccion">
+          CONSULTAR EL PADRÓN <span class="anio-dinamico"></span>
+        </div>
 
         <div id="Padron" class="container">
           <div class="cuadro-blanco">
@@ -136,8 +157,12 @@
                 </div>
               </div>
 
-              <div class="btn-contenedor">
-                <button type="button" class="btn-buscar" onclick="Consultar()">
+              <div class="btn-contenedor text-center mt-4">
+                <button
+                  type="button"
+                  class="btn-buscar mr-2"
+                  onclick="Consultar()"
+                >
                   <i class="fas fa-search"></i> BUSCAR
                 </button>
                 <button
@@ -145,23 +170,26 @@
                   class="btn-nueva"
                   onclick="location.reload()"
                 >
-                  <i class="fas fa-plus"></i> NUEVA BÚSQUEDA
+                  <i class="fas fa-sync-alt"></i> NUEVA BÚSQUEDA
                 </button>
               </div>
               <input type="hidden" name="Buscar" id="Buscar" value="1" />
             </form>
           </div>
         </div>
+        <!-- Contenedor para mostrar los resultados vigentes -->
+        <div
+          id="contenedor-resultados-vigentes"
+          class="container mt-4 pb-5"
+        ></div>
       </section>
     </main>
 
-    <script src="conexion-supabase.js"></script>
+    <script src="js/conexion-supabase.js"></script>
 
-    <script src="gestion-sistema.js"></script>
+    <script src="js/gestion-padron-vigente.js"></script>
 
-    <script src="modales.js"></script>
-
-    <script src="menuindex.js"></script>
+    <script src="js/menuindex.js"></script>
 
     <div id="footer-placeholder"></div>
 

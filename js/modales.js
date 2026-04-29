@@ -268,6 +268,16 @@ document.body.insertAdjacentHTML("beforeend", modalesPadron);
 window.abrirRegistro = () => $("#ModalRegistro").modal("show");
 window.abrirLogin = () => $("#ModalLogin").modal("show");
 
+// Función para validar RFC en listas negras
+async function validarListaNegra(rfc) {
+  // Aquí podrías hacer un fetch a una API o una consulta a tu tabla en Supabase
+  // Ejemplo: const { data } = await window.clientSupa.from('listas_negras').select().eq('rfc', rfc);
+
+  // Simulación de validación
+  console.log("Verificando RFC en listas negras:", rfc);
+  return false; // Retorna true si está en lista negra, false si está limpio
+}
+
 // ==========================================
 // 2. CONTROLADOR DE FORMULARIOS CONSOLIDADO
 // ==========================================
@@ -277,37 +287,77 @@ document.addEventListener("submit", async (e) => {
   // --- LÓGICA DE REGISTRO ---
   if (targetId === "FormRegistro") {
     e.preventDefault();
+
+    // 1. Obtención de datos con desestructuración (Punto A)
+    const formData = new FormData(e.target);
+    const {
+      rfc,
+      correo,
+      pwd,
+      "tipo-persona": tipoPersona,
+    } = Object.fromEntries(formData);
+    const rfcLimpio = rfc.trim().toUpperCase();
+    const btn = e.target.querySelector('button[type="submit"]');
+
+    // 2. Validación de Contraseñas y Checkbox
     const checkbox = document.getElementById("checkAviso");
     if (!checkbox.checked) return alert("Debe aceptar el aviso de privacidad.");
-
-    const formData = new FormData(e.target);
-    if (formData.get("pwd") !== formData.get("confirm-pwd")) {
+    if (pwd !== formData.get("confirm-pwd"))
       return alert("Las contraseñas no coinciden.");
+
+    // 3. Validación Regex
+    const regexRFC =
+      /^([A-ZÑ&]{3,4}) ?(?:- ?)?(\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])) ?(?:- ?)?([A-Z\d]{2})([A\d])$/;
+    if (!regexRFC.test(rfcLimpio)) {
+      alert("El formato del RFC es inválido.");
+      return;
     }
 
-    const btn = e.target.querySelector('button[type="submit"]');
     try {
       btn.disabled = true;
       btn.innerText = "PROCESANDO...";
 
+      // 4. Verificación Silenciosa del SAT
+      const estaEnListaNegra = await consultarListasNegrasSAT(rfcLimpio);
+
+      if (estaEnListaNegra) {
+        // REGISTRO DE ALERTA PARA EL ADMINISTRADOR (Punto 3)
+        // Esto se guarda en Supabase sin que el usuario vea mensajes de error
+        await window.clientSupa.from("alertas_padrón").insert([
+          {
+            rfc_sospechoso: rfcLimpio,
+            correo_usuario: correo,
+            motivo: "RFC detectado en Lista Negra SAT (Art. 69-B)",
+          },
+        ]);
+      }
+
+      // 5. Ejecución del Registro (Recuperado el mensaje de éxito)
       const { data, error } = await window.clientSupa.auth.signUp({
-        email: formData.get("correo").toLowerCase().trim(),
-        password: formData.get("pwd"),
+        email: correo.toLowerCase().trim(),
+        password: pwd,
         options: {
           data: {
-            rfc: formData.get("rfc").trim().toUpperCase(),
-            tipo_persona: formData.get("tipo-persona"),
+            rfc: rfcLimpio,
+            tipo_persona: tipoPersona,
+            lista_negra: estaEnListaNegra, // Guardamos el estado en la metadata
           },
         },
       });
 
       if (error) throw error;
 
-      alert("¡Registro exitoso! Revisa tu correo para confirmar.");
+      // MENSAJE DE ÉXITO (Recuperado)
+      alert("¡Registro exitoso! Revisa tu correo para confirmar tu cuenta.");
       $("#ModalRegistro").modal("hide");
       e.target.reset();
     } catch (err) {
-      alert("Error de Registro: " + err.message);
+      // Manejo de errores amigable (Punto B)
+      const msg =
+        err.message === "User already registered"
+          ? "Este correo ya está registrado."
+          : "Error: " + err.message;
+      alert(msg);
     } finally {
       btn.disabled = false;
       btn.innerText = "CONTINUAR REGISTRO";
@@ -318,6 +368,8 @@ document.addEventListener("submit", async (e) => {
   if (targetId === "FormaLogin") {
     e.preventDefault();
     const formData = new FormData(e.target);
+    // DESESTRUCTURACIÓN (Punto A)
+    const { correo_login, password_login } = Object.fromEntries(formData);
     const btn = e.target.querySelector('button[type="submit"]');
 
     try {
@@ -325,8 +377,8 @@ document.addEventListener("submit", async (e) => {
       btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> VERIFICANDO...';
 
       const { data, error } = await window.clientSupa.auth.signInWithPassword({
-        email: formData.get("correo_login").trim().toLowerCase(),
-        password: formData.get("password_login"),
+        email: correo_login.trim().toLowerCase(),
+        password: password_login,
       });
 
       if (error) throw error;
@@ -364,12 +416,14 @@ document.addEventListener("submit", async (e) => {
         });
       }
     } catch (err) {
-      alert(
-        "Error: " +
-          (err.message === "Invalid login credentials"
-            ? "Datos incorrectos"
-            : err.message),
-      );
+      // Manejo de errores más legible (Punto B)
+      const mensajesError = {
+        "Invalid login credentials": "Correo o contraseña incorrectos.",
+        "Email not confirmed": "Por favor, verifica tu correo antes de entrar.",
+      };
+
+      alert("Error: " + (mensajesError[err.message] || err.message));
+
       btn.disabled = false;
       btn.innerText = "INICIAR SESIÓN";
     }
@@ -377,37 +431,32 @@ document.addEventListener("submit", async (e) => {
 });
 
 // ==========================================
-// 0. INTERCEPTOR DE SESIÓN ACTIVA (Corregido)
+// 0. INTERCEPTOR DE SESIÓN GLOBAL (Punto 3)
 // ==========================================
-document.addEventListener("DOMContentLoaded", async () => {
-  if (window.clientSupa) {
-    const {
-      data: { session },
-    } = await window.clientSupa.auth.getSession();
+document.addEventListener(
+  "click",
+  async (e) => {
+    // Detecta si el clic fue en un botón de Login o Registro
+    const btnAcceso = e.target.closest(
+      '[onclick*="abrirLogin"], [onclick*="abrirRegistro"], [data-target="#ModalLogin"]',
+    );
 
-    if (session) {
-      const botonesAcceso = document.querySelectorAll(
-        '[onclick*="abrirLogin"], [onclick*="abrirRegistro"], [data-target="#ModalLogin"], [data-target="#ModalRegistro"]',
-      );
+    if (btnAcceso && window.clientSupa) {
+      const {
+        data: { session },
+      } = await window.clientSupa.auth.getSession();
 
-      botonesAcceso.forEach((btn) => {
-        btn.removeAttribute("data-toggle");
-        btn.removeAttribute("data-target");
+      if (session) {
+        // Detenemos la apertura del modal
+        e.preventDefault();
+        e.stopImmediatePropagation();
 
-        btn.onclick = (e) => {
-          e.preventDefault();
-          const rfc = session.user.user_metadata?.rfc || "usuario";
-
-          if (
-            confirm(
-              `Actualmente existe una sesión iniciada (${rfc}).\n\n¿Desea ir directamente a su panel de control?`,
-            )
-          ) {
-            // Redirección Limpia
-            window.location.assign("./inicio/inicio.html?u=r");
-          }
-        };
-      });
+        const rfc = session.user.user_metadata?.rfc || "usuario";
+        if (confirm(`Sesión activa: ${rfc}.\n¿Ir al panel de control?`)) {
+          window.location.assign("./inicio/inicio.html?u=r");
+        }
+      }
     }
-  }
-});
+  },
+  true,
+); // El 'true' permite capturar el evento antes que los otros scripts

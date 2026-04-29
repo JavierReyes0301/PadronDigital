@@ -1,18 +1,22 @@
-// gestion-sistema.js
+// js/gestion-sistema.js
 
 // 1. Variable global para almacenar los datos procesados de Supabase
 let mapaDatos = {};
 
 /**
- * ADECUACIÓN: Función principal mejorada.
- * Se encarga de descargar y procesar los datos de giros y líneas.
+ * Función ayudante para extraer números de strings y permitir ordenamiento lógico
+ */
+function extraerNumero(texto) {
+  return parseInt(texto.toString().replace(/\D/g, "")) || 0;
+}
+
+/**
+ * Función principal para descargar y procesar los datos
  */
 async function cargarDatosSupabase() {
   try {
-    // Verificamos si la conexión global existe
     if (!window.clientSupa) {
       console.warn("⏳ Esperando a que 'window.clientSupa' esté disponible...");
-      // Reintenta en 500ms si la conexión aún no carga
       setTimeout(cargarDatosSupabase, 500);
       return;
     }
@@ -29,7 +33,6 @@ async function cargarDatosSupabase() {
       return;
     }
 
-    // Procesamiento de datos para agrupar líneas por Giro
     mapaDatos = {};
     data.forEach((fila) => {
       if (!mapaDatos[fila.id_giro]) {
@@ -50,9 +53,12 @@ async function cargarDatosSupabase() {
       }
     });
 
-    // Ejecutamos la actualización de la interfaz
+    // Renderizado de componentes
     llenarSelectGiros();
     dibujarTablasCatalogo();
+
+    // INICIALIZACIÓN DEL BUSCADOR: Se ejecuta solo después de que el HTML existe
+    inicializarBuscador();
 
     console.log("✅ Datos cargados y sistema actualizado");
   } catch (err) {
@@ -60,25 +66,27 @@ async function cargarDatosSupabase() {
   }
 }
 
-// 2. Función para dibujar las tablas en orden (G1, G2, G3...)
+/**
+ * Dibuja las tablas en el contenedor principal
+ */
 function dibujarTablasCatalogo() {
   const contenedor = document.getElementById("contenedor-tablas");
   if (!contenedor) return;
 
   contenedor.innerHTML = "";
+  const fragmento = document.createDocumentFragment();
 
-  const idsOrdenados = Object.keys(mapaDatos).sort((a, b) => {
-    const numA = parseInt(a.toString().replace(/\D/g, "")) || 0;
-    const numB = parseInt(b.toString().replace(/\D/g, "")) || 0;
-    return numA - numB;
-  });
+  const idsOrdenados = Object.keys(mapaDatos).sort(
+    (a, b) => extraerNumero(a) - extraerNumero(b),
+  );
 
   idsOrdenados.forEach((id) => {
     const giro = mapaDatos[id];
     const seccionGiro = document.createElement("div");
 
+    // Clase para identificar la sección completa durante la búsqueda
     seccionGiro.className =
-      "my-3 p-2 shadow-sm bg-white rounded border mx-auto";
+      "seccion-contenedor-giro my-3 p-2 shadow-sm bg-white rounded border mx-auto";
     seccionGiro.style.maxWidth = "95%";
 
     const idSoloNumero = id.toString().replace(/\D/g, "");
@@ -97,11 +105,9 @@ function dibujarTablasCatalogo() {
         <tbody>
     `;
 
-    const lineasOrdenadas = [...giro.lineas].sort((a, b) => {
-      const numA = parseInt(a.nombre.replace(/\D/g, "")) || 0;
-      const numB = parseInt(b.nombre.replace(/\D/g, "")) || 0;
-      return numA - numB;
-    });
+    const lineasOrdenadas = [...giro.lineas].sort(
+      (a, b) => extraerNumero(a.nombre) - extraerNumero(b.nombre),
+    );
 
     lineasOrdenadas.forEach((item) => {
       html += `
@@ -114,21 +120,71 @@ function dibujarTablasCatalogo() {
 
     html += `</tbody></table>`;
     seccionGiro.innerHTML = html;
-    contenedor.appendChild(seccionGiro);
+    fragmento.appendChild(seccionGiro);
+  });
+
+  contenedor.appendChild(fragmento);
+}
+
+/**
+ * Lógica del Buscador Dinámico con adecuaciones visuales
+ */
+function inicializarBuscador() {
+  const input = document.getElementById("inputBuscador");
+  if (!input) return;
+
+  // Aplicar estilos de la marca directamente al input para asegurar consistencia
+  const inputGroup = input.closest(".input-group");
+  if (inputGroup) {
+    const iconContainer = inputGroup.querySelector(".input-group-text");
+    if (iconContainer) {
+      iconContainer.style.backgroundColor = "#ab0a3d";
+      iconContainer.style.color = "white";
+      iconContainer.style.borderColor = "#bc955c";
+    }
+    input.style.borderColor = "#bc955c";
+    input.style.fontFamily = "'Montserrat', sans-serif";
+  }
+
+  input.addEventListener("keyup", function () {
+    const filtro = this.value.toLowerCase().trim();
+    const seccionesGiro = document.querySelectorAll(".seccion-contenedor-giro");
+
+    seccionesGiro.forEach((seccion) => {
+      const filas = seccion.querySelectorAll("tbody tr");
+      let tieneCoincidencia = false;
+
+      filas.forEach((fila) => {
+        const textoFila = fila.textContent.toLowerCase();
+        if (textoFila.includes(filtro)) {
+          fila.style.display = "";
+          tieneCoincidencia = true;
+        } else {
+          fila.style.display = "none";
+        }
+      });
+
+      // Si el filtro está vacío mostrar todo, si no, ocultar secciones sin coincidencias
+      if (filtro === "") {
+        seccion.style.display = "";
+      } else {
+        seccion.style.display = tieneCoincidencia ? "" : "none";
+      }
+    });
   });
 }
 
-// 3. Funciones para los menús desplegables (Selects)
+/**
+ * Funciones para los menús desplegables (Selects)
+ */
 function llenarSelectGiros() {
   const selectGiro = document.getElementById("SelectGiro");
   if (!selectGiro) return;
   selectGiro.innerHTML = '<option value="0">-- Seleccione un Giro --</option>';
 
-  const idsOrdenados = Object.keys(mapaDatos).sort((a, b) => {
-    const numA = parseInt(a.toString().replace(/\D/g, "")) || 0;
-    const numB = parseInt(b.toString().replace(/\D/g, "")) || 0;
-    return numA - numB;
-  });
+  const idsOrdenados = Object.keys(mapaDatos).sort(
+    (a, b) => extraerNumero(a) - extraerNumero(b),
+  );
 
   idsOrdenados.forEach((id) => {
     const opt = document.createElement("option");
@@ -143,11 +199,9 @@ function actualizarLineas() {
   const selectLinea = document.getElementById("LineaSel");
   if (!selectLinea || giroId === "0") return;
 
-  const lineasDisponibles = [...mapaDatos[giroId].lineas].sort((a, b) => {
-    const numA = parseInt(a.nombre.replace(/\D/g, "")) || 0;
-    const numB = parseInt(b.nombre.replace(/\D/g, "")) || 0;
-    return numA - numB;
-  });
+  const lineasDisponibles = [...mapaDatos[giroId].lineas].sort(
+    (a, b) => extraerNumero(a.nombre) - extraerNumero(b.nombre),
+  );
 
   selectLinea.innerHTML =
     '<option value="0">-- Seleccione una Línea --</option>';
@@ -160,5 +214,5 @@ function actualizarLineas() {
   selectLinea.disabled = false;
 }
 
-// 4. INICIO AUTOMÁTICO
+// INICIO AUTOMÁTICO AL CARGAR EL DOM
 document.addEventListener("DOMContentLoaded", cargarDatosSupabase);

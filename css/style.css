@@ -682,6 +682,9 @@ section {
   cursor: pointer;
 }
 
+/* ============================================================
+   ESTILO BUSCADOR DE GIROS Y LIENAS
+   ============================================================ */
 /* Estilo Guinda para Buscar y Restaurar */
 .btn-buscar,
 .btn-restaurar {
@@ -720,4 +723,29 @@ section {
   margin-bottom: 25px;
   text-align: justify;
   line-height: 1.5;
+}
+
+/* Estilos para el buscador dentro del contenedor de giros */
+.busqueda-padron .input-group-text {
+  background-color: #ab0a3d; /* Guinda Institucional */
+  color: white;
+  border: 1px solid #bc955c; /* Dorado */
+  border-radius: 4px 0 0 4px;
+}
+
+.busqueda-padron .form-control {
+  border: 1px solid #bc955c; /* Dorado */
+  font-family: "Montserrat", sans-serif;
+}
+
+.busqueda-padron .form-control:focus {
+  border-color: #ab0a3d;
+  box-shadow: 0 0 0 0.2rem rgba(171, 10, 61, 0.25);
+}
+
+/* Ajuste para el placeholder */
+.busqueda-padron .form-control::placeholder {
+  color: #999;
+  font-size: 0.9rem;
+  font-style: italic;
 }

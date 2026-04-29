@@ -8,9 +8,9 @@
 
     <link rel="canonical" href="https://padron.digital/" />
 
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="css/style.css" />
 
-    <link rel="stylesheet" href="style-modales.css" />
+    <link rel="stylesheet" href="css/style-modales.css" />
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
@@ -42,18 +42,38 @@
 
       <section id="giroslineas" class="seccion-giros">
         <div class="titulo-seccion">CATÁLOGO DE <span>GIROS-LÍNEAS</span></div>
+
+        <!-- Sección del Buscador -->
+        <div class="container mb-4 busqueda-padron">
+          <div class="row justify-content-center">
+            <div class="col-md-6">
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text"
+                    ><i class="fas fa-search"></i
+                  ></span>
+                </div>
+                <input
+                  type="text"
+                  id="inputBuscador"
+                  class="form-control shadow-none"
+                  placeholder="Buscar por clave, giro o descripción..."
+                  autocomplete="off"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
         <div class="table-responsive" id="contenedor-tablas"></div>
 
         <div style="display: flex; justify-content: center; margin: 5px"></div>
       </section>
     </main>
-    <script src="conexion-supabase.js"></script>
+    <script src="js/conexion-supabase.js"></script>
 
-    <script src="gestion-sistema.js"></script>
+    <script src="js/gestion-sistema.js"></script>
 
-    <script src="modales.js"></script>
-
-    <script src="menuindex.js"></script>
+    <script src="js/menuindex.js"></script>
 
     <div id="footer-placeholder"></div>
 
