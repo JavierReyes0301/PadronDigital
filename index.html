@@ -7,9 +7,7 @@
     <title>Padrón de Proveedores | Atlixco</title>
 
     <link rel="canonical" href="https://padron.digital/" />
-
     <link rel="stylesheet" href="css/style.css" />
-
     <link rel="stylesheet" href="css/style-modales.css" />
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -20,16 +18,25 @@
     />
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- SDK de Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
-      /* Asegura que el contenido no se encime con la barra de navegación */
       #nav-placeholder {
         min-height: 65px;
       }
       body {
         margin: 0;
         font-family: "Montserrat", sans-serif;
+      }
+      /* Estilo para que los punteros indiquen que los cuadros son cliqueables */
+      .icon-box {
+        cursor: pointer;
+        transition: transform 0.2s;
+      }
+      .icon-box:hover {
+        transform: translateY(-5px);
+        background-color: rgba(0, 0, 0, 0.02);
       }
     </style>
   </head>
@@ -44,7 +51,7 @@
             <a href="https://www.atlixco.gob.mx/Ayto">
               <img
                 src="https://maopuzbvxucsarrydmte.supabase.co/storage/v1/object/public/Imag/Logo.png"
-                alt="logotipo"
+                alt="Logotipo oficial del H. Ayuntamiento de Atlixco, Puebla"
                 class="logo-img"
               />
             </a>
@@ -52,8 +59,8 @@
           <div class="banner-text">
             <h1 class="titulo">PADRÓN DE PROVEEDORES</h1>
             <p class="texto-p">
-              Bienvenido al portal oficial del Padron de Proveedores del
-              Municipio de Atlixco. Si tienes interes en registrar tus datos
+              Bienvenido al portal oficial del Padrón de Proveedores del
+              Municipio de Atlixco. Si tienes interés en registrar tus datos
               para formar parte de nuestro padrón, hazlo por este medio.
             </p>
             <a href="#registro" class="btn">
@@ -77,12 +84,12 @@
         <h2 class="titulo-seccion">REGISTRO Y <span>ACCESO</span></h2>
         <div class="container-universal">
           <div class="custom-main-box">
+            <!-- Modal Registro -->
             <div class="custom-col-4">
               <div
                 class="icon-box border-dashed"
                 data-toggle="modal"
                 data-target="#ModalRegistro"
-                style="cursor: pointer"
               >
                 <div class="icon-wrapper">
                   <svg
@@ -97,16 +104,15 @@
                     />
                   </svg>
                 </div>
-
                 <div class="project-name fnt700">
                   <p>
-                    ¿No estás inscrito? <br />
-                    <strong>¡REGÍSTRATE AQUÍ!</strong>
+                    ¿No estás inscrito? <br /><strong>¡REGÍSTRATE AQUÍ!</strong>
                   </p>
                 </div>
               </div>
             </div>
 
+            <!-- Otros Modales -->
             <div class="custom-col-4">
               <div
                 class="icon-box border-dashed"
@@ -126,7 +132,7 @@
                   </svg>
                 </div>
                 <div class="project-name fnt700">
-                  <p>Requisitos de inscripicón</p>
+                  <p>Requisitos de inscripción</p>
                 </div>
               </div>
             </div>
@@ -179,12 +185,12 @@
               </div>
             </div>
 
+            <!-- Botón Login -->
             <div class="custom-col-4">
               <div
                 class="icon-box border-dashed"
                 data-toggle="modal"
                 data-target="#ModalLogin"
-                style="cursor: pointer"
               >
                 <div class="icon-wrapper">
                   <svg
@@ -198,17 +204,15 @@
                     />
                   </svg>
                 </div>
-                <div class="project-name fnt700">
-                  <p>Iniciar sesión</p>
-                </div>
+                <div class="project-name fnt700"><p>Iniciar sesión</p></div>
               </div>
             </div>
 
+            <!-- Link a restaurar.html (Uso de data-url para JS) -->
             <div class="custom-col-4">
               <div
-                class="icon-box border-dashed"
-                onclick="window.location.href = 'Restaurar.html#Restaurar'"
-                style="cursor: pointer"
+                class="icon-box border-dashed js-link"
+                data-url="restaurar.html#Restaurar"
               >
                 <div class="icon-wrapper">
                   <svg
@@ -237,9 +241,8 @@
           <div class="custom-main-box">
             <div class="custom-col-4">
               <div
-                class="icon-box border-dashed"
-                onclick="document.PadronActual.submit()"
-                style="cursor: pointer"
+                class="icon-box border-dashed js-link"
+                data-url="Padron.html"
               >
                 <div class="icon-wrapper">
                   <svg
@@ -253,17 +256,14 @@
                     />
                   </svg>
                 </div>
-                <div class="project-name fnt700">
-                  <p>Padrón 2026</p>
-                </div>
+                <div class="project-name fnt700"><p>Padrón 2026</p></div>
               </div>
             </div>
 
             <div class="custom-col-4">
               <div
-                class="icon-box border-dashed"
-                onclick="document.Historial.submit()"
-                style="cursor: pointer"
+                class="icon-box border-dashed js-link"
+                data-url="Historial.html"
               >
                 <div class="icon-wrapper">
                   <svg
@@ -285,9 +285,8 @@
 
             <div class="custom-col-4">
               <div
-                class="icon-box border-dashed"
-                onclick="document.GirosLineas.submit()"
-                style="cursor: pointer"
+                class="icon-box border-dashed js-link"
+                data-url="GirosLineas.html"
               >
                 <div class="icon-wrapper">
                   <svg
@@ -308,24 +307,6 @@
             </div>
           </div>
         </div>
-        <form
-          name="PadronActual"
-          action="Padron.html"
-          method="get"
-          target="_blank"
-        ></form>
-        <form
-          name="Historial"
-          action="Historial.html"
-          method="get"
-          target="_blank"
-        ></form>
-        <form
-          name="GirosLineas"
-          action="GirosLineas.html"
-          method="get"
-          target="_blank"
-        ></form>
       </section>
 
       <section id="atencion-aclaraciones">
@@ -338,7 +319,7 @@
               </div>
               <hr class="hr-dorada" />
               <a
-                href="https://www.google.com/maps/place/Palacio+Municipal/@18.9092814,-98.4384761,622m/data=!3m1!1e3!4m10!1m2!2m1!1sayuntamiento+atlixco!3m6!1s0x85cfb47b90b54167:0x1ae3061408f2f147!8m2!3d18.9092814!4d-98.43397!15sChRheXVudGFtaWVudG8gYXRsaXhjb1oWIhRheXVudGFtaWVudG8gYXRsaXhjb5IBF2xvY2FsX2dvdmVybm1lbnRfb2ZmaWNlmgEjQ2haRFNVaE5NRzluUzBWSlEwRm5UVVJuYmkxbWMwMVJFQUXgAQD6AQUInwEQFQ!16s%2Fg%2F11f2642nr4?entry=ttu&g_ep=EgoyMDI2MDExMy4wIKXMDSoKLDEwMDc5MjA3MUgBUAM%3D"
+                href="https://www.google.com/maps/..."
                 class="enlace-mapa"
                 target="_blank"
                 rel="noopener"
@@ -379,7 +360,7 @@
               <hr class="hr-dorada" />
               <p style="text-align: justify">
                 El costo por la expedición de constancia o cédula de registro o
-                revalidación en el Padron de Proveedores es de $1,844.50
+                revalidación en el Padrón de Proveedores es de $1,844.50
               </p>
             </div>
           </div>
@@ -400,8 +381,7 @@
               </span>
               <p>
                 Ley Adquisiciones, Arrendamientos y Servicios del Sector Público
-                Estatal y Municipal; Artículo 6 Fracción XIX, 24, 25, 26, 27,
-                28, 29, 30, 31 y 32.
+                Estatal y Municipal; Artículo 6 Fracción XIX, 24 al 32.
               </p>
             </li>
           </ul>
@@ -409,12 +389,10 @@
       </section>
     </main>
 
+    <!-- Scripts de Lógica -->
     <script src="js/conexion-supabase.js"></script>
-
     <script src="js/gestion-sistema.js"></script>
-
     <script src="js/modales.js"></script>
-
     <script src="js/menuindex.js"></script>
 
     <div id="footer-placeholder"></div>
