@@ -444,19 +444,21 @@ document.addEventListener("submit", async (e) => {
         };
       });
     } catch (err) {
-      // Traducción de errores de Login
-      let mensaje = "Error al iniciar sesión.";
-
-      if (err.message === "Invalid login credentials") {
-        mensaje =
-          "El correo o la contraseña son incorrectos. Verifique sus datos.";
-      } else if (err.message === "Email not confirmed") {
-        mensaje =
-          "Su cuenta aún no ha sido confirmada. Revise su correo electrónico.";
+      // TRADUCCIÓN DE ERRORES DE REGISTRO
+      if (err.message === "User already registered") {
+        alert(
+          "Este correo electrónico ya está registrado. Intente iniciar sesión.",
+        );
+      } else if (err.message === "Password should be at least 6 characters") {
+        alert("La contraseña debe tener al menos 6 caracteres.");
+      } else if (err.message.includes("Database error")) {
+        // NUEVA TRADUCCIÓN PARA EL ERROR DE LA IMAGEN
+        alert(
+          "Error de base de datos: No se pudieron guardar sus datos de perfil. Por favor, contacte al administrador.",
+        );
       } else {
-        mensaje = "Credenciales inválidas o problema de conexión.";
+        alert("Error al registrar: " + err.message);
       }
-
       alert(mensaje);
       btn.disabled = false;
       btn.innerText = "INICIAR SESIÓN";
