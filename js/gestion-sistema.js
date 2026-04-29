@@ -1,38 +1,38 @@
-// js/gestion-sistema.js
+/**
+ * js/gestion-sistema.js
+ * Lógica para el catálogo dinámico de giros y líneas comerciales.
+ */
 
-// 1. Variable global para almacenar los datos procesados de Supabase
 let mapaDatos = {};
 
 /**
- * Función ayudante para extraer números de strings y permitir ordenamiento lógico
+ * Extrae números de strings para ordenamiento lógico (ej. "G10" -> 10)
  */
 function extraerNumero(texto) {
-  return parseInt(texto.toString().replace(/\D/g, "")) || 0;
+  if (!texto) return 0;
+  return parseInt(texto.toString().replace(/\D/g, ""), 10) || 0;
 }
 
 /**
- * Función principal para descargar y procesar los datos
+ * Carga inicial de datos desde Supabase
  */
 async function cargarDatosSupabase() {
   try {
+    // Verificamos disponibilidad del cliente global configurado en conexion-supabase.js
     if (!window.clientSupa) {
-      console.warn("⏳ Esperando a que 'window.clientSupa' esté disponible...");
+      console.warn("⏳ Reintentando conexión con base de datos...");
       setTimeout(cargarDatosSupabase, 500);
       return;
     }
-
-    console.log("Consultando base de datos...");
 
     const { data, error } = await window.clientSupa
       .from("giros_lineas")
       .select("id_giro, nombre_giro, linea, descripcion")
       .order("id_giro", { ascending: true });
 
-    if (error) {
-      console.error("❌ Error de Supabase:", error.message);
-      return;
-    }
+    if (error) throw error;
 
+    // Procesamiento: Agrupamos líneas bajo su respectivo giro
     mapaDatos = {};
     data.forEach((fila) => {
       if (!mapaDatos[fila.id_giro]) {
@@ -42,32 +42,31 @@ async function cargarDatosSupabase() {
         };
       }
 
+      // Evitar duplicados de líneas en el mismo giro
       const existe = mapaDatos[fila.id_giro].lineas.some(
         (l) => l.nombre === fila.linea,
       );
       if (!existe) {
         mapaDatos[fila.id_giro].lineas.push({
           nombre: fila.linea,
-          desc: fila.descripcion || "Sin descripción",
+          desc: fila.descripcion || "Sin descripción detallada",
         });
       }
     });
 
-    // Renderizado de componentes
+    // Actualización de la interfaz
     llenarSelectGiros();
     dibujarTablasCatalogo();
-
-    // INICIALIZACIÓN DEL BUSCADOR: Se ejecuta solo después de que el HTML existe
     inicializarBuscador();
 
-    console.log("✅ Datos cargados y sistema actualizado");
+    console.log("✅ Sistema de catálogo listo.");
   } catch (err) {
-    console.error("❌ Error crítico en el script de gestión:", err.message);
+    console.error("❌ Error en gestión de datos:", err.message);
   }
 }
 
 /**
- * Dibuja las tablas en el contenedor principal
+ * Renderiza las tablas de catálogo en el HTML
  */
 function dibujarTablasCatalogo() {
   const contenedor = document.getElementById("contenedor-tablas");
@@ -76,6 +75,7 @@ function dibujarTablasCatalogo() {
   contenedor.innerHTML = "";
   const fragmento = document.createDocumentFragment();
 
+  // Ordenar IDs numéricamente
   const idsOrdenados = Object.keys(mapaDatos).sort(
     (a, b) => extraerNumero(a) - extraerNumero(b),
   );
@@ -83,28 +83,28 @@ function dibujarTablasCatalogo() {
   idsOrdenados.forEach((id) => {
     const giro = mapaDatos[id];
     const seccionGiro = document.createElement("div");
-
-    // Clase para identificar la sección completa durante la búsqueda
     seccionGiro.className =
-      "seccion-contenedor-giro my-3 p-2 shadow-sm bg-white rounded border mx-auto";
-    seccionGiro.style.maxWidth = "95%";
+      "seccion-contenedor-giro my-4 p-3 shadow-sm bg-white rounded border mx-auto";
+    seccionGiro.style.maxWidth = "1000px";
 
-    const idSoloNumero = id.toString().replace(/\D/g, "");
+    const idLimpio = id.toString().replace(/\D/g, "");
 
     let html = `
-      <h5 class="mt-1 text-center" style="color: #ab0a3d; border-bottom: 2px solid #bc955c; padding-bottom: 8px; font-weight: bold; font-size: 1.1rem;">
-        G${idSoloNumero} ${giro.nombre}
+      <h5 class="mt-1 text-center" style="color: #ab0a3d; border-bottom: 2px solid #bc955c; padding-bottom: 10px; font-weight: 700;">
+        GIRO ${idLimpio}: ${giro.nombre.toUpperCase()}
       </h5>
-      <table class="table table-sm table-striped table-bordered mt-2" style="font-size: 0.85rem;">
-        <thead>
-          <tr style="background-color: #ab0a3d; color: white;">
-            <th class="text-center" style="width: 12%; border: 1px solid #bc955c;">Línea</th>
-            <th class="text-center" style="border: 1px solid #bc955c;">Descripción</th>
-          </tr>
-        </thead>
-        <tbody>
+      <div class="table-responsive">
+        <table class="table table-sm table-hover table-bordered mt-2" style="font-size: 0.9rem;">
+          <thead style="background-color: #ab0a3d; color: white;">
+            <tr>
+              <th class="text-center" style="width: 15%; border-color: #bc955c;">Línea</th>
+              <th class="text-center" style="border-color: #bc955c;">Descripción de Actividades</th>
+            </tr>
+          </thead>
+          <tbody>
     `;
 
+    // Ordenar líneas numéricamente
     const lineasOrdenadas = [...giro.lineas].sort(
       (a, b) => extraerNumero(a.nombre) - extraerNumero(b.nombre),
     );
@@ -112,13 +112,13 @@ function dibujarTablasCatalogo() {
     lineasOrdenadas.forEach((item) => {
       html += `
         <tr>
-          <td class="text-center" style="vertical-align: middle;"><strong>${item.nombre}</strong></td>
-          <td style="vertical-align: middle; padding-left: 10px;">${item.desc}</td>
+          <td class="text-center align-middle"><strong>${item.nombre}</strong></td>
+          <td class="align-middle px-3">${item.desc}</td>
         </tr>
       `;
     });
 
-    html += `</tbody></table>`;
+    html += `</tbody></table></div>`;
     seccionGiro.innerHTML = html;
     fragmento.appendChild(seccionGiro);
   });
@@ -127,60 +127,53 @@ function dibujarTablasCatalogo() {
 }
 
 /**
- * Lógica del Buscador Dinámico con adecuaciones visuales
+ * Filtro dinámico de búsqueda
  */
 function inicializarBuscador() {
   const input = document.getElementById("inputBuscador");
   if (!input) return;
 
-  // Aplicar estilos de la marca directamente al input para asegurar consistencia
+  // Estilización del componente de búsqueda
   const inputGroup = input.closest(".input-group");
   if (inputGroup) {
-    const iconContainer = inputGroup.querySelector(".input-group-text");
-    if (iconContainer) {
-      iconContainer.style.backgroundColor = "#ab0a3d";
-      iconContainer.style.color = "white";
-      iconContainer.style.borderColor = "#bc955c";
+    const icon = inputGroup.querySelector(".input-group-text");
+    if (icon) {
+      icon.style.cssText =
+        "background-color: #ab0a3d; color: white; border-color: #bc955c;";
     }
     input.style.borderColor = "#bc955c";
-    input.style.fontFamily = "'Montserrat', sans-serif";
   }
 
-  input.addEventListener("keyup", function () {
+  // Evento 'input' para respuesta inmediata
+  input.addEventListener("input", function () {
     const filtro = this.value.toLowerCase().trim();
-    const seccionesGiro = document.querySelectorAll(".seccion-contenedor-giro");
+    const secciones = document.querySelectorAll(".seccion-contenedor-giro");
 
-    seccionesGiro.forEach((seccion) => {
+    secciones.forEach((seccion) => {
       const filas = seccion.querySelectorAll("tbody tr");
       let tieneCoincidencia = false;
 
       filas.forEach((fila) => {
-        const textoFila = fila.textContent.toLowerCase();
-        if (textoFila.includes(filtro)) {
-          fila.style.display = "";
-          tieneCoincidencia = true;
-        } else {
-          fila.style.display = "none";
-        }
+        const coinciden = fila.textContent.toLowerCase().includes(filtro);
+        fila.style.display = coinciden ? "" : "none";
+        if (coinciden) tieneCoincidencia = true;
       });
 
-      // Si el filtro está vacío mostrar todo, si no, ocultar secciones sin coincidencias
-      if (filtro === "") {
-        seccion.style.display = "";
-      } else {
-        seccion.style.display = tieneCoincidencia ? "" : "none";
-      }
+      // Mostrar/Ocultar la sección completa (Giro) si no hay líneas que coincidan
+      seccion.style.display = filtro === "" || tieneCoincidencia ? "" : "none";
     });
   });
 }
 
 /**
- * Funciones para los menús desplegables (Selects)
+ * Lógica para los selectores dependientes (Giro -> Línea)
  */
 function llenarSelectGiros() {
   const selectGiro = document.getElementById("SelectGiro");
   if (!selectGiro) return;
-  selectGiro.innerHTML = '<option value="0">-- Seleccione un Giro --</option>';
+
+  selectGiro.innerHTML =
+    '<option value="0" selected disabled>-- Seleccione un Giro --</option>';
 
   const idsOrdenados = Object.keys(mapaDatos).sort(
     (a, b) => extraerNumero(a) - extraerNumero(b),
@@ -192,6 +185,9 @@ function llenarSelectGiros() {
     opt.textContent = `Giro ${id}: ${mapaDatos[id].nombre}`;
     selectGiro.appendChild(opt);
   });
+
+  // Escuchador para actualizar el segundo select
+  selectGiro.addEventListener("change", actualizarLineas);
 }
 
 function actualizarLineas() {
@@ -204,15 +200,16 @@ function actualizarLineas() {
   );
 
   selectLinea.innerHTML =
-    '<option value="0">-- Seleccione una Línea --</option>';
+    '<option value="0" selected disabled>-- Seleccione una Línea --</option>';
   lineasDisponibles.forEach((item) => {
     const opt = document.createElement("option");
     opt.value = item.nombre;
     opt.textContent = `${item.nombre} - ${item.desc}`;
     selectLinea.appendChild(opt);
   });
+
   selectLinea.disabled = false;
 }
 
-// INICIO AUTOMÁTICO AL CARGAR EL DOM
+// Arranque
 document.addEventListener("DOMContentLoaded", cargarDatosSupabase);
