@@ -444,25 +444,10 @@ document.addEventListener("submit", async (e) => {
           );
         };
       });
+      // Cambia esto en tu JS para ver el detalle técnico del error
     } catch (err) {
-      // CORRECCIÓN: Definición de variable mensaje para evitar errores de referencia
-      let mensaje = "Error al iniciar sesión. Verifique sus datos.";
-
-      if (err.message === "Invalid login credentials") {
-        mensaje = "Correo o contraseña incorrectos.";
-      } else if (
-        err.message.includes("Database error") ||
-        err.message.includes("database")
-      ) {
-        mensaje =
-          "Error de base de datos: No se pudieron sincronizar sus datos. Contacte a soporte.";
-      } else {
-        mensaje = `Error: ${err.message}`;
-      }
-
-      alert(mensaje);
-      btn.disabled = false;
-      btn.innerText = "INICIAR SESIÓN";
+      console.error("Detalle completo del error:", err);
+      alert("Error técnico: " + (err.details || err.message));
     }
   }
 });
