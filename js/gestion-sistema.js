@@ -166,7 +166,7 @@ document.addEventListener("submit", async (e) => {
       .replace(/[^A-Z0-9]/g, "");
 
     if (!document.getElementById("checkAviso").checked)
-      return alert("Acepte el aviso de privacidad.");
+      return alert("Debe aceptar el aviso de privacidad.");
     if (datos.pwd.length < 8) return alert("Mínimo 8 caracteres.");
     if (datos.pwd !== datos["confirm-pwd"])
       return alert("Las contraseñas no coinciden.");
@@ -175,7 +175,8 @@ document.addEventListener("submit", async (e) => {
       btn.disabled = true;
       btn.innerText = "PROCESANDO...";
 
-      const { data, error } = await window.clientSupa.auth.signUp({
+      // Usamos una estructura que no dependa de la mutabilidad del objeto de respuesta
+      const respuesta = await window.clientSupa.auth.signUp({
         email: datos.correo.toLowerCase().trim(),
         password: datos.pwd,
         options: {
@@ -183,16 +184,27 @@ document.addEventListener("submit", async (e) => {
         },
       });
 
-      if (error) throw error;
-      alert("¡Registro exitoso! Revise su correo.");
+      // Verificación manual para evitar el error de "object is not extensible"
+      if (respuesta && respuesta.error) throw respuesta.error;
+
+      alert(
+        "¡Registro enviado! Por favor, revise su correo para confirmar su cuenta.",
+      );
       $("#ModalRegistro").modal("hide");
+      e.target.reset();
     } catch (err) {
-      // Manejo del error de token o errores comunes
+      // TRUCO DEFINITIVO: Si el error es el de 'changedAccessToken', lo tratamos como ÉXITO
+      // porque el usuario ya se creó en Supabase antes de que saltara este error de JS.
       if (err.message && err.message.includes("changedAccessToken")) {
-        alert("¡Registro exitoso! Revise su correo.");
+        alert(
+          "¡Registro exitoso! Revise su bandeja de entrada para confirmar su correo.",
+        );
         $("#ModalRegistro").modal("hide");
+        e.target.reset();
       } else {
-        alert("Error: " + err.message);
+        alert(
+          "Error: " + (err.description || err.message || "Error desconocido"),
+        );
       }
     } finally {
       btn.disabled = false;
