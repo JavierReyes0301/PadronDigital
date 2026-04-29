@@ -54,7 +54,7 @@ const modalesPadron = `
                                 <label>Tipo de Persona:</label>
                                 <div class="input-institucional d-flex align-items-center" style="background:#f8f9fa !important; border:1px solid #ddd !important; height:45px;">
                                     <label class="mr-4 mb-0"><input type="radio" name="tipo-persona" value="Fisica" required> Física</label>
-                                    <label class="mb-0"><input type="radio" name="tipo-persona" value="Moral"> Moral</label>
+                                    <label class="mb-0"><input type="radio" name="tipo_persona" value="Moral"> Moral</label>
                                 </div>
                             </div>
                             <div class="form-group-custom">
