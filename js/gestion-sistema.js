@@ -355,7 +355,7 @@ function inicializarBuscador() {
   });
 }
 
-// --- 3. CONTROLADOR DE REGISTRO Y LOGIN ---
+// --- 3. CONTROLADOR DE REGISTRO Y LOGIN (Versión en Español) ---
 document.addEventListener("submit", async (e) => {
   const targetId = e.target.id;
   if (!["FormRegistro", "FormaLogin"].includes(targetId)) return;
@@ -367,14 +367,21 @@ document.addEventListener("submit", async (e) => {
 
   if (targetId === "FormRegistro") {
     const rfcLimpio = datos.rfc.trim().toUpperCase();
+
+    // Validaciones locales iniciales
     if (!document.getElementById("checkAviso").checked)
-      return alert("Acepte el aviso de privacidad.");
+      return alert("Debe aceptar el aviso de privacidad para continuar.");
+
+    if (datos.pwd.length < 8)
+      return alert("La contraseña debe tener al menos 8 caracteres.");
+
     if (datos.pwd !== datos["confirm-pwd"])
-      return alert("Las contraseñas no coinciden.");
+      return alert("Las contraseñas no coinciden. Por favor, verifíquelas.");
 
     try {
       btn.disabled = true;
       btn.innerText = "PROCESANDO...";
+
       const { error } = await window.clientSupa.auth.signUp({
         email: datos.correo.toLowerCase().trim(),
         password: datos.pwd,
@@ -382,11 +389,28 @@ document.addEventListener("submit", async (e) => {
           data: { rfc: rfcLimpio, tipo_persona: datos["tipo-persona"] },
         },
       });
+
       if (error) throw error;
-      alert("¡Registro exitoso! Revisa tu correo.");
+
+      alert(
+        "¡Registro exitoso! Se ha enviado un correo de confirmación. Por favor, revise su bandeja de entrada (y la carpeta de spam).",
+      );
       $("#ModalRegistro").modal("hide");
+      e.target.reset();
     } catch (err) {
-      alert("Error: " + err.message);
+      // Traducción de errores de Registro
+      let mensaje = "Hubo un error inesperado. Intente de nuevo.";
+
+      if (err.message === "User already registered") {
+        mensaje =
+          "Este correo electrónico ya está registrado. Si olvidó su contraseña, use la opción de recuperar.";
+      } else if (err.message.includes("Network request failed")) {
+        mensaje = "Error de conexión. Verifique su internet.";
+      } else {
+        mensaje = `Error: ${err.message}`;
+      }
+
+      alert(mensaje);
     } finally {
       btn.disabled = false;
       btn.innerText = "CONTINUAR REGISTRO";
@@ -397,10 +421,12 @@ document.addEventListener("submit", async (e) => {
     try {
       btn.disabled = true;
       btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ENTRANDO...';
+
       const { data, error } = await window.clientSupa.auth.signInWithPassword({
         email: datos.correo_login.trim().toLowerCase(),
         password: datos.password_login,
       });
+
       if (error) throw error;
 
       $("#ModalLogin").modal("hide");
@@ -408,6 +434,7 @@ document.addEventListener("submit", async (e) => {
         document.getElementById("txtRFCBienvenida").innerText =
           data.user.user_metadata.rfc;
         $("#ModalBienvenida").modal("show");
+
         document.getElementById("btnAccesarInicio").onclick = () => {
           const esNuevo =
             new Date() - new Date(data.user.created_at) < 86400000;
@@ -417,7 +444,20 @@ document.addEventListener("submit", async (e) => {
         };
       });
     } catch (err) {
-      alert("Error: Credenciales inválidas.");
+      // Traducción de errores de Login
+      let mensaje = "Error al iniciar sesión.";
+
+      if (err.message === "Invalid login credentials") {
+        mensaje =
+          "El correo o la contraseña son incorrectos. Verifique sus datos.";
+      } else if (err.message === "Email not confirmed") {
+        mensaje =
+          "Su cuenta aún no ha sido confirmada. Revise su correo electrónico.";
+      } else {
+        mensaje = "Credenciales inválidas o problema de conexión.";
+      }
+
+      alert(mensaje);
       btn.disabled = false;
       btn.innerText = "INICIAR SESIÓN";
     }
