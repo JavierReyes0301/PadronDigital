@@ -355,7 +355,7 @@ function inicializarBuscador() {
   });
 }
 
-// --- 3. CONTROLADOR DE REGISTRO Y LOGIN (Versión en Español) ---
+// --- 3. CONTROLADOR DE REGISTRO Y LOGIN (Corregido y Limpio) ---
 document.addEventListener("submit", async (e) => {
   const targetId = e.target.id;
   if (!["FormRegistro", "FormaLogin"].includes(targetId)) return;
@@ -366,9 +366,12 @@ document.addEventListener("submit", async (e) => {
   const datos = Object.fromEntries(formData);
 
   if (targetId === "FormRegistro") {
-    const rfcLimpio = datos.rfc.trim().toUpperCase();
+    // Normalización de RFC: Mayúsculas y sin caracteres raros
+    const rfcLimpio = datos.rfc
+      .trim()
+      .toUpperCase()
+      .replace(/[^A-Z0-9]/g, "");
 
-    // Validaciones locales iniciales
     if (!document.getElementById("checkAviso").checked)
       return alert("Debe aceptar el aviso de privacidad para continuar.");
 
@@ -393,23 +396,21 @@ document.addEventListener("submit", async (e) => {
       if (error) throw error;
 
       alert(
-        "¡Registro exitoso! Se ha enviado un correo de confirmación. Por favor, revise su bandeja de entrada (y la carpeta de spam).",
+        "¡Registro exitoso! Se ha enviado un correo de confirmación. Por favor, revise su bandeja de entrada.",
       );
       $("#ModalRegistro").modal("hide");
       e.target.reset();
     } catch (err) {
-      // Traducción de errores de Registro
       let mensaje = "Hubo un error inesperado. Intente de nuevo.";
 
       if (err.message === "User already registered") {
         mensaje =
-          "Este correo electrónico ya está registrado. Si olvidó su contraseña, use la opción de recuperar.";
+          "Este correo electrónico ya está registrado. Use la opción de recuperar contraseña.";
       } else if (err.message.includes("Network request failed")) {
         mensaje = "Error de conexión. Verifique su internet.";
       } else {
         mensaje = `Error: ${err.message}`;
       }
-
       alert(mensaje);
     } finally {
       btn.disabled = false;
@@ -444,21 +445,21 @@ document.addEventListener("submit", async (e) => {
         };
       });
     } catch (err) {
-      // TRADUCCIÓN DE ERRORES DE REGISTRO
-      if (err.message === "User already registered") {
-        alert(
-          "Este correo electrónico ya está registrado. Intente iniciar sesión.",
-        );
-      } else if (err.message === "Password should be at least 6 characters") {
-        alert("La contraseña debe tener al menos 6 caracteres.");
-      } else if (err.message.includes("Database error")) {
-        // NUEVA TRADUCCIÓN PARA EL ERROR DE LA IMAGEN
-        alert(
-          "Error de base de datos: No se pudieron guardar sus datos de perfil. Por favor, contacte al administrador.",
-        );
+      // CORRECCIÓN: Definición de variable mensaje para evitar errores de referencia
+      let mensaje = "Error al iniciar sesión. Verifique sus datos.";
+
+      if (err.message === "Invalid login credentials") {
+        mensaje = "Correo o contraseña incorrectos.";
+      } else if (
+        err.message.includes("Database error") ||
+        err.message.includes("database")
+      ) {
+        mensaje =
+          "Error de base de datos: No se pudieron sincronizar sus datos. Contacte a soporte.";
       } else {
-        alert("Error al registrar: " + err.message);
+        mensaje = `Error: ${err.message}`;
       }
+
       alert(mensaje);
       btn.disabled = false;
       btn.innerText = "INICIAR SESIÓN";
