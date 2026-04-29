@@ -55,3 +55,9 @@ if (typeof supabase !== "undefined") {
 window.onloadCallback = function () {
   console.log("🔵 reCAPTCHA: Listo para validación.");
 };
+
+// Tip extra para tu archivo de conexión:
+window.addEventListener("beforeunload", () => {
+  // Esto ayuda a que el estado de auth no se quede "sucio" entre recargas
+  if (window.clientSupa) window.clientSupa.auth.signOut();
+});

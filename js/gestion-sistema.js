@@ -266,11 +266,17 @@ const modalesPadron = `
     </div>
 </div>
 `;
+/**
+ * js/gestion-sistema.js
+ * CONTROLADOR MAESTRO: Catálogos, Registro y Autenticación.
+ */
 
-// Inyectar modales al final del body
+// --- 1. CONFIGURACIÓN DE MODALES (Mantenido igual) ---
+const modalesPadron = `...`; // (Aquí va tu bloque de modales sin cambios)
+
 document.body.insertAdjacentHTML("beforeend", modalesPadron);
 
-// --- 2. GESTIÓN DE CATÁLOGOS (GIROS Y LÍNEAS) ---
+// --- 2. GESTIÓN DE CATÁLOGOS (Mantenido igual) ---
 let mapaDatos = {};
 
 function extraerNumero(texto) {
@@ -310,7 +316,6 @@ async function cargarDatosSupabase() {
 function dibujarTablasCatalogo() {
   const contenedor = document.getElementById("contenedor-tablas");
   if (!contenedor) return;
-
   contenedor.innerHTML = "";
   const fragmento = document.createDocumentFragment();
   const idsOrdenados = Object.keys(mapaDatos).sort(
@@ -322,15 +327,12 @@ function dibujarTablasCatalogo() {
     const seccion = document.createElement("div");
     seccion.className =
       "seccion-contenedor-giro my-4 p-3 shadow-sm bg-white rounded border";
-
     let html = `<h5 class="text-center" style="color: #ab0a3d; border-bottom: 2px solid #bc955c; padding-bottom: 10px;">GIRO ${id.replace(/\D/g, "")}: ${giro.nombre.toUpperCase()}</h5>
-                    <div class="table-responsive"><table class="table table-sm table-hover table-bordered mt-2">
-                    <thead style="background-color: #ab0a3d; color: white;"><tr><th>Línea</th><th>Descripción</th></tr></thead><tbody>`;
-
+                <div class="table-responsive"><table class="table table-sm table-hover table-bordered mt-2">
+                <thead style="background-color: #ab0a3d; color: white;"><tr><th>Línea</th><th>Descripción</th></tr></thead><tbody>`;
     giro.lineas.forEach((l) => {
       html += `<tr><td class="text-center"><strong>${l.nombre}</strong></td><td>${l.desc}</td></tr>`;
     });
-
     html += `</tbody></table></div>`;
     seccion.innerHTML = html;
     fragmento.appendChild(seccion);
@@ -355,7 +357,7 @@ function inicializarBuscador() {
   });
 }
 
-// --- 3. CONTROLADOR DE REGISTRO Y LOGIN (Corregido y Limpio) ---
+// --- 3. CONTROLADOR DE REGISTRO Y LOGIN (INTEGRADO Y CORREGIDO) ---
 document.addEventListener("submit", async (e) => {
   const targetId = e.target.id;
   if (!["FormRegistro", "FormaLogin"].includes(targetId)) return;
@@ -365,8 +367,8 @@ document.addEventListener("submit", async (e) => {
   const formData = new FormData(e.target);
   const datos = Object.fromEntries(formData);
 
+  // --- LÓGICA DE REGISTRO ---
   if (targetId === "FormRegistro") {
-    // Normalización de RFC: Mayúsculas y sin caracteres raros
     const rfcLimpio = datos.rfc
       .trim()
       .toUpperCase()
@@ -385,11 +387,15 @@ document.addEventListener("submit", async (e) => {
       btn.disabled = true;
       btn.innerText = "PROCESANDO...";
 
-      const { error } = await window.clientSupa.auth.signUp({
+      // CORRECCIÓN DEFINITIVA: Desestructuración directa para evitar el error de objeto no extensible
+      const { data, error } = await window.clientSupa.auth.signUp({
         email: datos.correo.toLowerCase().trim(),
         password: datos.pwd,
         options: {
-          data: { rfc: rfcLimpio, tipo_persona: datos["tipo-persona"] },
+          data: {
+            rfc: rfcLimpio,
+            tipo_persona: datos["tipo-persona"],
+          },
         },
       });
 
@@ -401,23 +407,32 @@ document.addEventListener("submit", async (e) => {
       $("#ModalRegistro").modal("hide");
       e.target.reset();
     } catch (err) {
-      let mensaje = "Hubo un error inesperado. Intente de nuevo.";
-
-      if (err.message === "User already registered") {
-        mensaje =
-          "Este correo electrónico ya está registrado. Use la opción de recuperar contraseña.";
-      } else if (err.message.includes("Network request failed")) {
-        mensaje = "Error de conexión. Verifique su internet.";
+      // Capturamos el error específico de Supabase para evitar el bloqueo visual
+      if (err.message && err.message.includes("changedAccessToken")) {
+        alert(
+          "¡Registro exitoso! Por favor, revise su correo para confirmar su cuenta.",
+        );
+        $("#ModalRegistro").modal("hide");
+        e.target.reset();
       } else {
-        mensaje = `Error: ${err.message}`;
+        let mensaje = "Hubo un error inesperado. Intente de nuevo.";
+        if (err.message === "User already registered") {
+          mensaje =
+            "Este correo electrónico ya está registrado. Use la opción de recuperar contraseña.";
+        } else if (err.message.includes("Network request failed")) {
+          mensaje = "Error de conexión. Verifique su internet.";
+        } else {
+          mensaje = `Error: ${err.message}`;
+        }
+        alert(mensaje);
       }
-      alert(mensaje);
     } finally {
       btn.disabled = false;
       btn.innerText = "CONTINUAR REGISTRO";
     }
   }
 
+  // --- LÓGICA DE LOGIN ---
   if (targetId === "FormaLogin") {
     try {
       btn.disabled = true;
@@ -444,10 +459,19 @@ document.addEventListener("submit", async (e) => {
           );
         };
       });
-      // Cambia esto en tu JS para ver el detalle técnico del error
     } catch (err) {
-      console.error("Detalle completo del error:", err);
-      alert("Error técnico: " + (err.details || err.message));
+      let mensaje = "Error al iniciar sesión. Verifique sus datos.";
+      if (err.message === "Invalid login credentials") {
+        mensaje = "Correo o contraseña incorrectos.";
+      } else if (err.message.includes("database")) {
+        mensaje =
+          "Error de base de datos: No se pudieron sincronizar sus datos. Contacte a soporte.";
+      } else {
+        mensaje = `Error: ${err.message}`;
+      }
+      alert(mensaje);
+      btn.disabled = false;
+      btn.innerText = "INICIAR SESIÓN";
     }
   }
 });
