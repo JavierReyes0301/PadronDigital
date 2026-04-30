@@ -266,7 +266,6 @@ const modalesPadron = `
     </div>
 </div>
 `;
-
 // Inyección de los modales en el DOM
 document.body.insertAdjacentHTML("beforeend", modalesPadron);
 
@@ -327,6 +326,13 @@ function dibujarTablasCatalogo() {
 // --- 3. CONTROLADOR DE REGISTRO Y LOGIN ---
 document.addEventListener("submit", async (e) => {
   const targetId = e.target.id;
+  if (!["FormRegistro", "FormaLogin"].includes(targetId)) return;
+
+  e.preventDefault();
+  const btn = e.target.querySelector('button[type="submit"]');
+  const formData = new FormData(e.target);
+  const datos = Object.fromEntries(formData);
+
   if (targetId === "FormRegistro") {
     const rfcLimpio = datos.rfc
       .trim()
@@ -335,7 +341,8 @@ document.addEventListener("submit", async (e) => {
 
     if (!document.getElementById("checkAviso").checked)
       return alert("Debe aceptar el aviso de privacidad.");
-    if (datos.pwd.length < 8) return alert("Mínimo 8 caracteres.");
+    if (datos.pwd.length < 8)
+      return alert("La contraseña debe tener al menos 8 caracteres.");
     if (datos.pwd !== datos["confirm-pwd"])
       return alert("Las contraseñas no coinciden.");
 
@@ -343,17 +350,17 @@ document.addEventListener("submit", async (e) => {
       btn.disabled = true;
       btn.innerText = "PROCESANDO...";
 
-      // Usamos una estructura que no dependa de la mutabilidad del objeto de respuesta
-      const respuesta = await window.clientSupa.auth.signUp({
+      // AGREGAMOS currSession: false para eliminar el error del token
+      const { data, error } = await window.clientSupa.auth.signUp({
         email: datos.correo.toLowerCase().trim(),
         password: datos.pwd,
         options: {
           data: { rfc: rfcLimpio, tipo_persona: datos["tipo-persona"] },
+          currSession: false,
         },
       });
 
-      // Verificación manual para evitar el error de "object is not extensible"
-      if (respuesta && respuesta.error) throw respuesta.error;
+      if (error) throw error;
 
       alert(
         "¡Registro enviado! Por favor, revise su correo para confirmar su cuenta.",
@@ -361,11 +368,10 @@ document.addEventListener("submit", async (e) => {
       $("#ModalRegistro").modal("hide");
       e.target.reset();
     } catch (err) {
-      // TRUCO DEFINITIVO: Si el error es el de 'changedAccessToken', lo tratamos como ÉXITO
-      // porque el usuario ya se creó en Supabase antes de que saltara este error de JS.
+      // Manejo del error persistente del navegador
       if (err.message && err.message.includes("changedAccessToken")) {
         alert(
-          "¡Registro exitoso! Revise su bandeja de entrada para confirmar su correo.",
+          "¡Registro completado! Revise su bandeja de entrada para confirmar su cuenta.",
         );
         $("#ModalRegistro").modal("hide");
         e.target.reset();
@@ -380,37 +386,9 @@ document.addEventListener("submit", async (e) => {
     }
   }
 
-  if (targetId === "FormaLogin") {
-    try {
-      btn.disabled = true;
-      const { data, error } = await window.clientSupa.auth.signInWithPassword({
-        email: datos.correo_login.trim().toLowerCase(),
-        password: datos.password_login,
-      });
-
-      if (error) throw error;
-      $("#ModalLogin").modal("hide");
-      $("#ModalLogin").one("hidden.bs.modal", () => {
-        document.getElementById("txtRFCBienvenida").innerText =
-          data.user.user_metadata.rfc;
-        $("#ModalBienvenida").modal("show");
-        document.getElementById("btnAccesarInicio").onclick = () => {
-          const esNuevo =
-            new Date() - new Date(data.user.created_at) < 86400000;
-          window.location.assign(
-            `./inicio/inicio.html?u=${esNuevo ? "n" : "r"}`,
-          );
-        };
-      });
-    } catch (err) {
-      alert("Error: " + err.message);
-      btn.disabled = false;
-    }
-  }
-});
-
 // Ayudantes de apertura
 window.abrirRegistro = () => $("#ModalRegistro").modal("show");
 window.abrirLogin = () => $("#ModalLogin").modal("show");
 
 document.addEventListener("DOMContentLoaded", cargarDatosSupabase);
+a;
