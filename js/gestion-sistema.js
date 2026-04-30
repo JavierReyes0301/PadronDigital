@@ -5,7 +5,6 @@
 
 // --- 1. CONFIGURACIÓN DE MODALES ---
 const modalesPadron = `
-<!-- MODAL LOGIN -->
 <div class="modal fade" id="ModalLogin" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content modal-caja-login">
@@ -33,7 +32,6 @@ const modalesPadron = `
     </div>
 </div>
 
-<!-- MODAL REGISTRO -->
 <div class="modal fade" id="ModalRegistro" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -42,6 +40,13 @@ const modalesPadron = `
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body" style="padding: 25px 40px;">
+                <div id="instruccionesNuevoModal" style="display:none;" class="instruccion-registro">
+                    <strong>¡Eres nuevo!</strong> Capture los siguientes datos para iniciar su proceso de registro:
+                </div>
+                <div id="instruccionesRegistradoModal" style="display:none;" class="instruccion-registro">
+                    <strong>¡Bienvenido de nuevo!</strong> Inicie sesión para continuar con su trámite pendiente:
+                </div>
+                
                 <form id="FormRegistro">
                     <div class="grid-registro">
                         <div class="columna-izq">
@@ -49,7 +54,7 @@ const modalesPadron = `
                                 <label>Tipo de Persona:</label>
                                 <div class="input-institucional d-flex align-items-center" style="background:#f8f9fa !important; border:1px solid #ddd !important; height:45px;">
                                     <label class="mr-4 mb-0"><input type="radio" name="tipo-persona" value="Fisica" required> Física</label>
-                                    <label class="mb-0"><input type="radio" name="tipo-persona" value="Moral"> Moral</label>
+                                    <label class="mb-0"><input type="radio" name="tipo_persona" value="Moral"> Moral</label>
                                 </div>
                             </div>
                             <div class="form-group-custom">
@@ -61,6 +66,7 @@ const modalesPadron = `
                                 <input type="email" name="correo" class="input-institucional" placeholder="ejemplo@correo.com" required>
                             </div>
                         </div>
+                        
                         <div class="columna-der">
                             <div class="form-group-custom">
                                 <label>Contraseña:</label>
@@ -72,6 +78,7 @@ const modalesPadron = `
                             </div>
                         </div>
                     </div>
+
                     <div class="caja-aviso">
                         <p class="texto-aviso">
                             <strong>Aviso de Privacidad:</strong> Sus datos serán protegidos de acuerdo a la Ley General de Protección de Datos Personales.
@@ -81,6 +88,7 @@ const modalesPadron = `
                             <label for="checkAviso" style="margin:0; cursor:pointer;">Acepto el aviso de privacidad.</label>
                         </div>
                     </div>
+
                     <div class="footer-registro-fuera" style="display: flex; justify-content: center; margin-top: 20px;">
                         <button type="submit" class="btn-registro-continuar">Continuar Registro</button>
                     </div>
@@ -90,14 +98,14 @@ const modalesPadron = `
     </div>
 </div>
 
-<!-- MODAL REQUISITOS (Sin cambios) -->
 <div class="modal fade" id="modalRequisitos" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header modal-header-registro">
-        <h2 class="modal-title">Requisitos</h2>
         <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h2 class="modal-title">Requisitos</h2>
       </div>
+      
       <div class="modal-body body-requisitos">
         <div class="row">
           <div class="col-md-6">
@@ -108,23 +116,38 @@ const modalesPadron = `
               <li>Acta constitutiva y poderes (Persona Moral).</li>
               <li>Identificación oficial con fotografía.</li>
               <li>Comprobante de domicilio.</li>
+              <li>Currículum Vitae.</li>
+              <li>Reporte fotográfico del domicilio fiscal.</li>
             </ul>
           </div>
           <div class="col-md-6">
             <h4 class="subtitulo-requisito">Documentación Fiscal</h4>
             <ul class="lista-requisitos">
+              <li>Comprobante de pago de derechos.</li>
               <li>Constancia de Situación Fiscal.</li>
               <li>Opinión de cumplimiento SAT.</li>
               <li>Constancia de no adeudo municipal.</li>
+              <li>Declaración anual de impuestos.</li>
+              <li>Últimas 3 declaraciones parciales.</li>
             </ul>
           </div>
+        </div>
+
+        <div class="caja-formatos-municipio">
+          <h4 class="subtitulo-requisito">Formatos Proporcionados por el Municipio</h4>
+          <ul class="lista-requisitos">
+            <li>Solicitud de registro/revalidación.</li>
+            <li>Carta de no impedimento (Art. 77).</li>
+            <li>Carta de manifiesto de no inhabilitado.</li>
+            <li>Carta de no conflicto de interés.</li>
+            <li>Carta de cumplimiento fiscal.</li>
+          </ul>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- MODAL FORMATOS -->
 <div class="modal fade" id="modalFormatos" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
@@ -133,14 +156,34 @@ const modalesPadron = `
         <button type="button" class="close" data-dismiss="modal">&times;</button>
       </div>
       <div class="modal-body" style="padding: 30px 40px;">
+        <div class="instruccion-registro">
+          Seleccione el formato correspondiente para su descarga. Todos los documentos deben ser requisitados y firmados.
+        </div>
+        
         <div class="contenedor-lista-anexos">
           <div class="item-anexo">
             <h5 class="nombre-anexo">Solicitud de registro / revalidación.</h5>
             <a href="https://maopuzbvxucsarrydmte.supabase.co/storage/v1/object/public/Formatos/ANEXO%20I%20-%20IA.docx" download class="btn-anexo">ANEXO I</a>
           </div>
+          
           <div class="item-anexo">
-            <h5 class="nombre-anexo">Carta Art. 77 Ley de Adquisiciones.</h5>
+            <h5 class="nombre-anexo">Carta bajo protesta de decir verdad de no estar impedido para contratar (Art. 77 Ley de Adquisiciones y Art. 69-B CFF).</h5>
             <a href="https://maopuzbvxucsarrydmte.supabase.co/storage/v1/object/public/Formatos/ANEXO%20II.docx" download class="btn-anexo">ANEXO II</a>
+          </div>
+
+          <div class="item-anexo">
+            <h5 class="nombre-anexo">Carta de manifiesto bajo protesta de decir verdad de no estar inhabilitado para procedimientos de adjudicación.</h5>
+            <a href="https://maopuzbvxucsarrydmte.supabase.co/storage/v1/object/public/Formatos/ANEXO%20III.docx" download class="btn-anexo">ANEXO III</a>
+          </div>
+
+          <div class="item-anexo">
+            <h5 class="nombre-anexo">Carta de manifiesto de no desempeñar cargo público o incurrir en conflicto de interés con la Administración Pública Municipal.</h5>
+            <a href="https://maopuzbvxucsarrydmte.supabase.co/storage/v1/object/public/Formatos/ANEXO%20IV.docx" download class="btn-anexo">ANEXO IV</a>
+          </div>
+
+          <div class="item-anexo no-border">
+            <h5 class="nombre-anexo">Carta bajo protesta de decir verdad de encontrarse al corriente de las obligaciones fiscales.</h5>
+            <a href="https://maopuzbvxucsarrydmte.supabase.co/storage/v1/object/public/Formatos/ANEXO%20V.docx" download class="btn-anexo">ANEXO V</a>
           </div>
         </div>
       </div>
@@ -148,39 +191,74 @@ const modalesPadron = `
   </div>
 </div>
 
-<!-- MODAL PREGUNTAS -->
 <div class="modal fade" id="ModalPreguntas" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">Preguntas Frecuentes</h2>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h2 class="modal-title">Preguntas Frecuentes</h2>
             </div>
             <div class="modal-body">
                 <div class="faq-container">
                     <div class="faq-item">
-                        <h4 class="faq-pregunta">1. ¿Cómo inicio sesión?</h4>
-                        <p class="faq-respuesta">Utilizando el correo electrónico y contraseña registrados.</p>
+                        <h4 class="faq-pregunta">1. ¿Cuál es el dato que debo ingresar como usuario para iniciar sesión?</h4>
+                        <p class="faq-respuesta">El RFC de la persona física o moral.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h4 class="faq-pregunta">2. ¿Cómo puedo recuperar mi contraseña?</h4>
+                        <p class="faq-respuesta">En su cuenta, presione el botón <strong>“¿Olvidaste tu contraseña?”</strong>.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h4 class="faq-pregunta">3. Si no tengo acceso al correo registrado, ¿cómo puedo cambiarlo?</h4>
+                        <p class="faq-respuesta text-justify">
+                            Debe enviar una solicitud al correo institucional, dirigida a la <strong>Contraloría Municipal</strong>, exponiendo el motivo del cambio e indicando el nuevo correo. La solicitud debe estar firmada por el representante legal y adjuntar:
+                        </p>
+                        <div class="faq-sub-list">
+                            <p><strong>Persona Moral:</strong> Acta Constitutiva, Poder Notarial, Constancia de Situación Fiscal (vigencia 30 días), Comprobante de Domicilio (vigencia 3 meses) e INE vigente.</p>
+                            <p><strong>Persona Física:</strong> Acta de Nacimiento, Constancia de Situación Fiscal (vigencia 30 días), Comprobante de Domicilio (vigencia 3 meses) e INE vigente.</p>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <h4 class="faq-pregunta">4. ¿En qué tiempo obtengo respuesta a mi solicitud?</h4>
+                        <p class="faq-respuesta">De <strong>1 a 3 días hábiles</strong>. En caso de observaciones, el tiempo se reinicia al momento de solventarlas.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h4 class="faq-pregunta">7. ¿En qué se basan para rechazar los giros y líneas seleccionados?</h4>
+                        <p class="faq-respuesta text-justify">
+                            Se basan estrictamente en las <strong>actividades económicas</strong> registradas en su Constancia de Situación Fiscal (SAT).
+                        </p>
+                        <div class="faq-fundamento">
+                            <strong>FUNDAMENTO LEGAL:</strong><br />
+                            Código Fiscal de la Federación, Art. 17-D y 27.<br />
+                            Reglamento del CFF, Art. 29 y 30.
+                        </div>
+                    </div>
+                    <div class="faq-item no-border">
+                        <h4 class="faq-pregunta">8. ¿Cuál es la vigencia de mi registro?</h4>
+                        <p class="faq-respuesta">De la fecha de inscripción al 31 de diciembre del año en curso.</p>
+                        <h4 class="faq-pregunta">9. ¿Cuándo puedo renovar mi registro?</h4>
+                        <p class="faq-respuesta">A partir del 1 de enero del siguiente año.</p>
+                        <h4 class="faq-pregunta">11. ¿Cómo imprimo mi cédula de inscripción?</h4>
+                        <p class="faq-respuesta">En la opción: <strong>Mi cuenta / Estado de su perfil</strong>.</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-<!-- MODAL BIENVENIDA -->
 <div class="modal fade" id="ModalBienvenida" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
     <div class="modal-dialog modal-dialog-centered" style="max-width: 400px;">
-        <div class="modal-content text-center" style="border-radius: 20px; padding: 30px; border: none;">
+        <div class="modal-content text-center" style="border-radius: 20px; padding: 30px; border: none; font-family: 'Montserrat', sans-serif;">
             <div class="modal-body">
                 <div class="mb-4 d-flex justify-content-center">
-                    <div style="width: 80px; height: 80px; border-radius: 50%; border: 4px solid #28a745; display: flex; align-items: center; justify-content: center;">
-                        <span style="font-size: 40px; color: #28a745;">✓</span>
+                    <div style="width: 100px; height: 100px; border-radius: 50%; border: 4px solid #28a745; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-check" style="font-size: 50px; color: #28a745;"></i>
                     </div>
                 </div>
-                <h1 style="font-weight: 800; color: #323232; font-size: 1.8rem;">¡Bienvenido!</h1>
-                <p id="txtRFCBienvenida" style="font-size: 1.3rem; color: #666;"></p>
-                <button id="btnAccesarInicio" class="btn-sitio" style="width: 100%; background-color: #ab0a3d !important; color: #ffffff; border: none; padding: 15px; border-radius: 8px; font-weight: bold;">
+                <h1 style="font-weight: 800; color: #323232; font-size: 1.8rem; margin-bottom: 5px;">¡Bienvenido!</h1>
+                <p id="txtRFCBienvenida" style="font-size: 1.3rem; color: #666; font-weight: 500; margin-bottom: 30px;"></p>
+                <button id="btnAccesarInicio" class="btn-sitio" 
+                    style="width: 100%; background-color: #ab0a3d !important; color: #ffffff !important; font-weight: 700 !important; border: none; padding: 15px 0; border-radius: 8px;">
                     ACCESAR
                 </button>
             </div>
@@ -264,8 +342,6 @@ document.addEventListener("submit", async (e) => {
     if (!document.getElementById("checkAviso").checked)
       return alert("Debe aceptar el aviso de privacidad.");
     if (datos.pwd.length < 8) return alert("Mínimo 8 caracteres.");
-    if (datos.pwd !== datos["confirm-pwd"])
-      return alert("Las contraseñas no coinciden.");
 
     try {
       btn.disabled = true;
@@ -282,15 +358,13 @@ document.addEventListener("submit", async (e) => {
           },
         });
 
-      // MANEJO DE ERROR CRÍTICO DEL TOKEN
+      // Manejamos el error del token pero permitimos continuar si el usuario se creó
       if (authError && !authError.message.includes("changedAccessToken")) {
         throw authError;
       }
 
-      // 2. INSERCIÓN FORZADA (Inmune a errores de librería)
-      // Buscamos el ID ya sea del resultado exitoso o intentando una reconexión rápida
+      // 2. Inserción forzada en la tabla de base de datos
       const userId = authData?.user?.id;
-
       if (userId) {
         const { error: dbError } = await window.clientSupa
           .from("usuarios")
@@ -311,11 +385,11 @@ document.addEventListener("submit", async (e) => {
       e.target.reset();
     } catch (err) {
       if (err.message.includes("changedAccessToken")) {
-        alert("¡Registro completado! Ya puede acceder.");
+        alert("¡Registro exitoso! Ya puede acceder.");
         $("#ModalRegistro").modal("hide");
         e.target.reset();
       } else {
-        alert("Error en el proceso: " + err.message);
+        alert("Error crítico: " + err.message);
       }
     } finally {
       btn.disabled = false;
