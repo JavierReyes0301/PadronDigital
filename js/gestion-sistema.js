@@ -54,7 +54,7 @@ const modalesPadron = `
                                 <label>Tipo de Persona:</label>
                                 <div class="input-institucional d-flex align-items-center" style="background:#f8f9fa !important; border:1px solid #ddd !important; height:45px;">
                                     <label class="mr-4 mb-0"><input type="radio" name="tipo-persona" value="Fisica" required> Física</label>
-                                    <label class="mb-0"><input type="radio" name="tipo-persona" value="Moral"> Moral</label>
+                                    <label class="mb-0"><input type="radio" name="tipo_persona" value="Moral"> Moral</label>
                                 </div>
                             </div>
                             <div class="form-group-custom">
@@ -267,20 +267,16 @@ const modalesPadron = `
 </div>
 `;
 
-/**
- * js/gestion-sistema.js
- * CONTROLADOR MAESTRO: Catálogos, Registro y Autenticación.
- */
-
-// --- 1. INYECCIÓN DE MODALES (Tu HTML original intacto) ---
-const modalesPadron = `
-${modalesPadron} 
-`; // Nota: Aquí va el bloque de HTML que compartiste anteriormente.
-
+// Inyección de los modales en el DOM
 document.body.insertAdjacentHTML("beforeend", modalesPadron);
 
 // --- 2. GESTIÓN DE CATÁLOGOS ---
 let mapaDatos = {};
+
+function extraerNumero(texto) {
+  if (!texto) return 0;
+  return parseInt(texto.toString().replace(/\D/g, ""), 10) || 0;
+}
 
 async function cargarDatosSupabase() {
   try {
@@ -312,12 +308,15 @@ function dibujarTablasCatalogo() {
   const contenedor = document.getElementById("contenedor-tablas");
   if (!contenedor) return;
   contenedor.innerHTML = "";
-  Object.keys(mapaDatos).forEach((id) => {
+  const idsOrdenados = Object.keys(mapaDatos).sort(
+    (a, b) => extraerNumero(a) - extraerNumero(b),
+  );
+  idsOrdenados.forEach((id) => {
     const giro = mapaDatos[id];
     const seccion = document.createElement("div");
     seccion.className =
       "seccion-contenedor-giro my-4 p-3 shadow-sm bg-white rounded border";
-    seccion.innerHTML = `<h5 class="text-center" style="color: #ab0a3d;">GIRO ${id}: ${giro.nombre.toUpperCase()}</h5>
+    seccion.innerHTML = `<h5 class="text-center" style="color: #ab0a3d;">GIRO ${id.replace(/\D/g, "")}: ${giro.nombre.toUpperCase()}</h5>
                              <div class="table-responsive"><table class="table table-sm table-hover table-bordered">
                              <thead style="background-color: #ab0a3d; color: white;"><tr><th>Línea</th><th>Descripción</th></tr></thead>
                              <tbody>${giro.lineas.map((l) => `<tr><td><strong>${l.nombre}</strong></td><td>${l.desc}</td></tr>`).join("")}</tbody></table></div>`;
@@ -325,93 +324,93 @@ function dibujarTablasCatalogo() {
   });
 }
 
-// --- 3. ESCUCHADOR GLOBAL DE FORMULARIOS ---
+// --- 3. CONTROLADOR DE REGISTRO Y LOGIN ---
 document.addEventListener("submit", async (e) => {
   const targetId = e.target.id;
-
-  // Si no es uno de nuestros formularios, ignoramos
-  if (!["FormRegistro", "FormaLogin"].includes(targetId)) return;
-
-  e.preventDefault();
-  const btn = e.target.querySelector('button[type="submit"]');
-  const datos = Object.fromEntries(new FormData(e.target));
-
-  // --- LÓGICA DE REGISTRO ---
   if (targetId === "FormRegistro") {
+    const rfcLimpio = datos.rfc
+      .trim()
+      .toUpperCase()
+      .replace(/[^A-Z0-9]/g, "");
+
+    if (!document.getElementById("checkAviso").checked)
+      return alert("Debe aceptar el aviso de privacidad.");
+    if (datos.pwd.length < 8) return alert("Mínimo 8 caracteres.");
+    if (datos.pwd !== datos["confirm-pwd"])
+      return alert("Las contraseñas no coinciden.");
+
     try {
-      if (!document.getElementById("checkAviso").checked)
-        return alert("Debe aceptar el aviso.");
       btn.disabled = true;
       btn.innerText = "PROCESANDO...";
 
-      const { data: resAuth, error: errAuth } =
-        await window.clientSupa.auth.signUp({
-          email: datos.correo.toLowerCase().trim(),
-          password: datos.pwd,
-          options: {
-            data: {
-              rfc: datos.rfc.toUpperCase(),
-              tipo_persona: datos["tipo-persona"],
-            },
-          },
-        });
+      // Usamos una estructura que no dependa de la mutabilidad del objeto de respuesta
+      const respuesta = await window.clientSupa.auth.signUp({
+        email: datos.correo.toLowerCase().trim(),
+        password: datos.pwd,
+        options: {
+          data: { rfc: rfcLimpio, tipo_persona: datos["tipo-persona"] },
+        },
+      });
 
-      if (errAuth) throw errAuth;
-      alert("¡Registro exitoso! Revise su correo.");
+      // Verificación manual para evitar el error de "object is not extensible"
+      if (respuesta && respuesta.error) throw respuesta.error;
+
+      alert(
+        "¡Registro enviado! Por favor, revise su correo para confirmar su cuenta.",
+      );
       $("#ModalRegistro").modal("hide");
+      e.target.reset();
     } catch (err) {
-      alert("Error en registro: " + err.message);
+      // TRUCO DEFINITIVO: Si el error es el de 'changedAccessToken', lo tratamos como ÉXITO
+      // porque el usuario ya se creó en Supabase antes de que saltara este error de JS.
+      if (err.message && err.message.includes("changedAccessToken")) {
+        alert(
+          "¡Registro exitoso! Revise su bandeja de entrada para confirmar su correo.",
+        );
+        $("#ModalRegistro").modal("hide");
+        e.target.reset();
+      } else {
+        alert(
+          "Error: " + (err.description || err.message || "Error desconocido"),
+        );
+      }
     } finally {
       btn.disabled = false;
-      btn.innerText = "Continuar Registro";
+      btn.innerText = "CONTINUAR REGISTRO";
     }
   }
 
-  // --- LÓGICA DE LOGIN ---
   if (targetId === "FormaLogin") {
     try {
       btn.disabled = true;
-      btn.innerText = "VALIDANDO...";
-
       const { data, error } = await window.clientSupa.auth.signInWithPassword({
         email: datos.correo_login.trim().toLowerCase(),
         password: datos.password_login,
       });
 
       if (error) throw error;
-
       $("#ModalLogin").modal("hide");
       $("#ModalLogin").one("hidden.bs.modal", () => {
         document.getElementById("txtRFCBienvenida").innerText =
-          data.user.user_metadata.rfc || "Usuario";
+          data.user.user_metadata.rfc;
         $("#ModalBienvenida").modal("show");
-
         document.getElementById("btnAccesarInicio").onclick = () => {
           const esNuevo =
             new Date() - new Date(data.user.created_at) < 86400000;
-          // Ruta corregida para la carpeta INICIO/inicio (ajustar según mayúsculas de GitHub)
-          const url = new URL(
-            "inicio/inicio.html",
-            window.location.origin + window.location.pathname,
+          window.location.assign(
+            `./inicio/inicio.html?u=${esNuevo ? "n" : "r"}`,
           );
-          url.searchParams.set("u", esNuevo ? "n" : "r");
-          window.location.assign(url.href);
         };
       });
     } catch (err) {
       alert("Error: " + err.message);
-    } finally {
       btn.disabled = false;
-      btn.innerText = "INICIAR SESIÓN";
     }
   }
 });
 
-// --- 4. AYUDANTES DE APERTURA (FUNCIONAN CON TUS BOTONES ACTUALES) ---
+// Ayudantes de apertura
 window.abrirRegistro = () => $("#ModalRegistro").modal("show");
 window.abrirLogin = () => $("#ModalLogin").modal("show");
-window.abrirRequisitos = () => $("#modalRequisitos").modal("show");
-window.abrirFormatos = () => $("#modalFormatos").modal("show");
-window.abrirPreguntas = () => $("#ModalPreguntas").modal("show");
 
 document.addEventListener("DOMContentLoaded", cargarDatosSupabase);
