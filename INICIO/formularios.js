@@ -1,6 +1,69 @@
 /**
  * ==========================================
- * 1. CONFIGURACIÓN DE SELECTS DINÁMICOS
+ * 1. GESTIÓN DE ESTATUS E INICIO (CRÍTICO)
+ * ==========================================
+ */
+async function gestionarEstadoYSecciones() {
+  const divNuevo = document.getElementById("instruccionesNuevo");
+  const divRegistrado = document.getElementById("instruccionesRegistrado");
+  const seccionActualizar = document.getElementById("actualizar-datos");
+  const seccionEstado = document.getElementById("estado-perfil");
+
+  try {
+    const {
+      data: { user },
+    } = await window.clientSupa.auth.getUser();
+
+    if (!user) {
+      window.location.href = "../index.html";
+      return;
+    }
+
+    // Consultamos el perfil en la tabla proveedores
+    const { data: perfil, error } = await window.clientSupa
+      .from("proveedores")
+      .select("estatus")
+      .eq("id_auth", user.id)
+      .maybeSingle();
+
+    // Ocultamos todo por defecto usando la lógica de tu CSS
+    [seccionActualizar, seccionEstado].forEach((s) => {
+      if (s) s.style.setProperty("display", "none", "important");
+    });
+
+    // LÓGICA DE DECISIÓN: ¿A dónde va el usuario?
+    if (!perfil || perfil.estatus === "Pendiente") {
+      // USUARIO NUEVO O INCOMPLETO
+      if (seccionActualizar) {
+        seccionActualizar.style.setProperty("display", "flex", "important");
+        seccionActualizar.classList.add("activa");
+      }
+      if (divNuevo) divNuevo.style.display = "block";
+      if (divRegistrado) divRegistrado.style.display = "none";
+
+      // Bloqueamos pestañas avanzadas de Actualizar Datos si es nuevo
+      document
+        .querySelectorAll("#actualizar-datos .nav-link")
+        .forEach((tab, index) => {
+          if (index > 0) tab.classList.add("disabled-tab");
+        });
+    } else {
+      // USUARIO REGISTRADO / VALIDADO
+      if (seccionEstado) {
+        seccionEstado.style.setProperty("display", "flex", "important");
+        seccionEstado.classList.add("activa");
+      }
+      if (divNuevo) divNuevo.style.display = "none";
+      if (divRegistrado) divRegistrado.style.display = "block";
+    }
+  } catch (err) {
+    console.error("Error validando estatus:", err);
+  }
+}
+
+/**
+ * ==========================================
+ * 2. CONFIGURACIÓN DE SELECTS DINÁMICOS
  * ==========================================
  */
 const configurarSelectsUbicacion = () => {
@@ -35,7 +98,7 @@ const configurarSelectsUbicacion = () => {
 
 /**
  * ==========================================
- * 2. LÓGICA DE DESBLOQUEO UNIVERSAL
+ * 3. LÓGICA DE DESBLOQUEO Y NAVEGACIÓN
  * ==========================================
  */
 function toggleDesbloqueo(id) {
@@ -56,11 +119,6 @@ function toggleDesbloqueo(id) {
   }
 }
 
-/**
- * ==========================================
- * 3. NAVEGACIÓN Y FLUJO (TABS)
- * ==========================================
- */
 function navegarAPestana(targetHash) {
   const tabLink = document.querySelector(`.nav-link[href="${targetHash}"]`);
   if (tabLink) {
@@ -73,13 +131,9 @@ function navegarAPestana(targetHash) {
   }
 }
 
-function iniciarActualizacion() {
-  navegarAPestana("#Generales");
-}
-
 /**
  * ==========================================
- * 4. GESTIÓN DE INDICADORES
+ * 4. GESTIÓN DE INDICADORES (CHECKMARKS)
  * ==========================================
  */
 function vincularIndicador(idInput, idIcono) {
@@ -99,81 +153,23 @@ function vincularIndicador(idInput, idIcono) {
 
 /**
  * ==========================================
- * 5. GESTIÓN DE ESTATUS E INSTRUCCIONES (ACTUALIZADO)
- * ==========================================
- */
-async function gestionarInstruccionesVisuales() {
-  const divNuevo = document.getElementById("instruccionesNuevo");
-  const divRegistrado = document.getElementById("instruccionesRegistrado");
-
-  // 1. Obtenemos el parámetro 'u' de la URL (?u=n o ?u=r)
-  const params = new URLSearchParams(window.location.search);
-  let modoURL = params.get("u");
-
-  try {
-    const {
-      data: { user },
-    } = await window.clientSupa.auth.getUser();
-
-    // Si no hay usuario, redirigir a seguridad
-    if (!user) {
-      window.location.href = "../index.html";
-      return;
-    }
-
-    // 2. Verificación de respaldo en Base de Datos
-    const { data: perfil } = await window.clientSupa
-      .from("proveedores")
-      .select("estatus")
-      .eq("id_auth", user.id)
-      .maybeSingle();
-
-    // Si el estatus ya es avanzado, forzamos vista de "Registrado"
-    if (
-      perfil &&
-      (perfil.estatus === "Registrado" || perfil.estatus === "Validado")
-    ) {
-      modoURL = "r";
-    }
-  } catch (err) {
-    console.error("Error validando estatus:", err);
-  }
-
-  // 3. Aplicación visual de los bloques
-  if (modoURL === "n") {
-    if (divNuevo) divNuevo.style.display = "block";
-    if (divRegistrado) divRegistrado.style.display = "none";
-  } else {
-    if (divNuevo) divNuevo.style.display = "none";
-    if (divRegistrado) divRegistrado.style.display = "block";
-  }
-}
-
-/**
- * ==========================================
- * 6. INICIALIZACIÓN GLOBAL
+ * 5. INICIALIZACIÓN GLOBAL
  * ==========================================
  */
 document.addEventListener("DOMContentLoaded", () => {
-  // Verificación de sesión e instrucciones
-  gestionarInstruccionesVisuales();
+  // 1. Decidir qué sección mostrar
+  gestionarEstadoYSecciones();
 
-  // Configuración de elementos
+  // 2. Configuración de Ubicación
   configurarSelectsUbicacion();
 
-  // Mapeo de Indicadores
+  // 3. Mapeo de Indicadores
   vincularIndicador("txtRFC", "icono-rfc");
   vincularIndicador("txtRazonSocial", "icono-razon");
   vincularIndicador("txtCalle", "icono-calle");
   vincularIndicador("txtNumExt", "icono-num");
-  vincularIndicador("select-estado", "icono-estado");
 
-  // Activar tab si viene en el Hash
-  if (window.location.hash) {
-    $(`.nav-tabs a[href="${window.location.hash}"]`).tab("show");
-  }
-
-  // Formateo automático de inputs a MAYÚSCULAS
+  // 4. Mayúsculas automáticas (excepto email/pass)
   document.querySelectorAll("input").forEach((input) => {
     input.addEventListener("input", function () {
       if (this.type !== "password" && this.type !== "email") {
@@ -182,24 +178,21 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Tooltips y Popovers
-  if (typeof $ !== "undefined") {
-    $('[data-toggle="popover"]').popover({ trigger: "hover", html: true });
-    $('[data-toggle="tooltip"]').tooltip();
+  // 5. Hash Navigation
+  if (window.location.hash) {
+    $(`.nav-tabs a[href="${window.location.hash}"]`).tab("show");
   }
 });
 
 /**
  * ==========================================
- * 7. SEGURIDAD Y SESIÓN
+ * 6. CIERRE DE SESIÓN
  * ==========================================
  */
-async function enviarFormSeguro(idForma) {
+async function cerrarSesion() {
   if (confirm("¿Está seguro que desea cerrar su sesión?")) {
     try {
-      if (window.clientSupa) {
-        await window.clientSupa.auth.signOut();
-      }
+      await window.clientSupa.auth.signOut();
       sessionStorage.clear();
       localStorage.clear();
       window.location.href = "../index.html";

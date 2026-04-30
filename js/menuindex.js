@@ -1,5 +1,5 @@
 // menuindex.js
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
   // --- 0. INYECCIÓN DE RECURSOS ---
   const headContenido = `
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" />
@@ -7,9 +7,13 @@ document.addEventListener("DOMContentLoaded", function () {
     <style>
       .mi-navbar .mi-menu svg { width: 1.1em !important; height: 1.1em !important; margin-right: 8px; fill: currentColor; vertical-align: middle; }
       #footer-placeholder { margin-top: auto; }
-      .active-scroll { font-weight: bold; color: #bc955c !important; }
-      /* Mejorar la experiencia de usuario en las cajas cliqueables */
+      .active-scroll { font-weight: bold; color: #ffd700 !important; }
       .js-link { cursor: pointer; }
+      /* Estilos para el dropdown guinda */
+      .menu-guinda-compacto { background-color: #ab0a3d; border: 1px solid #ffd700; }
+      .menu-guinda-compacto .dropdown-item { color: white; font-weight: 600; font-size: 0.85rem; }
+      .menu-guinda-compacto .dropdown-item:hover { background-color: #323232; color: #ffd700; }
+      .menu-guinda-compacto .dropdown-divider { border-top: 1px solid rgba(255,255,255,0.2); }
     </style>
   `;
 
@@ -18,7 +22,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // --- 1. ICONOS SVG ---
-  const iconos = {
+  const ICONOS = {
     inicio:
       '<svg viewBox="0 0 576 512"><path d="M280.37 148.26L96 300.11V464a16 16 0 0 0 16 16l112.06-.29a16 16 0 0 0 15.92-16V368a16 16 0 0 1 16-16h64a16 16 0 0 1 16 16v95.64a16 16 0 0 0 16 16.05L464 480a16 16 0 0 0 16-16V300L295.67 148.26a12.19 12.19 0 0 0-15.3 0zM571.6 251.47L488 182.56V44.05a12 12 0 0 0-12-12h-56a12 12 0 0 0-12 12v72.61L318.47 43a48 48 0 0 0-61 0L4.34 251.47a12 12 0 0 0-1.6 16.9l25.5 31A12 12 0 0 0 45.15 301l235.22-193.74a12.19 12.19 0 0 1 15.3 0L530.9 301a12 12 0 0 0 16.9-1.6l25.5-31a12 12 0 0 0-1.7-16.93z"></path></svg>',
     registro:
@@ -32,7 +36,33 @@ document.addEventListener("DOMContentLoaded", function () {
     user: '<svg viewBox="0 0 448 512"><path d="M224 256c70.7 0 128-57.3 128-128S294.7 0 224 0 96 57.3 96 128s57.3 128 128 128zm89.6 32h-16.7c-22.2 10.2-46.9 16-72.9 16s-50.6-5.8-72.9-16h-16.7C60.2 288 0 348.2 0 422.4V464c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48v-41.6c0-74.2-60.2-134.4-134.4-134.4z"></path></svg>',
   };
 
-  // --- 2. HTML NAVBAR ---
+  // --- 2. LÓGICA DE SESIÓN ---
+  let itemUsuario = `<li><a href="#" data-toggle="modal" data-target="#ModalLogin" class="nav-link-item">${ICONOS.user} Acceder</a></li>`;
+
+  try {
+    const session = await window.clientSupa.auth.getSession();
+    if (session?.data?.session) {
+      // Si hay sesión, inyectamos el Dropdown
+      itemUsuario = `
+        <li class="nav-item dropdown">
+          <a class="nav-link-item dropdown-toggle" href="javascript:void(0);" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            ${ICONOS.user} MI CUENTA
+          </a>
+          <div class="dropdown-menu dropdown-menu-right menu-guinda-compacto" aria-labelledby="navbarDropdown">
+            <a class="dropdown-item" href="javascript:void(0);" onclick="mostrarSeccion('estado-perfil', this);"><i class="fas fa-info-circle"></i> ESTADO DE PERFIL</a>
+            <a class="dropdown-item" href="javascript:void(0);" onclick="mostrarSeccion('actualizar-datos', this);"><i class="fas fa-edit"></i> ACTUALIZAR DATOS</a>
+            <a class="dropdown-item" href="javascript:void(0);" onclick="mostrarSeccion('actualizar-datos', this);"><i class="fas fa-user-cog"></i> DATOS DE EMPRESA</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="javascript:void(0);" onclick="cerrarSesion();"><i class="fas fa-external-link-alt"></i> CERRAR SESIÓN</a>
+          </div>
+        </li>
+      `;
+    }
+  } catch (e) {
+    console.warn("Error verificando sesión para el menú:", e);
+  }
+
+  // --- 3. HTML NAVBAR ---
   const navbarHTML = `
     <nav class="mi-navbar">
       <div class="mi-container">
@@ -41,18 +71,18 @@ document.addEventListener("DOMContentLoaded", function () {
           <span class="bar"></span><span class="bar"></span><span class="bar"></span>
         </button>
         <ul class="mi-menu" id="nav-menu">
-          <li><a href="index.html#inicio" class="nav-link-item">${iconos.inicio}Inicio</a></li>
-          <li><a href="index.html#registro" class="nav-link-item">${iconos.registro}Registro</a></li>
-          <li><a href="index.html#consultar" class="nav-link-item">${iconos.consultar}Consultar</a></li>
-          <li><a href="index.html#atencion-aclaraciones" class="nav-link-item">${iconos.atencion}Atención</a></li>
-          <li><a href="index.html#marco" class="nav-link-item">${iconos.marco}Marco Legal</a></li>
-          <li><a href="#" data-toggle="modal" data-target="#ModalLogin" class="nav-link-item">${iconos.user}Acceder</a></li>
+          <li><a href="index.html#inicio" class="nav-link-item">${ICONOS.inicio}Inicio</a></li>
+          <li><a href="index.html#registro" class="nav-link-item">${ICONOS.registro}Registro</a></li>
+          <li><a href="index.html#consultar" class="nav-link-item">${ICONOS.consultar}Consultar</a></li>
+          <li><a href="index.html#atencion-aclaraciones" class="nav-link-item">${ICONOS.atencion}Atención</a></li>
+          <li><a href="index.html#marco" class="nav-link-item">${ICONOS.marco}Marco Legal</a></li>
+          ${itemUsuario}
         </ul>
       </div>
     </nav>
   `;
 
-  // --- 3. HTML FOOTER ---
+  // --- 4. HTML FOOTER ---
   const footerHTML = `
     <footer style="background-color: #ab0a3d; color: white; padding: 10px 0; width: 100%;">
       <div class="mi-container" style="text-align: center">
@@ -63,12 +93,17 @@ document.addEventListener("DOMContentLoaded", function () {
     </footer>
   `;
 
-  // --- 4. INYECCIÓN ---
+  // --- 5. INYECCIÓN ---
   const navPlaceholder = document.getElementById("nav-placeholder");
   if (navPlaceholder) navPlaceholder.innerHTML = navbarHTML;
 
   const footerPlaceholder = document.getElementById("footer-placeholder");
   if (footerPlaceholder) footerPlaceholder.innerHTML = footerHTML;
+
+  // Re-inicializar Dropdowns de Bootstrap (necesario tras inyectar HTML dinámico)
+  if (typeof $ !== "undefined" && $(".dropdown-toggle").length) {
+    $(".dropdown-toggle").dropdown();
+  }
 
   // Lógica del botón toggle (Mobile)
   const btnToggle = document.getElementById("btn-toggle");
@@ -80,20 +115,16 @@ document.addEventListener("DOMContentLoaded", function () {
     };
   }
 
-  // --- 5. GESTIÓN DE REDIRECCIONES (NUEVO) ---
-  // Esta lógica sustituye a los antiguos "onclick" del HTML
+  // --- 6. GESTIÓN DE REDIRECCIONES ---
   document.addEventListener("click", function (e) {
-    // Buscamos si el clic fue en un elemento .js-link o dentro de uno
     const target = e.target.closest(".js-link");
     if (target) {
       const url = target.getAttribute("data-url");
-      if (url) {
-        window.open(url, "_blank");
-      }
+      if (url) window.open(url, "_blank");
     }
   });
 
-  // --- 6. LÓGICA SCROLLSPY OPTIMIZADA ---
+  // --- 7. LÓGICA SCROLLSPY ---
   let isScrolling;
   window.addEventListener("scroll", () => {
     window.clearTimeout(isScrolling);

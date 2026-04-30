@@ -31,124 +31,7 @@
   </head>
   <body>
     <div id="nav-placeholder"></div>
-
     <main class="flex-grow-content">
-      <section id="estado-perfil" class="contenido-seccion">
-        <div class="titulo-seccion">ESTADO DE <span>PERFIL</span></div>
-
-        <div class="container">
-          <ul class="nav nav-tabs" role="tablist">
-            <li class="nav-item">
-              <a
-                class="nav-link active"
-                data-toggle="tab"
-                href="#Resumen"
-                role="tab"
-              >
-                <i class="fas fa-list"></i> Resumen de su Perfil
-              </a>
-            </li>
-            <li class="nav-item">
-              <a
-                class="nav-link"
-                data-toggle="tab"
-                href="#Observaciones"
-                role="tab"
-              >
-                <i class="fas fa-search"></i> Observaciones a su Perfil
-              </a>
-            </li>
-          </ul>
-
-          <div class="tab-content">
-            <div id="Resumen" class="tab-pane active text-center">
-              <h4 style="color: #666" class="text-left">
-                Su perfil se encuentra actualmente en el estado:
-              </h4>
-              <h2 class="estado-titulo">EN CAPTURA</h2>
-              <p class="text-muted">
-                <i
-                  >(En este momento está capturando su información y estamos en
-                  espera de que nos envíe la información requerida para su
-                  revisión)</i
-                >
-              </p>
-
-              <hr />
-
-              <div class="contenedor-adjuntar">
-                <span style="color: #ab0a3d; font-weight: 700"
-                  >* Adjuntar Carta Compromiso:</span
-                >
-                <label class="btn btn-perfil-adjuntar">
-                  ADJUNTAR
-                  <input
-                    type="file"
-                    style="display: none"
-                    onchange="
-                      document.getElementById('nombre-archivo').value =
-                        this.files[0].name
-                    "
-                  />
-                </label>
-                <input
-                  type="text"
-                  id="nombre-archivo"
-                  class="input-archivo-texto"
-                  readonly
-                  placeholder="Ningún archivo seleccionado"
-                />
-              </div>
-
-              <div style="margin-top: 20px">
-                <button
-                  class="btn btn-perfil-secundario"
-                  onclick="enviarFormSeguro('FormaSesion')"
-                >
-                  DESCARGAR CARTA COMPROMISO
-                </button>
-                <button class="btn btn-perfil-secundario">SUBIR ARCHIVO</button>
-                <button class="btn btn-perfil-primario">
-                  ENVIAR A VERIFICACIÓN
-                </button>
-              </div>
-            </div>
-
-            <div id="Observaciones" class="tab-pane">
-              <div class="table-responsive">
-                <table class="table table-bordered tabla-estilo-atlixco">
-                  <thead>
-                    <tr>
-                      <th style="width: 50px">#</th>
-                      <th style="width: 120px">Fecha</th>
-                      <th style="width: 100px">Hora</th>
-                      <th>Observación</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td class="text-center">1</td>
-                      <td class="text-center">28/01/2026</td>
-                      <td class="text-center">10:30 AM</td>
-                      <td
-                        class="text-justify text-uppercase"
-                        style="font-size: 11px; padding: 10px"
-                      >
-                        SU SOLICITUD TIENE OBSERVACIONES. ---------- PARA
-                        CORREGIR: ---------- 1. SELECCIONAR (MI CUENTA)
-                        ---------- 2. SELECCIONAR (ACTUALIZAR DATOS) ----------
-                        3. LEER INSTRUCCIONES ---------- 4. PRESIONAR ICONO
-                        AMARILLO.
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       <section id="actualizar-datos" class="contenido-seccion">
         <div class="titulo-seccion">Actualizar <span>Datos</span></div>
         <div class="container">
@@ -407,6 +290,122 @@
                     </div>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="estado-perfil" class="contenido-seccion">
+        <div class="titulo-seccion">ESTADO DE <span>PERFIL</span></div>
+
+        <div class="container">
+          <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item">
+              <a
+                class="nav-link active"
+                data-toggle="tab"
+                href="#Resumen"
+                role="tab"
+              >
+                <i class="fas fa-list"></i> Resumen de su Perfil
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link"
+                data-toggle="tab"
+                href="#Observaciones"
+                role="tab"
+              >
+                <i class="fas fa-search"></i> Observaciones a su Perfil
+              </a>
+            </li>
+          </ul>
+
+          <div class="tab-content">
+            <div id="Resumen" class="tab-pane active text-center">
+              <h4 style="color: #666" class="text-left">
+                Su perfil se encuentra actualmente en el estado:
+              </h4>
+              <h2 class="estado-titulo">EN CAPTURA</h2>
+              <p class="text-muted">
+                <i
+                  >(En este momento está capturando su información y estamos en
+                  espera de que nos envíe la información requerida para su
+                  revisión)</i
+                >
+              </p>
+
+              <hr />
+
+              <div class="contenedor-adjuntar">
+                <span style="color: #ab0a3d; font-weight: 700"
+                  >* Adjuntar Carta Compromiso:</span
+                >
+                <label class="btn btn-perfil-adjuntar">
+                  ADJUNTAR
+                  <input
+                    type="file"
+                    style="display: none"
+                    onchange="
+                      document.getElementById('nombre-archivo').value =
+                        this.files[0].name
+                    "
+                  />
+                </label>
+                <input
+                  type="text"
+                  id="nombre-archivo"
+                  class="input-archivo-texto"
+                  readonly
+                  placeholder="Ningún archivo seleccionado"
+                />
+              </div>
+
+              <div style="margin-top: 20px">
+                <button
+                  class="btn btn-perfil-secundario"
+                  onclick="enviarFormSeguro('FormaSesion')"
+                >
+                  DESCARGAR CARTA COMPROMISO
+                </button>
+                <button class="btn btn-perfil-secundario">SUBIR ARCHIVO</button>
+                <button class="btn btn-perfil-primario">
+                  ENVIAR A VERIFICACIÓN
+                </button>
+              </div>
+            </div>
+
+            <div id="Observaciones" class="tab-pane">
+              <div class="table-responsive">
+                <table class="table table-bordered tabla-estilo-atlixco">
+                  <thead>
+                    <tr>
+                      <th style="width: 50px">#</th>
+                      <th style="width: 120px">Fecha</th>
+                      <th style="width: 100px">Hora</th>
+                      <th>Observación</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="text-center">1</td>
+                      <td class="text-center">28/01/2026</td>
+                      <td class="text-center">10:30 AM</td>
+                      <td
+                        class="text-justify text-uppercase"
+                        style="font-size: 11px; padding: 10px"
+                      >
+                        SU SOLICITUD TIENE OBSERVACIONES. ---------- PARA
+                        CORREGIR: ---------- 1. SELECCIONAR (MI CUENTA)
+                        ---------- 2. SELECCIONAR (ACTUALIZAR DATOS) ----------
+                        3. LEER INSTRUCCIONES ---------- 4. PRESIONAR ICONO
+                        AMARILLO.
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>

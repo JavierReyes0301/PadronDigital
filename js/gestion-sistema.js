@@ -408,7 +408,7 @@ document.addEventListener("submit", async (e) => {
         document.getElementById("btnAccesarInicio").onclick = () => {
           const esNuevo =
             new Date() - new Date(data.user.created_at) < 86400000;
-          window.location.assign(`/inicio.html?u=${esNuevo ? "n" : "r"}`);
+          window.location.assign(`./inicio.html?u=${esNuevo ? "n" : "r"}`);
         };
       });
     } catch (err) {

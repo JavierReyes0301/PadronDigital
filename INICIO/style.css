@@ -1,11 +1,28 @@
 /* ============================================================
-   1. BLOQUE GLOBAL (Común a todo el sitio)
+   1. VARIABLES Y BLOQUE GLOBAL
    ============================================================ */
+:root {
+  --color-principal: #ab0a3d; /* Guinda */
+  --color-texto-oscuro: #323232; /* Gris Oxford */
+  --color-fondo: #f4f4f4; /* Gris claro fondo */
+  --fuente-base: "Montserrat", sans-serif;
+  --blanco: #ffffff;
+  --gris-suave: #f0f0f0;
+  --azul-input: #f4f7ff;
+  --borde-input: #e1e8f5;
+}
+
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
-  padding-top: 0px;
-  font-family: "Montserrat", sans-serif;
-  background-color: #f4f4f4;
+  padding-top: 0;
+  font-family: var(--fuente-base);
+  background-color: var(--color-fondo);
+  color: var(--color-texto-oscuro);
+  line-height: 1.6;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
@@ -20,10 +37,10 @@ section[id] {
 }
 
 /* ============================================================
-   2. BARRA DE NAVEGACIÓN (Solo ajustes necesarios)
+   2. NAVEGACIÓN (Navbar)
    ============================================================ */
 .mi-navbar {
-  background-color: #ab0a3d;
+  background-color: var(--color-principal);
   position: fixed;
   top: 0;
   width: 100%;
@@ -48,10 +65,7 @@ section[id] {
   display: none;
   background: transparent !important;
   border: none !important;
-  padding: 0;
   cursor: pointer;
-  outline: none !important;
-  box-shadow: none !important;
 }
 
 .mi-navbar .bar {
@@ -64,29 +78,6 @@ section[id] {
   border-radius: 2px;
 }
 
-.mi-navbar .mi-brand,
-.mi-navbar .mi-menu a {
-  color: white;
-  text-decoration: none;
-  font-weight: 700;
-  font-size: 1.1rem;
-  text-transform: uppercase;
-  white-space: nowrap;
-  display: flex;
-  align-items: center;
-  transition: 0.3s;
-}
-
-/* REGLA NUEVA: Color amarillo para sección activa */
-.mi-navbar .mi-menu a.active-scroll {
-  color: #ffd700 !important;
-}
-
-/* Color amarillo para el icono SVG de la sección activa */
-.mi-navbar .mi-menu a.active-scroll svg {
-  fill: #ffd700 !important;
-}
-
 .mi-navbar .mi-menu {
   list-style: none;
   margin: 0;
@@ -96,7 +87,208 @@ section[id] {
   justify-content: space-around;
 }
 
-/* RESPONSIVO */
+.mi-navbar .mi-menu a {
+  color: white;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  transition: 0.3s;
+}
+
+.mi-navbar .mi-menu a.active-scroll {
+  color: #ffd700 !important; /* Amarillo activo */
+}
+
+/* ============================================================
+   3. COMPONENTES REUTILIZABLES (Títulos, Botones, Tablas)
+   ============================================================ */
+
+/* Control de visibilidad para JS */
+.contenido-seccion {
+  display: none; /* JS añade .activa para mostrar */
+  width: 100%;
+  padding: 60px 0;
+  flex-direction: column;
+  align-items: center;
+}
+
+.contenido-seccion.activa {
+  display: flex !important;
+}
+
+/* Títulos de Sección */
+.titulo-seccion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 90%;
+  max-width: 1200px;
+  margin: 20px auto;
+  font-weight: 800;
+  font-size: clamp(1.5rem, 5vw, 2.2rem);
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.titulo-seccion::before,
+.titulo-seccion::after {
+  content: "";
+  flex: 1;
+  height: 6px;
+  background-color: var(--color-principal);
+  border-radius: 10px;
+  margin: 0 20px;
+  max-width: 150px;
+}
+
+.titulo-seccion span {
+  color: var(--color-principal);
+  margin-left: 10px;
+}
+
+/* Botones Homologados */
+.btn-sitio,
+.btn-perfil-primario {
+  background-color: var(--color-principal) !important;
+  color: white !important;
+  padding: 12px 30px;
+  border-radius: 6px;
+  font-weight: 700;
+  text-transform: uppercase;
+  border: none;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn-sitio:hover,
+.btn-perfil-primario:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(171, 10, 61, 0.3);
+}
+
+.btn-perfil-secundario {
+  background-color: var(--color-texto-oscuro) !important;
+  color: white !important;
+  padding: 12px 30px;
+  border-radius: 6px;
+  font-weight: 700;
+  text-transform: uppercase;
+  border: none;
+  transition: 0.3s ease;
+}
+
+/* Tablas Estilo Index */
+.tabla-estilo-atlixco {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabla-estilo-atlixco thead tr {
+  background-color: var(--color-texto-oscuro);
+}
+
+.tabla-estilo-atlixco th {
+  color: var(--blanco);
+  padding: 12px;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.tabla-estilo-atlixco tbody tr:hover {
+  background-color: #fff9c4 !important; /* Hover amarillo */
+}
+
+/* ============================================================
+   4. ESTILOS DE PESTAÑAS (TABS) - COMPARTIDO
+   ============================================================ */
+.nav-tabs {
+  border: none !important;
+  display: flex !important;
+  width: 100%;
+  padding: 0;
+}
+
+.nav-item {
+  flex: 1;
+}
+
+.nav-link {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background-color: var(--color-texto-oscuro) !important;
+  color: var(--blanco) !important;
+  font-weight: 700;
+  padding: 15px;
+  border: none !important;
+  border-radius: 8px 8px 0 0 !important;
+  margin-right: 2px;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  transition: 0.3s;
+}
+
+.nav-link.active {
+  background-color: var(--color-principal) !important;
+}
+
+.tab-content {
+  background: var(--blanco);
+  padding: 40px;
+  border-radius: 0 0 12px 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--gris-suave);
+  width: 100%;
+}
+
+/* ============================================================
+   5. SECCIÓN ACTUALIZAR DATOS & ESTADO PERFIL
+   ============================================================ */
+.contenedor-bloque {
+  width: 95%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.form-control-perfil {
+  background-color: var(--azul-input) !important;
+  border: 1px solid var(--borde-input) !important;
+  border-radius: 6px;
+  height: 45px;
+  padding: 0 15px;
+  width: 100%;
+  color: #555;
+}
+
+.disabled-tab {
+  pointer-events: none;
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.instrucciones-perfil {
+  text-align: justify;
+  font-size: 1.15rem;
+  max-width: 900px;
+  margin: 0 auto 20px auto;
+  color: #444;
+}
+
+.color-guinda {
+  color: var(--color-principal);
+  font-weight: 700;
+}
+
+/* ============================================================
+   6. RESPONSIVO
+   ============================================================ */
 @media (max-width: 992px) {
   .mi-navbar .mi-container {
     justify-content: space-between;
@@ -114,7 +306,7 @@ section[id] {
     top: 65px;
     left: 0;
     width: 100%;
-    background-color: #ab0a3d;
+    background-color: var(--color-principal);
     padding: 20px 0;
   }
 
@@ -122,454 +314,9 @@ section[id] {
     display: flex !important;
   }
 
-  /* Ajuste de espaciado para los links en móvil */
   .mi-navbar .mi-menu li {
     width: 100%;
     text-align: center;
     padding: 10px 0;
   }
-
-  #inicio .container-content {
-    flex-direction: column;
-  }
-  #registro .custom-main-box {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-/* ... tus estilos anteriores ... */
-.contenido-seccion {
-  display: none !important;
-}
-
-/* Forzamos que la primera sección sea la única visible al entrar */
-#estado-perfil {
-  display: block !important;
-}
-
-/* ============================================================
-   REGLAS GLOBALES PARA TODAS LAS SECCIONES
-   ============================================================ */
-
-:root {
-  --color-principal: #ab0a3d; /* Guinda */
-  --color-texto-oscuro: #323232; /* Gris Oxford */
-  --color-fondo: #f4f4f4; /* Gris claro fondo */
-  --fuente-base: "Montserrat", sans-serif;
-}
-
-/* 1. Configuración de Cuerpo y Texto */
-body {
-  font-family: var(--fuente-base);
-  background-color: var(--color-fondo);
-  color: var(--color-texto-oscuro);
-  line-height: 1.6;
-}
-
-/* 2. Estructura Estándar de Sección */
-section,
-.contenido-seccion {
-  width: 100%;
-  padding: 60px 0; /* Espaciado vertical constante */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  box-sizing: border-box;
-}
-
-/* 3. Títulos de Sección Homologados */
-/* Usa <h2 class="titulo-seccion">Título <span>Subtítulo</span></h2> */
-.titulo-seccion {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 90%;
-  max-width: 1200px;
-  margin: 0 auto 20px auto;
-  font-weight: 800;
-  font-size: clamp(1.8rem, 5vw, 2.5rem);
-  color: var(--color-texto-oscuro);
-  text-transform: uppercase;
-  text-align: center;
-}
-
-.titulo-seccion::before,
-.titulo-seccion::after {
-  content: "";
-  flex: 1;
-  height: 5px;
-  background-color: var(--color-principal);
-  border-radius: 10px;
-  margin: 0 20px;
-  max-width: 100px;
-}
-
-.titulo-seccion span {
-  color: var(--color-principal);
-  margin-left: 10px;
-}
-
-/* 4. Contenedores de Contenido (Grids/Flex) */
-.contenedor-bloque {
-  width: 90%;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-/* 5. Botones Estándar del Sitio */
-.btn-sitio {
-  background-color: var(--color-principal);
-  color: white !important;
-  font-family: var(--fuente-base);
-  font-weight: 700;
-  text-transform: uppercase;
-  padding: 12px 25px;
-  border-radius: 6px;
-  border: none;
-  transition: all 0.3s ease;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.btn-sitio:hover {
-  background-color: #ab0a3d;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(171, 10, 61, 0.3);
-}
-
-/* 6. Enlaces de Texto */
-a.enlace-estilo {
-  color: var(--color-principal);
-  font-weight: 600;
-  text-decoration: none;
-  transition: 0.3s;
-}
-
-a.enlace-estilo:hover {
-  text-decoration: underline;
-}
-
-/* ============================================================
-   ESTILO HOMOLOGADO: ESTADO DE PERFIL (Basado en Index)
-   ============================================================ */
-
-/* 1. TIPOGRAFÍA Y CUERPO GLOBAL */
-body {
-  margin: 0;
-  font-family: "Montserrat", sans-serif;
-  background-color: #f4f4f4;
-  color: #323232;
-  line-height: 1.6;
-}
-
-/* 2. TÍTULOS DE SECCIÓN (Idénticos al Index) */
-.titulo-seccion {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 90%;
-  max-width: 1200px;
-  margin: 20px auto 20px auto;
-  font-family: "Montserrat", sans-serif;
-  font-weight: 800;
-  font-size: clamp(1.5rem, 5vw, 2.2rem);
-  color: #323232;
-  text-transform: uppercase;
-  text-align: center;
-}
-
-.titulo-seccion::before,
-.titulo-seccion::after {
-  content: "";
-  flex: 1;
-  height: 6px;
-  background-color: #ab0a3d;
-  border-radius: 10px;
-  margin: 0 20px;
-  max-width: 150px;
-}
-
-.titulo-seccion span {
-  color: #ab0a3d;
-  margin-left: 10px;
-}
-
-/* 3. PESTAÑAS (TABS) - Homologación de Colores */
-#estado-perfil .nav-tabs {
-  border: none !important;
-  display: flex !important;
-  width: 100%;
-  margin-bottom: 0;
-  padding: 0;
-}
-
-#estado-perfil .nav-item {
-  flex: 1;
-  display: flex;
-}
-
-#estado-perfil .nav-link {
-  width: 100%;
-  justify-content: center;
-  background-color: #323232 !important; /* Gris oscuro del index */
-  color: #ffffff !important;
-  font-family: "Montserrat", sans-serif;
-  font-weight: 700;
-  padding: 15px 25px;
-  border: none !important;
-  border-radius: 8px 8px 0 0 !important;
-  margin-right: 2px;
-  text-transform: uppercase;
-  font-size: 0.9rem;
-  transition: 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-#estado-perfil .nav-link.active {
-  background-color: #ab0a3d !important; /* Guinda Principal */
-  color: #ffffff !important;
-}
-
-/* 4. PANEL DE CONTENIDO (Cuadro Blanco del Index) */
-#estado-perfil .tab-content {
-  background: #ffffff !important;
-  padding: 40px !important;
-  border-radius: 0 0 12px 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); /* Sombra suave del index */
-  border: 1px solid #f0f0f0;
-}
-
-/* 5. BOTONES (Homologados a .btn-buscar / .btn-nueva) */
-.btn-perfil-primario,
-.btn-perfil-adjuntar,
-.btn-sitio {
-  background-color: #ab0a3d !important;
-  color: white !important;
-  padding: 12px 30px !important;
-  border-radius: 6px !important;
-  font-family: "Montserrat", sans-serif;
-  font-weight: 700 !important;
-  text-transform: uppercase;
-  border: none !important;
-  transition: all 0.3s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-}
-
-.btn-perfil-primario:hover,
-.btn-perfil-adjuntar:hover {
-  background-color: #ab0a3d !important;
-  transform: translateY(-2px);
-}
-
-/* Botón secundario (Gris oscuro del index) */
-.btn-perfil-secundario {
-  background-color: #323232 !important;
-  color: white !important;
-  padding: 12px 30px !important;
-  border-radius: 6px !important;
-  font-family: "Montserrat", sans-serif;
-  font-weight: 700 !important;
-  text-transform: uppercase;
-  border: none !important;
-  transition: all 0.3s ease;
-}
-
-.btn-perfil-secundario:hover {
-  background-color: #323232 !important;
-  transform: translateY(-2px);
-}
-
-/* 6. INPUTS (Estilo .form-control.delgado del Index) */
-.input-archivo-texto,
-.form-control-perfil {
-  background-color: #f4f7ff !important;
-  border: 1px solid #e1e8f5 !important;
-  border-radius: 0 6px 6px 0 !important;
-  height: 45px;
-  color: #555;
-  font-family: "Montserrat", sans-serif;
-  padding: 0 15px !important;
-}
-
-/* 7. TABLAS (Idénticas al Catálogo de Giros) */
-.tabla-estilo-atlixco {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.tabla-estilo-atlixco thead tr {
-  background-color: #323232 !important; /* Negro/Gris del index */
-}
-
-.tabla-estilo-atlixco th {
-  color: #ffffff !important;
-  padding: 12px;
-  text-transform: uppercase;
-  font-weight: 700;
-  font-size: 0.9rem;
-}
-
-.tabla-estilo-atlixco tbody tr:hover {
-  background-color: #fff9c4 !important; /* Efecto hover amarillo del index */
-}
-
-/* 8. SUBTÍTULOS O TEXTOS DE INSTRUCCIÓN */
-.instrucciones-perfil {
-  font-size: 1.1rem;
-  color: #555;
-  line-height: 1.5;
-  margin-bottom: 25px;
-  text-align: justify;
-}
-
-/* ============================================================
-   ESTILOS ESPECÍFICOS: SECCIÓN ACTUALIZAR DATOS
-   ============================================================ */
-
-/* Contenedor Principal usando tu ID */
-#actualizar-datos .contenedor-bloque {
-  width: 95%;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-/* Pestañas (Nav Tabs) */
-#actualizar-datos .nav-tabs {
-  border: none !important;
-  display: flex !important;
-  width: 100%;
-  margin-bottom: 0;
-  padding: 0;
-  list-style: none;
-}
-
-#actualizar-datos .nav-item {
-  flex: 1;
-}
-
-#actualizar-datos .nav-link {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  background-color: #323232 !important; /* Gris oscuro del index */
-  color: #ffffff !important;
-  font-family: "Montserrat", sans-serif;
-  font-weight: 700;
-  padding: 15px;
-  border: none !important;
-  border-radius: 8px 8px 0 0 !important;
-  margin-right: 2px;
-  text-transform: uppercase;
-  font-size: 0.85rem;
-  transition: 0.3s ease;
-  text-decoration: none;
-}
-
-/* Estado Activo: Cuando Bootstrap añade la clase .active */
-#actualizar-datos .nav-link.active {
-  background-color: #ab0a3d !important; /* Guinda */
-}
-
-/* Pestañas Bloqueadas (Estados iniciales) */
-#actualizar-datos .nav-link.disabled-tab {
-  opacity: 0.5;
-  cursor: not-allowed;
-  pointer-events: none;
-  background-color: #666 !important;
-}
-
-/* Panel de Contenido (Cuadro Blanco) */
-#actualizar-datos .tab-content {
-  background: #ffffff !important;
-  padding: 40px;
-  border-radius: 0 0 12px 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-  border: 1px solid #f0f0f0;
-}
-
-/* Inputs internos homologados */
-#actualizar-datos .form-control-perfil {
-  background-color: #f4f7ff !important;
-  border: 1px solid #e1e8f5 !important;
-  border-radius: 6px;
-  height: 45px;
-  padding: 0 15px;
-  font-family: "Montserrat", sans-serif;
-  color: #555;
-  width: 100%;
-}
-
-.disabled-tab {
-  pointer-events: none;
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.icon-success {
-  color: var(--color-primario-fondo);
-}
-
-/* Color guinda para resaltar texto dentro de párrafos */
-.color-guinda {
-  color: #ab0a3d;
-  font-weight: 700;
-}
-
-/* Ajuste específico para el contenedor de instrucciones */
-.instrucciones-perfil {
-  text-align: justify;
-  font-size: 1.15rem; /* Un poco más grande para legibilidad */
-  max-width: 900px;
-  margin: 0 auto 20px auto;
-}
-
-/* Estilo para que el botón luzca como el de la captura de "Estado de Perfil" */
-#BtnIniciar {
-  padding: 5px 0px;
-  font-size: 1rem;
-  letter-spacing: 1px;
-}
-
-/* Estilos para limpiar el HTML de instrucciones */
-.instrucciones-lista li {
-  margin-bottom: 2px;
-}
-
-.instrucciones-texto {
-  font-size: 1.1rem !important;
-  line-height: 1.6;
-  font-weight: 500;
-  color: #444;
-}
-
-.badge-instruccion {
-  padding: 4px 8px;
-  border: 1px solid #323232;
-  border-radius: 4px;
-  font-size: 0.9rem;
-  display: inline-block;
-  background: #f9f9f9;
-  color: #323232;
-  font-weight: 700;
-}
-
-/* 1. Reducir el tamaño del texto y las líneas laterales */
-.titulo-ajustado {
-  font-size: clamp(
-    1.2rem,
-    3vw,
-    1.6rem
-  ) !important; /* Más pequeño que el original */
-  margin-top: 0 !important; /* Elimina espacio superior */
-  margin-bottom: 5px !important;
 }
