@@ -323,79 +323,60 @@ function dibujarTablasCatalogo() {
   });
 }
 
-// --- 3. CONTROLADOR DE REGISTRO Y LOGIN ---
-document.addEventListener("submit", async (e) => {
-  const targetId = e.target.id;
+// --- SECCIÓN DE LOGIN (VERSIÓN DEFINITIVA) ---
+if (targetId === "FormaLogin") {
+  try {
+    if (btn) {
+      btn.disabled = true;
+      btn.innerText = "VALIDANDO...";
+    }
 
-  // Filtramos solo los formularios que nos interesan
-  if (!["FormRegistro", "FormaLogin"].includes(targetId)) return;
+    const { data, error } = await window.clientSupa.auth.signInWithPassword({
+      email: datos.correo_login.trim().toLowerCase(),
+      password: datos.password_login,
+    });
 
-  e.preventDefault();
-  const btn = e.target.querySelector('button[type="submit"]');
-  const formData = new FormData(e.target);
-  const datos = Object.fromEntries(formData);
+    if (error) throw error;
 
-  // --- SECCIÓN DE REGISTRO ---
-  if (targetId === "FormRegistro") {
-    // ... (Tu lógica de registro se mantiene igual)
-  }
+    $("#ModalLogin").modal("hide");
 
-  // --- SECCIÓN DE LOGIN (ÚNICA Y CORREGIDA) ---
-  if (targetId === "FormaLogin") {
-    try {
-      if (btn) {
-        btn.disabled = true;
-        btn.innerText = "VALIDANDO...";
+    $("#ModalLogin").one("hidden.bs.modal", () => {
+      const txtRFC = document.getElementById("txtRFCBienvenida");
+      if (txtRFC) {
+        txtRFC.innerText = data.user.user_metadata.rfc || "Usuario";
       }
 
-      const { data, error } = await window.clientSupa.auth.signInWithPassword({
-        email: datos.correo_login.trim().toLowerCase(),
-        password: datos.password_login,
-      });
+      $("#ModalBienvenida").modal("show");
 
-      if (error) throw error;
+      const btnAcceso = document.getElementById("btnAccesarInicio");
+      if (btnAcceso) {
+        btnAcceso.onclick = () => {
+          const esNuevo =
+            new Date() - new Date(data.user.created_at) < 86400000;
+          const parametroU = esNuevo ? "n" : "r";
 
-      // 1. Cerramos el modal de Login
-      $("#ModalLogin").modal("hide");
+          /**
+           * SOLUCIÓN FINAL DE RUTA:
+           * Usamos un objeto URL para construir la ruta relativa al archivo actual.
+           * Esto evita problemas de carpetas en GitHub Pages.
+           */
+          const nuevaRuta = new URL("inicio/inicio.html", window.location.href);
+          nuevaRuta.searchParams.set("u", parametroU);
 
-      // 2. Esperamos a que se oculte para mostrar la bienvenida
-      $("#ModalLogin").one("hidden.bs.modal", () => {
-        const txtRFC = document.getElementById("txtRFCBienvenida");
-        if (txtRFC) {
-          txtRFC.innerText = data.user.user_metadata.rfc || "Usuario";
-        }
-
-        $("#ModalBienvenida").modal("show");
-
-        // 3. Configuración del botón de acceso con RUTA DEFINITIVA
-        const btnAcceso = document.getElementById("btnAccesarInicio");
-        if (btnAcceso) {
-          btnAcceso.onclick = () => {
-            const esNuevo =
-              new Date() - new Date(data.user.created_at) < 86400000;
-
-            /**
-             * EXPLICACIÓN RUTA GITHUB:
-             * Usamos la estructura 'carpeta/archivo.html' sin puntos iniciales.
-             * Esto funciona correctamente en el entorno de GitHub Pages.
-             */
-            const urlDestino = `inicio/inicio.html?u=${esNuevo ? "n" : "r"}`;
-
-            window.location.assign(urlDestino);
-          };
-        }
-      });
-    } catch (err) {
-      alert("Error: " + err.message);
-    } finally {
-      if (btn) {
-        btn.disabled = false;
-        btn.innerText = "INICIAR SESIÓN";
+          console.log("Redirigiendo a:", nuevaRuta.href);
+          window.location.assign(nuevaRuta.href);
+        };
       }
+    });
+  } catch (err) {
+    alert("Error: " + err.message);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerText = "INICIAR SESIÓN";
     }
   }
-  // ¡IMPORTANTE!: No agregues otro bloque "if (targetId === 'FormaLogin')" abajo.
-});
+}
 
 // Ayudantes de apertura
 window.abrirRegistro = () => $("#ModalRegistro").modal("show");
