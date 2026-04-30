@@ -417,7 +417,7 @@ window.abrirLogin = () => $("#ModalLogin").modal("show");
 // Botón del modal de bienvenida para redireccionar
 document.addEventListener("click", (e) => {
   if (e.target.id === "btnAccesarInicio") {
-    window.location.href = "perfil.html"; // O la página que corresponda
+    window.location.href = "/inicio/inicio.html"; // O la página que corresponda
   }
 });
 
