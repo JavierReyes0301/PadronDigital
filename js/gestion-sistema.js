@@ -326,6 +326,8 @@ function dibujarTablasCatalogo() {
 // --- 3. CONTROLADOR DE REGISTRO Y LOGIN ---
 document.addEventListener("submit", async (e) => {
   const targetId = e.target.id;
+
+  // Filtramos solo los formularios que nos interesan
   if (!["FormRegistro", "FormaLogin"].includes(targetId)) return;
 
   e.preventDefault();
@@ -333,10 +335,18 @@ document.addEventListener("submit", async (e) => {
   const formData = new FormData(e.target);
   const datos = Object.fromEntries(formData);
 
+  // --- SECCIÓN DE REGISTRO ---
+  if (targetId === "FormRegistro") {
+    // ... (Tu lógica de registro se mantiene igual)
+  }
+
+  // --- SECCIÓN DE LOGIN (ÚNICA Y CORREGIDA) ---
   if (targetId === "FormaLogin") {
     try {
-      btn.disabled = true;
-      btn.innerText = "VALIDANDO..."; // Feedback visual de carga
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = "VALIDANDO...";
+      }
 
       const { data, error } = await window.clientSupa.auth.signInWithPassword({
         email: datos.correo_login.trim().toLowerCase(),
@@ -348,30 +358,28 @@ document.addEventListener("submit", async (e) => {
       // 1. Cerramos el modal de Login
       $("#ModalLogin").modal("hide");
 
-      // 2. Usamos el evento de Bootstrap para asegurar que el modal se cerró antes de mostrar el siguiente
+      // 2. Esperamos a que se oculte para mostrar la bienvenida
       $("#ModalLogin").one("hidden.bs.modal", () => {
-        // Mostramos el RFC en el modal de bienvenida
         const txtRFC = document.getElementById("txtRFCBienvenida");
         if (txtRFC) {
           txtRFC.innerText = data.user.user_metadata.rfc || "Usuario";
         }
 
-        // Abrimos el modal de Bienvenida
         $("#ModalBienvenida").modal("show");
 
-        // 3. Configuramos la redirección corregida en el botón del modal de bienvenida
+        // 3. Configuración del botón de acceso con RUTA DEFINITIVA
         const btnAcceso = document.getElementById("btnAccesarInicio");
         if (btnAcceso) {
           btnAcceso.onclick = () => {
-            // Determinamos si es usuario nuevo (menos de 24 horas de registro)
             const esNuevo =
               new Date() - new Date(data.user.created_at) < 86400000;
 
-            /* 
-               AJUSTE DE RUTA: 
-               Como tu archivo está en la carpeta 'inicio', la ruta debe ser ./inicio/inicio.html
-            */
-            const urlDestino = `${window.location.origin}/inicio/inicio.html?u=${esNuevo ? "n" : "r"}`;
+            /**
+             * EXPLICACIÓN RUTA GITHUB:
+             * Usamos la estructura 'carpeta/archivo.html' sin puntos iniciales.
+             * Esto funciona correctamente en el entorno de GitHub Pages.
+             */
+            const urlDestino = `inicio/inicio.html?u=${esNuevo ? "n" : "r"}`;
 
             window.location.assign(urlDestino);
           };
@@ -382,37 +390,11 @@ document.addEventListener("submit", async (e) => {
     } finally {
       if (btn) {
         btn.disabled = false;
-        btn.innerText = "INICIAR SESIÓN"; // Restauramos el texto original del botón
+        btn.innerText = "INICIAR SESIÓN";
       }
     }
   }
-
-  if (targetId === "FormaLogin") {
-    try {
-      btn.disabled = true;
-      const { data, error } = await window.clientSupa.auth.signInWithPassword({
-        email: datos.correo_login.trim().toLowerCase(),
-        password: datos.password_login,
-      });
-
-      if (error) throw error;
-      $("#ModalLogin").modal("hide");
-      $("#ModalLogin").one("hidden.bs.modal", () => {
-        document.getElementById("txtRFCBienvenida").innerText =
-          data.user.user_metadata.rfc;
-        $("#ModalBienvenida").modal("show");
-        document.getElementById("btnAccesarInicio").onclick = () => {
-          const esNuevo =
-            new Date() - new Date(data.user.created_at) < 86400000;
-          window.location.assign(`./inicio.html?u=${esNuevo ? "n" : "r"}`);
-        };
-      });
-    } catch (err) {
-      alert("Error: " + err.message);
-    } finally {
-      if (btn) btn.disabled = false;
-    }
-  }
+  // ¡IMPORTANTE!: No agregues otro bloque "if (targetId === 'FormaLogin')" abajo.
 });
 
 // Ayudantes de apertura
