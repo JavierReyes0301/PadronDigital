@@ -9,12 +9,13 @@ const supabaseKey =
 
 // 1. VALIDACIÓN Y CREACIÓN DEL CLIENTE
 if (typeof supabase !== "undefined") {
-  // Configuración avanzada para mantener la sesión activa
+  // CONFIGURACIÓN CORREGIDA:
+  // Eliminamos la persistencia automática para evitar el error de "object is not extensible"
   const options = {
     auth: {
-      autoRefreshToken: true,
-      persistSession: true,
-      detectSessionInUrl: true,
+      autoRefreshToken: false,
+      persistSession: false,
+      detectSessionInUrl: false,
     },
   };
 
@@ -24,16 +25,15 @@ if (typeof supabase !== "undefined") {
     options,
   );
 
-  // 2. PROTECCIÓN DE LA INSTANCIA
-  // Congelamos el objeto para evitar manipulaciones externas en tiempo de ejecución.
-  window.clientSupa = Object.freeze(instanciaSupa);
+  // 2. ASIGNACIÓN DE LA INSTANCIA
+  // IMPORTANTE: Eliminamos Object.freeze() porque impedía que la librería funcionara correctamente
+  window.clientSupa = instanciaSupa;
 
-  console.log("🟢 Supabase: Cliente inicializado y protegido.");
+  console.log("🟢 Supabase: Cliente inicializado correctamente.");
 } else {
   // 3. GESTIÓN DE ERROR CRÍTICO
   console.error("🔴 Supabase: Error de carga en la librería externa.");
 
-  // Inyectamos un aviso visual si el placeholder del nav existe
   const nav = document.getElementById("nav-placeholder");
   if (nav) {
     nav.insertAdjacentHTML(
@@ -50,14 +50,10 @@ if (typeof supabase !== "undefined") {
 
 /**
  * GESTIÓN DE RECAPTCHA
- * Se mantiene como callback global para la API de Google.
  */
 window.onloadCallback = function () {
   console.log("🔵 reCAPTCHA: Listo para validación.");
 };
 
-// Tip extra para tu archivo de conexión:
-window.addEventListener("beforeunload", () => {
-  // Esto ayuda a que el estado de auth no se quede "sucio" entre recargas
-  if (window.clientSupa) window.clientSupa.auth.signOut();
-});
+// Se eliminó el evento beforeunload que forzaba el signOut,
+// permitiendo que el flujo de registro e inicio de sesión sea continuo.

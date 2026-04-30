@@ -345,52 +345,46 @@ document.addEventListener("submit", async (e) => {
 
     try {
       btn.disabled = true;
-      btn.innerText = "REGISTRANDO...";
+      btn.innerText = "PROCESANDO...";
 
-      // 1. Crear el usuario en Auth
-      const { data: authData, error: authError } =
+      // 1. REGISTRO EN AUTH (Sin filtros, sin confirmación de email necesaria)
+      const { data: resAuth, error: errAuth } =
         await window.clientSupa.auth.signUp({
           email: datos.correo.toLowerCase().trim(),
           password: datos.pwd,
           options: {
             data: { rfc: rfcLimpio, tipo_persona: datos["tipo-persona"] },
-            currSession: false,
           },
         });
 
-      // Manejamos el error del token pero permitimos continuar si el usuario se creó
-      if (authError && !authError.message.includes("changedAccessToken")) {
-        throw authError;
-      }
+      if (errAuth) throw errAuth;
 
-      // 2. Inserción forzada en la tabla de base de datos
-      const userId = authData?.user?.id;
-      if (userId) {
-        const { error: dbError } = await window.clientSupa
+      // 2. INSERCIÓN DIRECTA EN TABLA (Si llegamos aquí, el Auth funcionó)
+      if (resAuth.user) {
+        const { error: errDb } = await window.clientSupa
           .from("usuarios")
           .insert([
             {
-              id: userId,
+              id: resAuth.user.id,
               rfc: rfcLimpio,
               correo: datos.correo.toLowerCase().trim(),
               tipo_persona: datos["tipo-persona"],
             },
           ]);
 
-        if (dbError) console.warn("Error en tabla usuarios:", dbError.message);
+        if (errDb)
+          throw new Error("Error al guardar en tabla: " + errDb.message);
       }
 
-      alert("¡Registro completado con éxito! Ya puedes iniciar sesión.");
+      alert("¡REGISTRO EXITOSO! Ahora puede iniciar sesión.");
       $("#ModalRegistro").modal("hide");
       e.target.reset();
     } catch (err) {
-      if (err.message.includes("changedAccessToken")) {
-        alert("¡Registro exitoso! Ya puede acceder.");
-        $("#ModalRegistro").modal("hide");
-        e.target.reset();
-      } else {
-        alert("Error crítico: " + err.message);
-      }
+      // Filtramos el mensaje de error para que no sea técnico
+      const msg = err.message.includes("extensible")
+        ? "Error de sesión del navegador. Intente de nuevo."
+        : err.message;
+      alert("Atención: " + msg);
     } finally {
       btn.disabled = false;
       btn.innerText = "CONTINUAR REGISTRO";
