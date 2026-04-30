@@ -333,61 +333,57 @@ document.addEventListener("submit", async (e) => {
   const formData = new FormData(e.target);
   const datos = Object.fromEntries(formData);
 
-  if (targetId === "FormRegistro") {
-    const rfcLimpio = datos.rfc
-      .trim()
-      .toUpperCase()
-      .replace(/[^A-Z0-9]/g, "");
-
-    if (!document.getElementById("checkAviso").checked)
-      return alert("Debe aceptar el aviso de privacidad.");
-    if (datos.pwd.length < 8) return alert("Mínimo 8 caracteres.");
-
+  if (targetId === "FormaLogin") {
     try {
       btn.disabled = true;
-      btn.innerText = "PROCESANDO...";
+      btn.innerText = "VALIDANDO..."; // Feedback visual de carga
 
-      // 1. REGISTRO EN AUTH (Sin filtros, sin confirmación de email necesaria)
-      const { data: resAuth, error: errAuth } =
-        await window.clientSupa.auth.signUp({
-          email: datos.correo.toLowerCase().trim(),
-          password: datos.pwd,
-          options: {
-            data: { rfc: rfcLimpio, tipo_persona: datos["tipo-persona"] },
-          },
-        });
+      const { data, error } = await window.clientSupa.auth.signInWithPassword({
+        email: datos.correo_login.trim().toLowerCase(),
+        password: datos.password_login,
+      });
 
-      if (errAuth) throw errAuth;
+      if (error) throw error;
 
-      // 2. INSERCIÓN DIRECTA EN TABLA (Si llegamos aquí, el Auth funcionó)
-      if (resAuth.user) {
-        const { error: errDb } = await window.clientSupa
-          .from("usuarios")
-          .insert([
-            {
-              id: resAuth.user.id,
-              rfc: rfcLimpio,
-              correo: datos.correo.toLowerCase().trim(),
-              tipo_persona: datos["tipo-persona"],
-            },
-          ]);
+      // 1. Cerramos el modal de Login
+      $("#ModalLogin").modal("hide");
 
-        if (errDb)
-          throw new Error("Error al guardar en tabla: " + errDb.message);
-      }
+      // 2. Usamos el evento de Bootstrap para asegurar que el modal se cerró antes de mostrar el siguiente
+      $("#ModalLogin").one("hidden.bs.modal", () => {
+        // Mostramos el RFC en el modal de bienvenida
+        const txtRFC = document.getElementById("txtRFCBienvenida");
+        if (txtRFC) {
+          txtRFC.innerText = data.user.user_metadata.rfc || "Usuario";
+        }
 
-      alert("¡REGISTRO EXITOSO! Ahora puede iniciar sesión.");
-      $("#ModalRegistro").modal("hide");
-      e.target.reset();
+        // Abrimos el modal de Bienvenida
+        $("#ModalBienvenida").modal("show");
+
+        // 3. Configuramos la redirección corregida en el botón del modal de bienvenida
+        const btnAcceso = document.getElementById("btnAccesarInicio");
+        if (btnAcceso) {
+          btnAcceso.onclick = () => {
+            // Determinamos si es usuario nuevo (menos de 24 horas de registro)
+            const esNuevo =
+              new Date() - new Date(data.user.created_at) < 86400000;
+
+            /* 
+               AJUSTE DE RUTA: 
+               Como tu archivo está en la carpeta 'inicio', la ruta debe ser ./inicio/inicio.html
+            */
+            const urlDestino = `./inicio/inicio.html?u=${esNuevo ? "n" : "r"}`;
+
+            window.location.assign(urlDestino);
+          };
+        }
+      });
     } catch (err) {
-      // Filtramos el mensaje de error para que no sea técnico
-      const msg = err.message.includes("extensible")
-        ? "Error de sesión del navegador. Intente de nuevo."
-        : err.message;
-      alert("Atención: " + msg);
+      alert("Error: " + err.message);
     } finally {
-      btn.disabled = false;
-      btn.innerText = "CONTINUAR REGISTRO";
+      if (btn) {
+        btn.disabled = false;
+        btn.innerText = "INICIAR SESIÓN"; // Restauramos el texto original del botón
+      }
     }
   }
 
