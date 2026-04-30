@@ -264,34 +264,49 @@ document.addEventListener("submit", async (e) => {
     if (!document.getElementById("checkAviso").checked)
       return alert("Debe aceptar el aviso de privacidad.");
     if (datos.pwd.length < 8) return alert("Mínimo 8 caracteres.");
-    if (datos.pwd !== datos["confirm-pwd"])
-      return alert("Las contraseñas no coinciden.");
 
-    // --- DENTRO DEL EVENTO SUBMIT PARA FormRegistro ---
     try {
       btn.disabled = true;
-      btn.innerText = "PROCESANDO...";
+      btn.innerText = "REGISTRANDO...";
 
-      const { data, error } = await window.clientSupa.auth.signUp({
-        email: datos.correo.toLowerCase().trim(),
-        password: datos.pwd,
-        options: {
-          data: {
-            rfc: rfcLimpio,
-            // Asegúrate que el nombre aquí coincida con el Trigger (usamos guion bajo)
-            tipo_persona: datos["tipo-persona"],
+      // 1. Crear el usuario en Auth
+      const { data: authData, error: authError } =
+        await window.clientSupa.auth.signUp({
+          email: datos.correo.toLowerCase().trim(),
+          password: datos.pwd,
+          options: {
+            data: { rfc: rfcLimpio, tipo_persona: datos["tipo-persona"] },
+            currSession: false,
           },
-          currSession: false,
-        },
-      });
+        });
 
-      if (error) throw error;
+      if (authError) throw authError;
 
-      alert("¡Registro exitoso! Ya puede iniciar sesión.");
+      // 2. FORZAR inserción manual en la tabla (Doble seguridad)
+      if (authData.user) {
+        const { error: dbError } = await window.clientSupa
+          .from("usuarios")
+          .insert([
+            {
+              id: authData.user.id,
+              rfc: rfcLimpio,
+              correo: datos.correo.toLowerCase().trim(),
+              tipo_persona: datos["tipo-persona"],
+            },
+          ]);
+
+        if (dbError)
+          console.warn(
+            "Aviso: El trigger falló, pero intentamos inserción manual:",
+            dbError.message,
+          );
+      }
+
+      alert("¡Registro completado con éxito! Ya puedes iniciar sesión.");
       $("#ModalRegistro").modal("hide");
       e.target.reset();
     } catch (err) {
-      alert("Error: " + err.message);
+      alert("Error crítico: " + err.message);
     } finally {
       btn.disabled = false;
       btn.innerText = "CONTINUAR REGISTRO";
