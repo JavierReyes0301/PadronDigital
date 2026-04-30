@@ -371,7 +371,7 @@ document.addEventListener("submit", async (e) => {
                AJUSTE DE RUTA: 
                Como tu archivo está en la carpeta 'inicio', la ruta debe ser ./inicio/inicio.html
             */
-            const urlDestino = `/INICIO/inicio.html?u=${esNuevo ? "n" : "r"}`;
+            const urlDestino = `${window.location.origin}/inicio/inicio.html?u=${esNuevo ? "n" : "r"}`;
 
             window.location.assign(urlDestino);
           };
