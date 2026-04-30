@@ -266,7 +266,6 @@ const modalesPadron = `
     </div>
 </div>
 `;
-// Inyección de los modales en el DOM
 document.body.insertAdjacentHTML("beforeend", modalesPadron);
 
 // --- 2. GESTIÓN DE CATÁLOGOS ---
@@ -316,9 +315,9 @@ function dibujarTablasCatalogo() {
     seccion.className =
       "seccion-contenedor-giro my-4 p-3 shadow-sm bg-white rounded border";
     seccion.innerHTML = `<h5 class="text-center" style="color: #ab0a3d;">GIRO ${id.replace(/\D/g, "")}: ${giro.nombre.toUpperCase()}</h5>
-                             <div class="table-responsive"><table class="table table-sm table-hover table-bordered">
-                             <thead style="background-color: #ab0a3d; color: white;"><tr><th>Línea</th><th>Descripción</th></tr></thead>
-                             <tbody>${giro.lineas.map((l) => `<tr><td><strong>${l.nombre}</strong></td><td>${l.desc}</td></tr>`).join("")}</tbody></table></div>`;
+                         <div class="table-responsive"><table class="table table-sm table-hover table-bordered">
+                         <thead style="background-color: #ab0a3d; color: white;"><tr><th>Línea</th><th>Descripción</th></tr></thead>
+                         <tbody>${giro.lineas.map((l) => `<tr><td><strong>${l.nombre}</strong></td><td>${l.desc}</td></tr>`).join("")}</tbody></table></div>`;
     contenedor.appendChild(seccion);
   });
 }
@@ -329,10 +328,11 @@ document.addEventListener("submit", async (e) => {
   if (!["FormRegistro", "FormaLogin"].includes(targetId)) return;
 
   e.preventDefault();
-  const btn = e.target.querySelector('button[type="submit"]');
+  const btn = e.target.querySelector('button[type="submit"]'); // Definido en el scope del evento
   const formData = new FormData(e.target);
   const datos = Object.fromEntries(formData);
 
+  // --- LÓGICA DE REGISTRO ---
   if (targetId === "FormRegistro") {
     const rfcLimpio = datos.rfc
       .trim()
@@ -350,7 +350,6 @@ document.addEventListener("submit", async (e) => {
       btn.disabled = true;
       btn.innerText = "PROCESANDO...";
 
-      // AGREGAMOS currSession: false para eliminar el error del token
       const { data, error } = await window.clientSupa.auth.signUp({
         email: datos.correo.toLowerCase().trim(),
         password: datos.pwd,
@@ -368,7 +367,6 @@ document.addEventListener("submit", async (e) => {
       $("#ModalRegistro").modal("hide");
       e.target.reset();
     } catch (err) {
-      // Manejo del error persistente del navegador
       if (err.message && err.message.includes("changedAccessToken")) {
         alert(
           "¡Registro completado! Revise su bandeja de entrada para confirmar su cuenta.",
@@ -386,9 +384,41 @@ document.addEventListener("submit", async (e) => {
     }
   }
 
-// Ayudantes de apertura
+  // --- LÓGICA DE LOGIN ---
+  if (targetId === "FormaLogin") {
+    try {
+      btn.disabled = true;
+      btn.innerText = "ENTRANDO...";
+
+      const { data, error } = await window.clientSupa.auth.signInWithPassword({
+        email: datos.correo_login.toLowerCase().trim(),
+        password: datos.password_login,
+      });
+
+      if (error) throw error;
+
+      // Mostrar modal de bienvenida
+      $("#ModalLogin").modal("hide");
+      $("#txtRFCBienvenida").text(data.user.user_metadata.rfc || "Usuario");
+      $("#ModalBienvenida").modal("show");
+    } catch (err) {
+      alert("Error al iniciar sesión: " + err.message);
+    } finally {
+      btn.disabled = false;
+      btn.innerText = "INICIAR SESIÓN";
+    }
+  }
+}); // Cierre correcto del event listener
+
+// --- 4. AYUDANTES DE APERTURA Y CARGA ---
 window.abrirRegistro = () => $("#ModalRegistro").modal("show");
 window.abrirLogin = () => $("#ModalLogin").modal("show");
 
+// Botón del modal de bienvenida para redireccionar
+document.addEventListener("click", (e) => {
+  if (e.target.id === "btnAccesarInicio") {
+    window.location.href = "perfil.html"; // O la página que corresponda
+  }
+});
+
 document.addEventListener("DOMContentLoaded", cargarDatosSupabase);
-a;
