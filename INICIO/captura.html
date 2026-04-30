@@ -1,0 +1,157 @@
+<!-- captura.html -->
+<!doctype html>
+<html lang="es">
+  <head>
+    <!-- Tus metas y estilos (Bootstrap recommended) -->
+  </head>
+  <body>
+    <!-- Barra de Navegación (Header) -->
+
+    <div class="container mt-5">
+      <h2 class="text-center">
+        REGISTRO EN <span class="text-danger">EL PADRÓN</span>
+      </h2>
+
+      <!-- Pestañas de Navegación (Solo visual para indicar progreso) -->
+      <ul class="nav nav-tabs justify-content-center mb-4" id="padrontabs">
+        <li class="nav-item">
+          <a class="nav-link active" id="tab-instrucciones" href="#"
+            >Instructions</a
+          >
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="tab-generales" href="#">Datos Generales</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="tab-domicilio" href="#">Domicilio Fiscal</a>
+        </li>
+        <!-- ... demás pestañas ... -->
+      </ul>
+
+      <!-- ============================================= -->
+      <!-- SECCIÓN 1: INSTRUCCIONES (image_8.png) -->
+      <!-- ============================================= -->
+      <div id="sec-instrucciones" class="seccion-captura">
+        <div class="card p-4">
+          <h5>Siga las instrucciones...</h5>
+          <ol>
+            <li>Ingrese a la pestaña...</li>
+            <!-- ... contenido de image_8.png ... -->
+          </ol>
+          <div class="text-center mt-4">
+            <!-- Este botón dispara el cambio a la siguiente sección -->
+            <button
+              class="btn btn-danger"
+              onclick="mostrarSeccion('generales')"
+            >
+              <i class="fas fa-pencil-alt"></i> INICIAR CAPTURA
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================= -->
+      <!-- SECCIÓN 2: DATOS GENERALES (image_9.png) -->
+      <!-- ============================================= -->
+      <div id="sec-generales" class="seccion-captura d-none">
+        <form id="formGenerales">
+          <div class="card p-4">
+            <!-- Campos de image_9.png -->
+            <div class="row">
+              <div class="col-md-6">
+                <label>RFC:</label
+                ><input
+                  type="text"
+                  id="gen_rfc"
+                  class="form-control"
+                  readonly
+                />
+              </div>
+              <div class="col-md-6">
+                <label>Tipo de Persona:</label
+                ><input
+                  type="text"
+                  id="gen_tipo"
+                  class="form-control"
+                  readonly
+                />
+              </div>
+            </div>
+            <!-- ... demás campos ... -->
+
+            <!-- Botones de navegación -->
+            <div class="d-flex justify-content-center gap-2 mt-4">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                onclick="mostrarSeccion('instrucciones')"
+              >
+                ANTERIOR
+              </button>
+              <button type="submit" class="btn btn-success">
+                GUARDAR DATOS
+              </button>
+              <button
+                type="button"
+                class="btn btn-danger"
+                onclick="mostrarSeccion('domicilio')"
+              >
+                SIGUIENTE
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- ============================================= -->
+      <!-- SECCIÓN 3: DOMICILIO FISCAL (image_10.png) -->
+      <!-- ============================================= -->
+      <div id="sec-domicilio" class="seccion-captura d-none">
+        <form id="formDomicilio">
+          <div class="card p-4">
+            <!-- Selectores de image_10.png -->
+            <div class="form-group">
+              <label>* Estado:</label>
+              <select id="dom_estado" class="form-control" required>
+                <option value="">SELECCIONE EL ESTADO...</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>* Municipio:</label>
+              <select id="dom_municipio" class="form-control" required disabled>
+                <option value="">SELECCIONE EL MUNICIPIO...</option>
+              </select>
+            </div>
+            <!-- ... demás campos ... -->
+
+            <div class="d-flex justify-content-center gap-2 mt-4">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                onclick="mostrarSeccion('generales')"
+              >
+                ANTERIOR
+              </button>
+              <button type="submit" class="btn btn-success">
+                GUARDAR DATOS
+              </button>
+              <button
+                type="button"
+                class="btn btn-danger"
+                onclick="mostrarSeccion('adicionales')"
+              >
+                SIGUIENTE
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- ... SECCIONES 4 Y 5 SIGUIENDO LA MISMA LÓGICA ... -->
+    </div>
+
+    <!-- Scripts de Supabase y tu JS -->
+    <script src="js/conexion-supabase.js"></script>
+    <script src="js/app-captura.js"></script>
+  </body>
+</html>
