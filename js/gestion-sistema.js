@@ -267,6 +267,7 @@ document.addEventListener("submit", async (e) => {
     if (datos.pwd !== datos["confirm-pwd"])
       return alert("Las contraseñas no coinciden.");
 
+    // --- DENTRO DEL EVENTO SUBMIT PARA FormRegistro ---
     try {
       btn.disabled = true;
       btn.innerText = "PROCESANDO...";
@@ -275,26 +276,22 @@ document.addEventListener("submit", async (e) => {
         email: datos.correo.toLowerCase().trim(),
         password: datos.pwd,
         options: {
-          data: { rfc: rfcLimpio, tipo_persona: datos["tipo-persona"] },
-          currSession: false, // EVITA EL ERROR DE TOKEN
+          data: {
+            rfc: rfcLimpio,
+            // Asegúrate que el nombre aquí coincida con el Trigger (usamos guion bajo)
+            tipo_persona: datos["tipo-persona"],
+          },
+          currSession: false,
         },
       });
 
       if (error) throw error;
 
-      alert(
-        "¡Registro enviado! Por favor, revise su correo para confirmar su cuenta.",
-      );
+      alert("¡Registro exitoso! Ya puede iniciar sesión.");
       $("#ModalRegistro").modal("hide");
       e.target.reset();
     } catch (err) {
-      if (err.message && err.message.includes("changedAccessToken")) {
-        alert("¡Registro completado! Revise su correo.");
-        $("#ModalRegistro").modal("hide");
-        e.target.reset();
-      } else {
-        alert("Error: " + (err.description || err.message));
-      }
+      alert("Error: " + err.message);
     } finally {
       btn.disabled = false;
       btn.innerText = "CONTINUAR REGISTRO";
