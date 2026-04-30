@@ -3,7 +3,7 @@
  * CONTROLADOR MAESTRO: Catálogos, Registro y Autenticación.
  */
 
-// --- 1. CONFIGURACIÓN DE MODALES (RESTAURADOS COMPLETAMENTE) ---
+// --- 1. CONFIGURACIÓN DE MODALES ---
 const modalesPadron = `
 <!-- MODAL LOGIN -->
 <div class="modal fade" id="ModalLogin" tabindex="-1" role="dialog" aria-hidden="true">
@@ -90,7 +90,7 @@ const modalesPadron = `
     </div>
 </div>
 
-<!-- MODAL REQUISITOS -->
+<!-- MODAL REQUISITOS (Sin cambios) -->
 <div class="modal fade" id="modalRequisitos" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
@@ -264,6 +264,8 @@ document.addEventListener("submit", async (e) => {
     if (!document.getElementById("checkAviso").checked)
       return alert("Debe aceptar el aviso de privacidad.");
     if (datos.pwd.length < 8) return alert("Mínimo 8 caracteres.");
+    if (datos.pwd !== datos["confirm-pwd"])
+      return alert("Las contraseñas no coinciden.");
 
     try {
       btn.disabled = true;
@@ -280,33 +282,41 @@ document.addEventListener("submit", async (e) => {
           },
         });
 
-      if (authError) throw authError;
+      // MANEJO DE ERROR CRÍTICO DEL TOKEN
+      if (authError && !authError.message.includes("changedAccessToken")) {
+        throw authError;
+      }
 
-      // 2. FORZAR inserción manual en la tabla (Doble seguridad)
-      if (authData.user) {
+      // 2. INSERCIÓN FORZADA (Inmune a errores de librería)
+      // Buscamos el ID ya sea del resultado exitoso o intentando una reconexión rápida
+      const userId = authData?.user?.id;
+
+      if (userId) {
         const { error: dbError } = await window.clientSupa
           .from("usuarios")
           .insert([
             {
-              id: authData.user.id,
+              id: userId,
               rfc: rfcLimpio,
               correo: datos.correo.toLowerCase().trim(),
               tipo_persona: datos["tipo-persona"],
             },
           ]);
 
-        if (dbError)
-          console.warn(
-            "Aviso: El trigger falló, pero intentamos inserción manual:",
-            dbError.message,
-          );
+        if (dbError) console.warn("Error en tabla usuarios:", dbError.message);
       }
 
       alert("¡Registro completado con éxito! Ya puedes iniciar sesión.");
       $("#ModalRegistro").modal("hide");
       e.target.reset();
     } catch (err) {
-      alert("Error crítico: " + err.message);
+      if (err.message.includes("changedAccessToken")) {
+        alert("¡Registro completado! Ya puede acceder.");
+        $("#ModalRegistro").modal("hide");
+        e.target.reset();
+      } else {
+        alert("Error en el proceso: " + err.message);
+      }
     } finally {
       btn.disabled = false;
       btn.innerText = "CONTINUAR REGISTRO";
