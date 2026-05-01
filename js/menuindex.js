@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       .menu-guinda-compacto .dropdown-item:hover { background-color: #323232; color: #ffd700; }
       .menu-guinda-compacto .dropdown-divider { border-top: 1px solid rgba(255,255,255,0.2); }
       /* Estilos Footer Institucional */
-      .mi-footer { background-color: #ffffff; padding: 20px 0; border-top: 1px solid #e0e0e0; color: #333; font-size: 0.9rem; }
+      .mi-footer { background-color: #ab0a3d; padding: 20px 0; border-top: 1px solid #e0e0e0; color: rgba(255,255,255,0.8); font-size: 0.9rem; }
     </style>
   `;
 
