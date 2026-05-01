@@ -8,7 +8,6 @@ document.addEventListener("DOMContentLoaded", async function () {
       #footer-placeholder { margin-top: auto; }
       .active-scroll { font-weight: bold; color: #ffd700 !important; }
       .js-link { cursor: pointer; }
-      /* Estilos para el dropdown guinda */
       .menu-guinda-compacto { background-color: #ab0a3d; border: 1px solid #ffd700; }
       .menu-guinda-compacto .dropdown-item { color: white; font-weight: 600; font-size: 0.85rem; }
       .menu-guinda-compacto .dropdown-item:hover { background-color: #323232; color: #ffd700; }
@@ -37,7 +36,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   // --- 2. LÓGICA DE SESIÓN ---
   let itemUsuario = `<li><a href="#" data-toggle="modal" data-target="#ModalLogin" class="nav-link-item">${ICONOS.user} Acceder</a></li>`;
-
   try {
     const session = await window.clientSupa.auth.getSession();
     if (session?.data?.session) {
@@ -56,10 +54,10 @@ document.addEventListener("DOMContentLoaded", async function () {
       `;
     }
   } catch (e) {
-    console.warn("Error verificando sesión:", e);
+    console.warn("Error sesión:", e);
   }
 
-  // --- 3. HTML NAVBAR ---
+  // --- 3. HTML NAVBAR Y FOOTER (RESTAURADOS) ---
   const navbarHTML = `
     <nav class="mi-navbar">
       <div class="mi-container">
@@ -79,23 +77,27 @@ document.addEventListener("DOMContentLoaded", async function () {
     </nav>
   `;
 
-  // --- 4. INYECCIÓN (NAV Y FOOTER) ---
+  const footerHTML = `
+    <footer class="mi-footer">
+      <div class="mi-container text-center">
+        <p>&copy; 2026 H. Ayuntamiento de Atlixco. Todos los derechos reservados.</p>
+      </div>
+    </footer>
+  `;
+
+  // --- 4. INYECCIÓN ---
   const navPlaceholder = document.getElementById("nav-placeholder");
   if (navPlaceholder) navPlaceholder.innerHTML = navbarHTML;
 
   const footerPlaceholder = document.getElementById("footer-placeholder");
-  if (footerPlaceholder) {
-    // Reemplaza 'footerHTML' con la variable que contenga tu HTML de footer real
-    footerPlaceholder.innerHTML =
-      typeof footerHTML !== "undefined" ? footerHTML : "";
-  }
+  if (footerPlaceholder) footerPlaceholder.innerHTML = footerHTML;
 
-  // Re-inicializar Dropdowns de Bootstrap
+  // Re-inicializar Dropdowns
   if (typeof $ !== "undefined" && $(".dropdown-toggle").length) {
     $(".dropdown-toggle").dropdown();
   }
 
-  // Lógica del botón toggle (Mobile)
+  // Toggle Mobile
   const btnToggle = document.getElementById("btn-toggle");
   const navMenu = document.getElementById("nav-menu");
   if (btnToggle && navMenu) {
@@ -105,7 +107,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     };
   }
 
-  // --- 6. GESTIÓN DE REDIRECCIONES ---
+  // --- 6. REDIRECCIONES ---
   document.addEventListener("click", function (e) {
     const target = e.target.closest(".js-link");
     if (target) {
@@ -114,47 +116,33 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
   });
 
-  // --- 7. LÓGICA SCROLLSPY ---
-  let isScrolling;
+  // --- 7. SCROLLSPY ---
   window.addEventListener("scroll", () => {
-    window.clearTimeout(isScrolling);
-    isScrolling = setTimeout(() => {
-      const sections = document.querySelectorAll("section[id]");
-      if (sections.length === 0) return;
-
-      const scrollY = window.pageYOffset;
-      const isAtBottom =
-        window.innerHeight + window.scrollY >= document.body.offsetHeight - 100;
-
-      sections.forEach((current) => {
-        const sectionHeight = current.offsetHeight;
-        const sectionTop = current.offsetTop - 150;
-        const sectionId = current.getAttribute("id");
-        const navLink = document.querySelector(
-          `.mi-menu a[href*="${sectionId}"]`,
-        );
-
-        if (navLink) {
-          const isLast = sectionId === "marco";
-          if (
-            (scrollY > sectionTop && scrollY <= sectionTop + sectionHeight) ||
-            (isAtBottom && isLast)
-          ) {
-            document
-              .querySelectorAll(".nav-link-item")
-              .forEach((el) => el.classList.remove("active-scroll"));
-            navLink.classList.add("active-scroll");
-          } else {
-            navLink.classList.remove("active-scroll");
-          }
+    const sections = document.querySelectorAll("section[id]");
+    if (sections.length === 0) return;
+    const scrollY = window.pageYOffset;
+    sections.forEach((current) => {
+      const sectionHeight = current.offsetHeight;
+      const sectionTop = current.offsetTop - 150;
+      const sectionId = current.getAttribute("id");
+      const navLink = document.querySelector(
+        `.mi-menu a[href*="${sectionId}"]`,
+      );
+      if (navLink) {
+        if (scrollY > sectionTop && scrollY <= sectionTop + sectionHeight) {
+          document
+            .querySelectorAll(".nav-link-item")
+            .forEach((el) => el.classList.remove("active-scroll"));
+          navLink.classList.add("active-scroll");
+        } else {
+          navLink.classList.remove("active-scroll");
         }
-      });
-    }, 50);
+      }
+    });
   });
 
-  // --- 8. DETECCIÓN INICIAL SEGURA (Solo para inicio.html) ---
-  const seccionesInicio = document.querySelectorAll(".contenido-seccion");
-  if (seccionesInicio.length > 0) {
+  // --- 8. DETECCIÓN INICIAL SEGURA ---
+  if (document.querySelectorAll(".contenido-seccion").length > 0) {
     try {
       const session = await window.clientSupa.auth.getSession();
       if (session?.data?.session) {
@@ -168,28 +156,15 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 });
 
-// --- FUNCIONES GLOBALES ---
-
 function gestionarVisibilidadSeccion(idObjetivo) {
   const secciones = document.querySelectorAll(".contenido-seccion");
-  if (secciones.length === 0) return; // No hace nada si no estamos en inicio.html
-
+  if (secciones.length === 0) return;
   secciones.forEach((sec) => {
     sec.classList.remove("activa");
   });
-
   const seccionAMostrar = document.getElementById(idObjetivo);
   if (seccionAMostrar) {
     seccionAMostrar.classList.add("activa");
-
-    // Actualizar resaltado en el menú
-    document.querySelectorAll(".nav-link-item").forEach((el) => {
-      el.classList.remove("active-scroll");
-      if (el.getAttribute("href") === `#${idObjetivo}`) {
-        el.classList.add("active-scroll");
-      }
-    });
-
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 }
