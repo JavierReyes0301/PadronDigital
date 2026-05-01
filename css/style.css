@@ -242,109 +242,204 @@ section {
 }
 
 /* ============================================================
-   5. GRIDS Y TARJETAS (Registro, Consultar, Atención)
+   5. GRIDS Y TARJETAS (ESTILOS SEPARADOS POR SECCIÓN)
    ============================================================ */
+
+/* Contenedor general para todas las cuadrículas */
 .custom-main-box {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 15px;
+  gap: 20px;
   width: 95%;
   max-width: 1200px;
   margin: 0 auto;
   align-items: stretch;
 }
 
-.icon-box,
-.box-imagen {
+/* ------------------------------------------------------------
+   A. DISEÑO ORIGINAL: REGISTRO Y CONSULTAR (.icon-box)
+   ------------------------------------------------------------ */
+.icon-box {
   background-color: var(--blanco);
-  border-radius: 8px;
-  padding: 20px;
+  border: 2px dashed #b1b1b1;
+  border-radius: 8px; /* Regresé al radio original */
+  padding: 25px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
-  transition: 0.3s;
   box-sizing: border-box;
-}
-
-.icon-box {
-  border: 2px dashed #b1b1b1;
+  height: 100%;
   min-height: 180px;
-  width: 100%;
-}
-.icon-box:hover {
-  transform: translateY(-5px);
-  border-color: var(--guinda);
+  transition: 0.3s;
 }
 
-.project-name p {
-  margin: 15px 0 0;
-  color: var(--guinda);
+/* Restauración del texto original: Negritas y Color Guinda */
+.icon-box p {
+  color: var(--guinda) !important;
+  font-weight: 700 !important;
   text-transform: uppercase;
-  font-weight: 700;
-  font-size: 1.1rem;
-  line-height: 1.2;
+  font-size: 0.9rem;
+  margin-top: 10px;
 }
 
-.box-imagen {
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
-  min-height: 200px;
+.icon-box svg,
+.icon-box img {
+  width: 60px;
+  height: auto;
+  margin-bottom: 5px;
+  flex-shrink: 0;
 }
+
+.icon-box:hover {
+  border-color: var(--guinda);
+  background-color: #fcfcfc;
+}
+
+/* ------------------------------------------------------------
+   B. DISEÑO ESPECÍFICO: ACLARACIONES (.box-imagen)
+   ------------------------------------------------------------ */
+.box-imagen {
+  background-color: var(--blanco);
+  border-radius: 12px;
+  padding: 30px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: center;
+  box-sizing: border-box;
+  height: 100%;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+  transition: 0.3s;
+}
+
+.box-imagen:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
 .box-title-imagen {
   color: var(--gris-oscuro);
   font-weight: 800;
-  font-size: 1.05rem;
+  font-size: 1rem;
   text-transform: uppercase;
-  margin-bottom: 5px;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .hr-dorada {
-  width: 130px;
-  height: 2px;
+  width: 60px;
+  height: 3px;
   background-color: var(--dorado);
   border: none;
-  margin: 15px auto 20px;
+  margin: 15px auto;
+}
+
+.contenido-aclaracion {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.icono-pequeno {
+  width: 35px;
+  height: 35px;
+  fill: #007bff;
+  flex-shrink: 0;
+}
+
+/* Texto de aclaraciones: Gris y normal (Diferente a Registro) */
+.contenido-aclaracion p,
+.link-ubicacion {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--gris-oscuro);
+  text-decoration: none;
+  font-weight: 400; /* Texto normal para información de contacto */
+}
+
+/* ------------------------------------------------------------
+   C. RESPONSIVIDAD
+   ------------------------------------------------------------ */
+@media (max-width: 992px) {
+  .custom-main-box {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .custom-main-box {
+    grid-template-columns: 1fr !important;
+  }
 }
 
 /* ============================================================
-   6. MARCO LEGAL Y TABLAS
+   6. MARCO LEGAL Y TABLAS (ALINEADO AL RAS)
    ============================================================ */
 .mi-container-legal {
-  width: 90%;
-  max-width: 1100px;
-  margin: 0 auto;
+  width: 95%; /* Igual que .custom-main-box */
+  max-width: 1200px; /* Igual que .custom-main-box para alineación perfecta */
+  margin: 0 auto 50px auto;
 }
+
+/* Estilo de tarjeta para el marco legal */
+.cuadro-legal {
+  background: var(--blanco);
+  border-radius: 12px; /* Ajustado a 12px para igualar a .box-imagen */
+  padding: 30px 40px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07); /* Misma sombra que aclaraciones */
+  border-left: 5px solid var(--guinda);
+  box-sizing: border-box; /* Asegura que el padding no estire el cuadro */
+}
+
 .lista-articulos-unificada {
   list-style: none;
   padding: 0;
+  margin: 0;
 }
+
 .lista-articulos-unificada li {
   display: flex;
   align-items: flex-start;
-  margin-bottom: 25px;
-}
-.lista-articulos-unificada p {
-  font-size: 1.1rem;
-  color: var(--gris-oscuro);
-  line-height: 1.6;
+  margin-bottom: 0;
 }
 
+/* Icono de flecha */
+.flecha-guinda-unificada {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 15px;
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+
+.flecha-guinda-unificada svg {
+  width: 14px;
+  height: auto;
+  fill: var(--guinda);
+}
+
+.lista-articulos-unificada p {
+  font-size: 1.05rem;
+  color: var(--gris-oscuro);
+  line-height: 1.6;
+  margin: 0;
+  text-align: left;
+}
+
+/* Tablas se mantienen igual */
 #contenedor-tablas table {
   width: 100%;
   border-collapse: collapse;
   background: var(--blanco);
-}
-#contenedor-tablas thead tr:first-child th {
-  background: var(--gris-oscuro);
-  color: var(--blanco);
-  padding: 5px;
-  text-transform: uppercase;
-  font-weight: 700;
-}
-#contenedor-tablas tbody tr:hover {
-  background-color: #fff9c4;
-  transition: 0.2s;
 }
 
 /* ============================================================
