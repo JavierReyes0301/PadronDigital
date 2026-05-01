@@ -12,6 +12,8 @@ document.addEventListener("DOMContentLoaded", async function () {
       .menu-guinda-compacto .dropdown-item { color: white; font-weight: 600; font-size: 0.85rem; }
       .menu-guinda-compacto .dropdown-item:hover { background-color: #323232; color: #ffd700; }
       .menu-guinda-compacto .dropdown-divider { border-top: 1px solid rgba(255,255,255,0.2); }
+      /* Estilos Footer Institucional */
+      .mi-footer { background-color: #ffffff; padding: 20px 0; border-top: 1px solid #e0e0e0; color: #333; font-size: 0.9rem; }
     </style>
   `;
 
@@ -57,7 +59,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     console.warn("Error sesión:", e);
   }
 
-  // --- 3. HTML NAVBAR Y FOOTER (RESTAURADOS) ---
+  // --- 3. CONTENIDO HTML (NAVBAR Y FOOTER RESTAURADO) ---
   const navbarHTML = `
     <nav class="mi-navbar">
       <div class="mi-container">
@@ -77,10 +79,15 @@ document.addEventListener("DOMContentLoaded", async function () {
     </nav>
   `;
 
+  // Basado en image_775b5c.jpg para mantener tu diseño original
   const footerHTML = `
     <footer class="mi-footer">
-      <div class="mi-container text-center">
-        <p>&copy; 2026 H. Ayuntamiento de Atlixco. Todos los derechos reservados.</p>
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-12 text-center">
+            <p class="mb-0">© 2026 H. Ayuntamiento de Atlixco. Todos los derechos reservados.</p>
+          </div>
+        </div>
       </div>
     </footer>
   `;
@@ -116,7 +123,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
   });
 
-  // --- 7. SCROLLSPY ---
+  // --- 7. LÓGICA SCROLLSPY ---
   window.addEventListener("scroll", () => {
     const sections = document.querySelectorAll("section[id]");
     if (sections.length === 0) return;
@@ -141,8 +148,9 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   });
 
-  // --- 8. DETECCIÓN INICIAL SEGURA ---
-  if (document.querySelectorAll(".contenido-seccion").length > 0) {
+  // --- 8. DETECCIÓN INICIAL SEGURA (Solo para inicio.html) ---
+  const seccionesInicio = document.querySelectorAll(".contenido-seccion");
+  if (seccionesInicio.length > 0) {
     try {
       const session = await window.clientSupa.auth.getSession();
       if (session?.data?.session) {
@@ -156,6 +164,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 });
 
+// --- FUNCIONES GLOBALES ---
 function gestionarVisibilidadSeccion(idObjetivo) {
   const secciones = document.querySelectorAll(".contenido-seccion");
   if (secciones.length === 0) return;
