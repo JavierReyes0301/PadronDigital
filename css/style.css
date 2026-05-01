@@ -1,11 +1,18 @@
 /* ============================================================
-   1. BLOQUE GLOBAL (Común a todo el sitio)
+   1. BLOQUE GLOBAL
    ============================================================ */
+:root {
+  --guinda: #ab0a3d;
+  --dorado: #b38e5d;
+  --gris-oscuro: #323232;
+  --gris-claro: #f4f4f4;
+  --blanco: #ffffff;
+}
+
 body {
   margin: 0;
-  padding-top: 0px;
   font-family: "Montserrat", sans-serif;
-  background-color: #f4f4f4;
+  background-color: var(--gris-claro);
   display: flex;
   flex-direction: column;
   min-height: 100vh;
@@ -20,10 +27,10 @@ section[id] {
 }
 
 /* ============================================================
-   2. BARRA DE NAVEGACIÓN (Solo ajustes necesarios)
+   2. BARRA DE NAVEGACIÓN
    ============================================================ */
 .mi-navbar {
-  background-color: #ab0a3d;
+  background-color: var(--guinda);
   position: fixed;
   top: 0;
   width: 100%;
@@ -48,10 +55,7 @@ section[id] {
   display: none;
   background: transparent !important;
   border: none !important;
-  padding: 0;
   cursor: pointer;
-  outline: none !important;
-  box-shadow: none !important;
 }
 
 .mi-navbar .bar {
@@ -77,13 +81,9 @@ section[id] {
   transition: 0.3s;
 }
 
-/* REGLA NUEVA: Color amarillo para sección activa */
-.mi-navbar .mi-menu a.active-scroll {
-  color: #ffd700 !important;
-}
-
-/* Color amarillo para el icono SVG de la sección activa */
+.mi-navbar .mi-menu a.active-scroll,
 .mi-navbar .mi-menu a.active-scroll svg {
+  color: #ffd700 !important;
   fill: #ffd700 !important;
 }
 
@@ -96,52 +96,9 @@ section[id] {
   justify-content: space-around;
 }
 
-/* RESPONSIVO */
-@media (max-width: 992px) {
-  .mi-navbar .mi-container {
-    justify-content: space-between;
-    gap: 0;
-  }
-
-  .mi-navbar .menu-toggle {
-    display: block;
-  }
-
-  .mi-navbar .mi-menu {
-    display: none;
-    flex-direction: column;
-    position: absolute;
-    top: 65px;
-    left: 0;
-    width: 100%;
-    background-color: #ab0a3d;
-    padding: 20px 0;
-  }
-
-  .mi-navbar .mi-menu.active {
-    display: flex !important;
-  }
-
-  /* Ajuste de espaciado para los links en móvil */
-  .mi-navbar .mi-menu li {
-    width: 100%;
-    text-align: center;
-    padding: 10px 0;
-  }
-
-  #inicio .container-content {
-    flex-direction: column;
-  }
-  #registro .custom-main-box {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
 /* ============================================================
-   ESTILOS GLOBALES DE SECCIONES (CONTROL DE ESPACIO)
+   3. ESTILOS GLOBALES DE SECCIONES
    ============================================================ */
-
-/* Quitamos paddings de aquí para que no se sumen espacios muertos */
 section {
   width: 100%;
   display: flex;
@@ -151,19 +108,16 @@ section {
   padding: 0;
 }
 
-/* EL TÍTULO ES EL ÚNICO DUEÑO DEL MARGEN SUPERIOR */
 .titulo-seccion {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 90%;
   max-width: 1200px;
-  /* El margen de 20px arriba es el que separa una sección de otra */
-  margin: 20px auto 20px auto;
-  font-family: "Montserrat", sans-serif;
+  margin: 20px auto;
   font-weight: 800;
   font-size: clamp(1.5rem, 5vw, 2.2rem);
-  color: #323232;
+  color: var(--gris-oscuro);
   text-transform: uppercase;
   text-align: center;
 }
@@ -173,24 +127,23 @@ section {
   content: "";
   flex: 1;
   height: 6px;
-  background-color: #ab0a3d;
+  background-color: var(--guinda);
   border-radius: 10px;
   margin: 0 20px;
   max-width: 150px;
 }
 
 .titulo-seccion span {
-  color: #ab0a3d;
+  color: var(--guinda);
   margin-left: 10px;
 }
 
 /* ============================================================
-   3. PANEL DE INICIO (#inicio) - DISEÑO ORIGINAL RECUPERADO
+   4. PANEL DE INICIO (#inicio)
    ============================================================ */
 #inicio.section_banner {
   position: relative;
-  width: 100%;
-  min-height: calc(100vh - 65px); /* Ajuste exacto a la pantalla */
+  min-height: calc(100vh - 65px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -219,24 +172,20 @@ section {
   flex-direction: column;
   align-items: center;
   min-width: 350px;
-  position: relative;
 }
 
 #inicio .logo-title {
   font-size: clamp(1.5rem, 4vw, 2.8rem);
   font-weight: 900;
-  text-align: center;
   margin-bottom: 45px;
-  color: white;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
-/* Estilo de Píldora Blanca */
 #inicio .logo-container a {
   position: relative;
   display: flex;
   align-items: center;
-  background-color: #fff;
+  background-color: var(--blanco);
   padding: 5px 30px 5px 85px;
   border-radius: 0 50px 50px 0;
   box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
@@ -245,7 +194,6 @@ section {
   margin-left: 40px;
 }
 
-/* El Escudo Circular Sobresalido */
 #inicio .logo-container a::before {
   content: "";
   position: absolute;
@@ -254,9 +202,8 @@ section {
   transform: translateY(-50%);
   width: 115px;
   height: 115px;
-  background-color: #fff;
+  background-color: var(--blanco);
   border-radius: 50%;
-  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.3);
   z-index: 2;
 }
 
@@ -266,13 +213,11 @@ section {
   top: 50%;
   transform: translateY(-50%);
   height: 95px;
-  width: auto;
   z-index: 3;
 }
 
 #inicio .logo-container a::after {
   content: "Mi ciudad, tu casa";
-  font-family: "Montserrat", sans-serif;
   font-style: italic;
   font-weight: 600;
   color: #b68400;
@@ -284,344 +229,129 @@ section {
   flex: 1.2;
   min-width: 320px;
 }
-
 #inicio .titulo {
   font-size: clamp(2rem, 5vw, 2.8rem);
   font-weight: 800;
-  text-align: center;
-  color: white;
   margin-bottom: 15px;
+  text-align: center;
 }
-
 #inicio .banner-text p {
-  font-size: 1.4rem; /* <--- ESTA ES LA LÍNEA RESPONSABLE */
+  font-size: 1.4rem;
   line-height: 1.6;
   text-align: justify;
 }
 
-#inicio .btn {
-  background-color: #ab0a3d;
-  color: white !important;
-  padding: 12px 25px;
-  border-radius: 4px;
-  text-decoration: none;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-}
-
 /* ============================================================
-   4. SECCIÓN REGISTRO Y ACCESO - CONSULTAR
+   5. GRIDS Y TARJETAS (Registro, Consultar, Atención)
    ============================================================ */
-#registro {
-  background-color: #f4f4f4;
-}
-
-#consultar {
-  background-color: #f4f4f4;
-}
-
-#registro .custom-main-box,
-#consultar .custom-main-box {
+.custom-main-box {
   display: grid;
-  /* Mantenemos tus 3 columnas */
   grid-template-columns: repeat(3, 1fr);
   gap: 15px;
   width: 95%;
   max-width: 1200px;
   margin: 0 auto;
-  align-items: stretch; /* Obliga a que todas las filas midan lo mismo de alto */
+  align-items: stretch;
 }
 
-/* ESTA ES LA REGLA NUEVA: Asegura que el envoltorio no limite el ancho */
-#registro .custom-col-4,
-#consultar .custom-col-4 {
-  width: 100%;
-  display: flex;
-}
-
-#registro .icon-box,
-#consultar .icon-box {
-  background-color: #ffffff;
-  border: 2px dashed #b1b1b1;
+.icon-box,
+.box-imagen {
+  background-color: var(--blanco);
   border-radius: 8px;
   padding: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center; /* Centra el contenido para que todas se vean parejas */
+  justify-content: center;
   text-align: center;
   transition: 0.3s;
-  min-height: 180px;
-
-  /* Obligamos a la caja a ocupar TODO el ancho de la columna del grid */
-  width: 100%;
-  flex: 1; /* Hace que si el contenedor crece, la caja crezca con él */
   box-sizing: border-box;
 }
 
-/* Mantenemos tu hover */
-#registro .icon-box:hover,
-#consultar .icon-box:hover {
+.icon-box {
+  border: 2px dashed #b1b1b1;
+  min-height: 180px;
+  width: 100%;
+}
+.icon-box:hover {
   transform: translateY(-5px);
-  border-color: #ab0a3d;
+  border-color: var(--guinda);
 }
 
-/* --- ESTA ES LA PARTE QUE SOLUCIONA LO DE LA LETRA --- */
-/* Cambiamos el selector incorrecto por uno con coma */
-#registro .project-name p,
-#consultar .project-name p {
-  margin: 15px 0 0 0;
-  color: #ab0a3d; /* El guinda de tu imagen */
+.project-name p {
+  margin: 15px 0 0;
+  color: var(--guinda);
   text-transform: uppercase;
   font-weight: 700;
-  font-size: 1.1rem; /* Tamaño real de la imagen */
+  font-size: 1.1rem;
   line-height: 1.2;
 }
 
-/* ============================================================
-   5. SECCIÓN ATENCIÓN Y ACLARACIONES (UNIFICADA)
-   ============================================================ */
-
-#atencion-aclaraciones {
-  background-color: #f4f4f4;
-  width: 100%;
-}
-
-/* Forzamos el Grid para que sea idéntico a las secciones superiores */
-#atencion-aclaraciones .custom-main-box {
-  display: grid !important;
-  grid-template-columns: repeat(3, 1fr) !important; /* 3 columnas iguales */
-  gap: 15px !important;
-  width: 95% !important;
-  max-width: 1200px !important; /* Mismo ancho que las secciones de arriba */
-  margin: 0 auto !important;
-  align-items: stretch !important;
-}
-
-/* Estilo de la Tarjeta Blanca */
 .box-imagen {
-  background-color: #ffffff;
-  padding: 20px;
-  border-radius: 8px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  flex: 1;
-  box-sizing: border-box;
   min-height: 200px;
 }
-
 .box-title-imagen {
-  color: #323232;
+  color: var(--gris-oscuro);
   font-weight: 800;
   font-size: 1.05rem;
   text-transform: uppercase;
-  text-align: center;
   margin-bottom: 5px;
 }
 
 .hr-dorada {
   width: 130px;
   height: 2px;
-  background-color: #b38e5d;
+  background-color: var(--dorado);
   border: none;
-  margin: 15px auto 20px auto;
-}
-
-.box-imagen p,
-.enlace-mapa {
-  color: #555555;
-  font-size: 0.95rem;
-  line-height: 1.5;
-  text-decoration: none;
-  text-align: center;
-}
-
-.icon-svg svg {
-  width: 30px;
-  height: auto;
-  fill: #ab0a3d;
-  margin-bottom: 12px;
-}
-
-/* RESPONSIVO */
-@media (max-width: 992px) {
-  #atencion-aclaraciones .custom-main-box {
-    grid-template-columns: repeat(2, 1fr) !important;
-  }
-}
-
-@media (max-width: 768px) {
-  #atencion-aclaraciones .custom-main-box {
-    grid-template-columns: 1fr !important;
-  }
+  margin: 15px auto 20px;
 }
 
 /* ============================================================
-   6. SECCIÓN MARCO LEGAL
+   6. MARCO LEGAL Y TABLAS
    ============================================================ */
-
-#marco {
-  background-color: #f4f4f4;
-}
-
-/* El título ya usa .titulo-seccion del bloque global, así que no hay que repetirlo */
-
 .mi-container-legal {
   width: 90%;
   max-width: 1100px;
   margin: 0 auto;
 }
-
 .lista-articulos-unificada {
   list-style: none;
   padding: 0;
-  margin: 0;
 }
-
 .lista-articulos-unificada li {
   display: flex;
   align-items: flex-start;
   margin-bottom: 25px;
 }
-
-.flecha-guinda-unificada svg {
-  width: 12px;
-  fill: #ab0a3d;
-  margin-right: 15px;
-  margin-top: 6px; /* Alinea la flecha con la primera línea de texto */
-  flex-shrink: 0;
-}
-
 .lista-articulos-unificada p {
-  font-family: "Montserrat", sans-serif; /* Misma fuente que todo el sitio */
-  font-size: 1.1rem; /* Tamaño de lectura cómodo */
-  color: #323232; /* Mismo color de los títulos */
+  font-size: 1.1rem;
+  color: var(--gris-oscuro);
   line-height: 1.6;
-  margin: 0;
 }
 
-/* Estilo para el link de descarga tipo texto */
-.link-descarga-unificado {
-  color: #ab0a3d;
-  font-weight: 700;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-}
-
-.link-descarga-unificado svg {
-  width: 20px;
-  fill: #ab0a3d;
-  margin-right: 8px;
-}
-
-.link-descarga-unificado:hover {
-  text-decoration: underline;
-}
-
-/* ============================================================
-   7. SECCIÓN: CATÁLOGO DE GIROS Y TABLAS
-   ============================================================ */
-
-/* Contenedor principal de la tabla */
-.seccion-giros .table-responsive {
-  border-radius: 8px;
-  overflow: hidden; /* Para que las esquinas redondeadas se vean en la tabla */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-/* Estilo general de la tabla */
 #contenedor-tablas table {
   width: 100%;
   border-collapse: collapse;
-  background-color: white;
-  font-family: "Montserrat", sans-serif;
+  background: var(--blanco);
 }
-
-/* ENCABEZADO NEGRO: El nombre del Giro (Ej: AGROPECUARIA) */
-/* Se aplica a la fila que tiene el atributo colspan */
 #contenedor-tablas thead tr:first-child th {
-  background-color: #323232; /* Gris casi negro */
-  color: #ffffff;
-  text-align: center;
+  background: var(--gris-oscuro);
+  color: var(--blanco);
   padding: 5px;
   text-transform: uppercase;
   font-weight: 700;
-  letter-spacing: 1px;
-  border: none;
 }
-
-/* ENCABEZADO GRIS CLARO: Títulos de columna (Giro, Línea, Descripción) */
-#contenedor-tablas thead tr:last-child th {
-  background-color: #f1f1f1; /* Gris claro de la imagen */
-  background-color: #323232; /* Gris casi negro */
-  padding: 2px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  border-bottom: 0px solid #e0e0e0;
-  text-align: left;
-}
-
-/* Alineación específica para las columnas numéricas */
-#contenedor-tablas thead tr:last-child th:nth-child(1),
-#contenedor-tablas thead tr:last-child th:nth-child(2) {
-  text-align: center;
-  width: 100px;
-}
-
-/* Celdas del cuerpo de la tabla */
-#contenedor-tablas tbody td {
-  padding: 2px;
-  border-bottom: 0px solid #eeeeee;
-  color: #444444;
-  font-size: 0.95rem;
-}
-
-/* Resaltar números en negrita como en la imagen */
-#contenedor-tablas tbody td:nth-child(1),
-#contenedor-tablas tbody td:nth-child(2) {
-  font-weight: 700;
-  text-align: center;
-}
-
-/* Efecto Hover para mejorar la lectura */
 #contenedor-tablas tbody tr:hover {
-  background-color: #f9f9f9;
+  background-color: #fff9c4;
+  transition: 0.2s;
 }
 
 /* ============================================================
-   EFECTO HOVER: Color amarillo en la descripción
+   7. FORMULARIOS Y BOTONES
    ============================================================ */
-
-/* 1. Cambia el fondo de la fila completa al pasar el mouse */
-#contenedor-tablas tbody tr:hover {
-  background-color: #fff9c4; /* Un amarillo muy claro para no cansar la vista */
-  transition: background-color 0.2s ease; /* Hace que el cambio sea suave */
-}
-
-/* 2. Si quieres que SOLO el texto de la descripción cambie a amarillo fuerte */
-#contenedor-tablas tbody tr:hover td:last-child {
-  color: #856404; /* Un tono café/oro para que sea legible sobre el amarillo */
-  font-weight: bold;
-}
-
-/* 3. Opcional: Cambia el cursor para indicar que es interactivo */
-#contenedor-tablas tbody tr {
-  cursor: pointer;
-}
-
-/* ============================================================
-   ESTILO MAESTRO: PADRÓN, HISTORIAL Y RESTAURAR
-   ============================================================ */
-
-/* 2. El Cuadro Blanco (Contenedor Elevado) */
 .cuadro-blanco {
-  background-color: #ffffff;
+  background: var(--blanco);
   padding: 40px;
   border-radius: 12px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
@@ -629,123 +359,92 @@ section {
   margin-bottom: 50px;
 }
 
-/* 3. Etiquetas (Labels) */
-.control-label {
-  font-weight: 700;
-  color: #333;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  font-size: 0.95rem;
-}
-
-/* 4. Inputs y Selects */
 .form-control.delgado {
   background-color: #f4f7ff;
   border: 1px solid #e1e8f5;
   border-radius: 6px;
   height: 45px;
-  color: #555;
-  transition: all 0.3s ease;
+  transition: 0.3s;
 }
 
 .form-control.delgado:focus {
-  background-color: #fff;
-  border-color: #ab0a3d;
+  border-color: var(--guinda);
   box-shadow: 0 0 0 0.2rem rgba(171, 10, 61, 0.1);
   outline: none;
 }
 
-/* 5. Contenedor de Botones y Estilos Homologados */
-.btn-contenedor {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin-top: 30px;
+.btn-buscar,
+.btn-restaurar,
+.btn-nueva,
+.btn {
+  padding: 12px 25px;
+  border-radius: 6px;
+  font-weight: 700;
+  transition: 0.3s;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--blanco) !important;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
 }
 
 .btn-buscar,
 .btn-restaurar,
+.btn {
+  background-color: var(--guinda);
+}
 .btn-nueva {
-  padding: 12px 30px;
-  border-radius: 6px;
-  font-weight: 700;
-  border: none;
-  transition:
-    transform 0.2s,
-    background 0.3s,
-    opacity 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: white;
-  cursor: pointer;
+  background-color: var(--gris-oscuro);
+}
+.btn-buscar:hover,
+.btn-restaurar:hover,
+.btn-nueva:hover:not(:disabled) {
+  transform: translateY(-2px);
+  opacity: 0.9;
 }
 
 /* ============================================================
-   ESTILO BUSCADOR DE GIROS Y LIENAS
+   8. MEDIA QUERIES CONSOLIDADOS
    ============================================================ */
-/* Estilo Guinda para Buscar y Restaurar */
-.btn-buscar,
-.btn-restaurar {
-  background-color: #ab0a3d;
+@media (max-width: 992px) {
+  .mi-navbar .mi-container {
+    justify-content: space-between;
+    gap: 0;
+  }
+  .mi-navbar .menu-toggle {
+    display: block;
+  }
+  .mi-navbar .mi-menu {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 65px;
+    left: 0;
+    width: 100%;
+    background-color: var(--guinda);
+    padding: 20px 0;
+  }
+  .mi-navbar .mi-menu.active {
+    display: flex !important;
+  }
+  .mi-navbar .mi-menu li {
+    width: 100%;
+    text-align: center;
+    padding: 10px 0;
+  }
+
+  #inicio .container-content {
+    flex-direction: column;
+  }
+  .custom-main-box {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
-.btn-buscar:hover,
-.btn-restaurar:hover {
-  background-color: #ab0a3d;
-  transform: translateY(-2px);
-}
-
-/* Estado Desactivado (Mantiene Guinda con Opacidad) */
-.btn-buscar:disabled,
-.btn-restaurar:disabled {
-  background-color: #ab0a3d !important;
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
-}
-
-/* Estilo Gris para Botones Secundarios */
-.btn-nueva {
-  background-color: #323232;
-}
-
-.btn-nueva:hover {
-  background-color: #323232;
-  transform: translateY(-2px);
-}
-
-/* 6. Instrucciones */
-.instrucciones-formulario {
-  font-size: 1.1rem;
-  color: #555;
-  margin-bottom: 25px;
-  text-align: justify;
-  line-height: 1.5;
-}
-
-/* Estilos para el buscador dentro del contenedor de giros */
-.busqueda-padron .input-group-text {
-  background-color: #ab0a3d; /* Guinda Institucional */
-  color: white;
-  border: 1px solid #bc955c; /* Dorado */
-  border-radius: 4px 0 0 4px;
-}
-
-.busqueda-padron .form-control {
-  border: 1px solid #bc955c; /* Dorado */
-  font-family: "Montserrat", sans-serif;
-}
-
-.busqueda-padron .form-control:focus {
-  border-color: #ab0a3d;
-  box-shadow: 0 0 0 0.2rem rgba(171, 10, 61, 0.25);
-}
-
-/* Ajuste para el placeholder */
-.busqueda-padron .form-control::placeholder {
-  color: #999;
-  font-size: 0.9rem;
-  font-style: italic;
+@media (max-width: 768px) {
+  .custom-main-box {
+    grid-template-columns: 1fr !important;
+  }
 }
