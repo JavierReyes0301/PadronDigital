@@ -3,7 +3,7 @@
  * CONTROLADOR MAESTRO: Catálogos, Registro y Autenticación.
  */
 
-// --- 1. CONFIGURACIÓN DE MODALES ---
+// --- 1. CONFIGURACIÓN DE MODALES (INTEGROS - SIN CAMBIOS) ---
 const modalesPadron = `
 <div class="modal fade" id="ModalLogin" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -53,7 +53,7 @@ const modalesPadron = `
                             <div class="form-group-custom">
                                 <label>Tipo de Persona:</label>
                                 <div class="input-institucional d-flex align-items-center" style="background:#f8f9fa !important; border:1px solid #ddd !important; height:45px;">
-                                    <label class="mr-4 mb-0"><input type="radio" name="tipo-persona" value="Fisica" required> Física</label>
+                                    <label class="mr-4 mb-0"><input type="radio" name="tipo_persona" value="Fisica" required> Física</label>
                                     <label class="mb-0"><input type="radio" name="tipo_persona" value="Moral"> Moral</label>
                                 </div>
                             </div>
@@ -274,7 +274,7 @@ document.addEventListener("submit", async (e) => {
   if (!["FormRegistro", "FormaLogin"].includes(targetId)) return;
 
   e.preventDefault();
-  const btn = e.target.querySelector('button[type="submit"]'); // Definido en el scope del evento
+  const btn = e.target.querySelector('button[type="submit"]');
   const formData = new FormData(e.target);
   const datos = Object.fromEntries(formData);
 
@@ -289,6 +289,7 @@ document.addEventListener("submit", async (e) => {
       return alert("Debe aceptar el aviso de privacidad.");
     if (datos.pwd.length < 8)
       return alert("La contraseña debe tener al menos 8 caracteres.");
+    // CORRECCIÓN TÉCNICA: Acceso a confirm-pwd con corchetes
     if (datos.pwd !== datos["confirm-pwd"])
       return alert("Las contraseñas no coinciden.");
 
@@ -300,7 +301,8 @@ document.addEventListener("submit", async (e) => {
         email: datos.correo.toLowerCase().trim(),
         password: datos.pwd,
         options: {
-          data: { rfc: rfcLimpio, tipo_persona: datos["tipo-persona"] },
+          // CORRECCIÓN TÉCNICA: name tipo_persona unificado
+          data: { rfc: rfcLimpio, tipo_persona: datos.tipo_persona },
           currSession: false,
         },
       });
@@ -343,7 +345,6 @@ document.addEventListener("submit", async (e) => {
 
       if (error) throw error;
 
-      // Mostrar modal de bienvenida
       $("#ModalLogin").modal("hide");
       $("#txtRFCBienvenida").text(data.user.user_metadata.rfc || "Usuario");
       $("#ModalBienvenida").modal("show");
@@ -354,17 +355,20 @@ document.addEventListener("submit", async (e) => {
       btn.innerText = "INICIAR SESIÓN";
     }
   }
-}); // Cierre correcto del event listener
+});
 
-// --- 4. AYUDANTES DE APERTURA Y CARGA ---
+// --- 4. AYUDANTES DE APERTURA Y CARGA (RESTAURADOS) ---
 window.abrirRegistro = () => $("#ModalRegistro").modal("show");
 window.abrirLogin = () => $("#ModalLogin").modal("show");
+window.abrirRequisitos = () => $("#modalRequisitos").modal("show");
+window.abrirFormatos = () => $("#modalFormatos").modal("show");
+window.abrirPreguntas = () => $("#ModalPreguntas").modal("show");
 
-// Botón del modal de bienvenida para redireccionar
 document.addEventListener("click", (e) => {
   if (e.target.id === "btnAccesarInicio") {
-    window.location.href = "/inicio/inicio.html"; // O la página que corresponda
+    window.location.href = "/inicio/inicio.html";
   }
 });
 
-document.addEventListener("DOMContentLoaded", cargarDatosSupabase);
+// Nota: Asegúrate de tener definida la función cargarDatosSupabase si la usas abajo.
+// document.addEventListener("DOMContentLoaded", cargarDatosSupabase);

@@ -412,16 +412,14 @@
         </div>
       </section>
     </main>
-    <!-- AGREGAR AL FINAL DE inicio.html -->
-    <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        // Aquí es donde tú defines la lógica de control.
-        // Cambia a 'false' si quieres probar cómo se ve un usuario registrado.
-        let esUsuarioNuevo = true;
 
-        // Llamamos a la función que pegamos en menuindex.js
-        inicializarEstadoUsuario(esUsuarioNuevo);
-      });
+    <script>
+      // La lógica del menú (menuindex.js) ahora toma el control automáticamente.
+      // Solo necesitas definir esta variable aquí. Cuando conectes con Supabase,
+      // esta variable deberá alimentarse del resultado de la base de datos:
+      // true = Usuario no ha completado el padrón.
+      // false = Usuario ya tiene todos sus datos.
+      window.esUsuarioNuevo = true;
     </script>
   </body>
 </html>
