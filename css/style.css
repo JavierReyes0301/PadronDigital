@@ -69,7 +69,8 @@ section[id] {
 }
 
 .mi-navbar .mi-brand,
-.mi-navbar .mi-menu a {
+.mi-navbar .mi-menu a,
+.mi-footer p {
   color: white;
   text-decoration: none;
   font-weight: 700;
@@ -94,18 +95,6 @@ section[id] {
   display: flex;
   flex: 1;
   justify-content: space-around;
-}
-
-/* ============================================================
-   X. PIE DE PÁGINA (FOOTER)
-   ============================================================ */
-.mi-footer p {
-  color: white; /* O el color que prefieras */
-  text-decoration: none;
-  font-weight: 700; /* Igual que el menú */
-  font-size: 1.1rem; /* Igual que el menú */
-  text-transform: uppercase; /* Igual que el menú */
-  margin-bottom: 0;
 }
 
 /* ============================================================
