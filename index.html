@@ -6,21 +6,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Padrón de Proveedores | Atlixco</title>
 
+    <!-- Pre-conexión para optimizar tiempos de respuesta -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+    <link rel="preconnect" href="https://maopuzbvxucsarrydmte.supabase.co" />
+
     <link rel="canonical" href="https://padron.digital/" />
     <link rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="css/style-modales.css" />
-    <script src="js/menuindex.js"></script>
 
+    <!-- jQuery se mantiene en el head por dependencias de otros scripts si fuera necesario -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
     />
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- SDK de Supabase -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
       #nav-placeholder {
@@ -30,7 +30,6 @@
         margin: 0;
         font-family: "Montserrat", sans-serif;
       }
-      /* Estilo para que los punteros indiquen que los cuadros son cliqueables */
       .icon-box {
         cursor: pointer;
         transition: transform 0.2s;
@@ -38,6 +37,13 @@
       .icon-box:hover {
         transform: translateY(-5px);
         background-color: rgba(0, 0, 0, 0.02);
+      }
+      /* Optimización de SVGs: control centralizado de color */
+      .icon-wrapper svg,
+      .icon-svg svg,
+      .btn svg,
+      .flecha-guinda-unificada svg {
+        fill: currentColor;
       }
     </style>
   </head>
@@ -54,6 +60,7 @@
                 src="https://maopuzbvxucsarrydmte.supabase.co/storage/v1/object/public/Imag/Logo.png"
                 alt="Logotipo oficial del H. Ayuntamiento de Atlixco, Puebla"
                 class="logo-img"
+                loading="lazy"
               />
             </a>
           </div>
@@ -65,12 +72,7 @@
               para formar parte de nuestro padrón, hazlo por este medio.
             </p>
             <a href="#registro" class="btn">
-              <svg
-                viewBox="0 0 512 512"
-                width="16"
-                height="16"
-                fill="currentColor"
-              >
+              <svg viewBox="0 0 512 512" width="16" height="16">
                 <path
                   d="M256 40c118.621 0 216 96.075 216 216 0 119.291-96.61 216-216 216-119.244 0-216-96.562-216-216 0-119.203 96.602-216 216-216m0-32C119.043 8 8 119.083 8 256c0 136.997 111.043 248 248 248s248-111.003 248-248C504 119.083 392.957 8 256 8zm-36 344h12V232h-12c-6.627 0-12-5.373-12-12v-8c0-6.627 5.373-12 12-12h48c6.627 0 12 5.373 12 12v140h12c6.627 0 12 5.373 12 12v8c0 6.627-5.373 12-12 12h-72c-6.627 0-12-5.373-12-12v-8c0-6.627 5.373-12 12-12zm36-240c-17.673 0-32 14.327-32 32s14.327 32 32 32 32-14.327 32-32-14.327-32-32-32z"
                 ></path>
@@ -85,7 +87,6 @@
         <h2 class="titulo-seccion">REGISTRO Y <span>ACCESO</span></h2>
         <div class="container-universal">
           <div class="custom-main-box">
-            <!-- Modal Registro -->
             <div class="custom-col-4">
               <div
                 class="icon-box border-dashed"
@@ -100,7 +101,6 @@
                     viewBox="0 0 640 512"
                   >
                     <path
-                      fill="currentColor"
                       d="M462.88 374.62a32 32 0 0 0 22.63 9.38H528a16 16 0 0 0 16-16v-42.46a32 32 0 0 0-9.38-22.63L303.19 71.47l-71.7 71.7zm-254-254l71.7-71.8L238.79 7a24.1 24.1 0 0 0-33.9 0L167 44.87a24 24 0 0 0 0 33.8zM608 160H437l120.27 120.28A64 64 0 0 1 576 325.54V400a16 16 0 0 1-16 16H104a8 8 0 0 1-8-8v-16a8 8 0 0 1 8-8h323l-64-64H104a8 8 0 0 1-8-8v-16a8 8 0 0 1 8-8h227L203 160H32a32 32 0 0 0-32 32v288a32 32 0 0 0 32 32h576a32 32 0 0 0 32-32V192a32 32 0 0 0-32-32z"
                     />
                   </svg>
@@ -113,7 +113,6 @@
               </div>
             </div>
 
-            <!-- Otros Modales -->
             <div class="custom-col-4">
               <div
                 class="icon-box border-dashed"
@@ -127,7 +126,6 @@
                     style="width: 80px; height: auto; margin-bottom: 15px"
                   >
                     <path
-                      fill="currentColor"
                       d="M192 0c-41.8 0-77.4 26.7-90.5 64H64C28.7 64 0 92.7 0 128V448c0 35.3 28.7 64 64 64H320c35.3 0 64-28.7 64-64V128c0-35.3-28.7-64-64-64H282.5C269.4 26.7 233.8 0 192 0zm0 64a32 32 0 1 1 0 64 32 32 0 1 1 0-64zM112 248l64 64 128-128 32 32-160 160-96-96 32-32z"
                     />
                   </svg>
@@ -151,7 +149,6 @@
                     style="width: 80px; height: auto"
                   >
                     <path
-                      fill="currentColor"
                       d="M224 136V0H24C10.7 0 0 10.7 0 24v464c0 13.3 10.7 24 24 24h336c13.3 0 24-10.7 24-24V160H248c-13.2 0-24-10.8-24-24zm76.45 211.36l-96.42 95.7c-6.65 6.61-17.39 6.61-24.04 0l-96.42-95.7C73.42 337.29 80.54 320 94.82 320H160v-80c0-8.84 7.16-16 16-16h32c8.84 0 16 7.16 16 16v80h65.18c14.28 0 21.4 17.29 11.27 27.36zM377 105L279.1 7c-4.5-4.5-10.6-7-17-7H256v128h128v-6.1c0-6.3-2.5-12.4-7-16.9z"
                     />
                   </svg>
@@ -175,7 +172,6 @@
                     style="width: 100px; height: auto"
                   >
                     <path
-                      fill="currentColor"
                       d="M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zM262.655 90c-54.497 0-89.255 22.957-116.549 63.758-3.536 5.286-2.353 12.415 2.715 16.258l34.699 26.31c5.205 3.947 12.621 3.008 16.665-2.122 17.864-22.658 30.113-35.797 57.303-35.797 20.429 0 45.698 13.148 45.698 32.958 0 14.976-12.363 22.667-32.534 33.976C247.128 238.528 216 254.941 216 296v4c0 6.627 5.373 12 12 12h56c6.627 0 12-5.373 12-12v-1.333c0-28.462 83.186-29.647 83.186-106.667 0-58.002-60.165-102-116.531-102zM256 338c-25.365 0-46 20.635-46 46 0 25.364 20.635 46 46 46s46-20.636 46-46c0-25.365-20.635-46-46-46z"
                     />
                   </svg>
@@ -186,7 +182,6 @@
               </div>
             </div>
 
-            <!-- Botón Login -->
             <div class="custom-col-4">
               <div
                 class="icon-box border-dashed"
@@ -200,7 +195,6 @@
                     style="width: 100px; height: auto"
                   >
                     <path
-                      fill="currentColor"
                       d="M416 448h-84c-6.6 0-12-5.4-12-12v-40c0-6.6 5.4-12 12-12h84c17.7 0 32-14.3 32-32V160c0-17.7-14.3-32-32-32h-84c-6.6 0-12-5.4-12-12V76c0-6.6 5.4-12 12-12h84c53 0 96 43 96 96v192c0 53-43 96-96 96zm-47-201L201 79c-15-15-41-4.5-41 17v96H24c-13.3 0-24 10.7-24 24v96c0 13.3 10.7 24 24 24h136v96c0 21.5 26 32 41 17l168-168c9.3-9.4 9.3-24.6 0-34z"
                     />
                   </svg>
@@ -209,7 +203,6 @@
               </div>
             </div>
 
-            <!-- Link a restaurar.html (Uso de data-url para JS) -->
             <div class="custom-col-4">
               <div
                 class="icon-box border-dashed js-link"
@@ -222,7 +215,6 @@
                     style="width: 100px; height: auto"
                   >
                     <path
-                      fill="currentColor"
                       d="M423.5 0C339.5.3 272 69.5 272 153.5V224H48c-26.5 0-48 21.5-48 48v192c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V272c0-26.5-21.5-48-48-48h-48v-71.1c0-39.6 31.7-72.5 71.3-72.9 40-.4 72.7 32.1 72.7 72v80c0 13.3 10.7 24 24 24h32c13.3 0 24-10.7 24-24v-80C576 68 507.5-.3 423.5 0zM264 392c0 22.1-17.9 40-40 40s-40-17.9-40-40v-48c0-22.1 17.9-40 40-40s40 17.9 40 40v48z"
                     />
                   </svg>
@@ -252,7 +244,6 @@
                     style="width: 100px; height: auto"
                   >
                     <path
-                      fill="currentColor"
                       d="M528 32H48C21.5 32 0 53.5 0 80v16h576V80c0-26.5-21.5-48-48-48zM0 432c0 26.5 21.5 48 48 48h480c26.5 0 48-21.5 48-48V128H0v304zm352-232c0-4.4 3.6-8 8-8h144c4.4 0 8 3.6 8 8v16c0 4.4-3.6 8-8 8H360c-4.4 0-8-3.6-8-8v-16zm0 64c0-4.4 3.6-8 8-8h144c4.4 0 8 3.6 8 8v16c0 4.4-3.6 8-8 8H360c-4.4 0-8-3.6-8-8v-16zm0 64c0-4.4 3.6-8 8-8h144c4.4 0 8 3.6 8 8v16c0 4.4-3.6 8-8 8H360c-4.4 0-8-3.6-8-8v-16zM176 192c35.3 0 64 28.7 64 64s-28.7 64-64 64-64-28.7-64-64 28.7-64 64-64zM67.1 396.2C75.5 370.5 99.6 352 128 352h8.2c12.3 5.1 25.7 8 39.8 8s27.6-2.9 39.8-8h8.2c28.4 0 52.5 18.5 60.9 44.2 3.2 9.9-5.2 19.8-15.6 19.8H82.7c-10.4 0-18.8-10-15.6-19.8z"
                     />
                   </svg>
@@ -273,7 +264,6 @@
                     style="width: 100px; height: auto"
                   >
                     <path
-                      fill="currentColor"
                       d="M504 255.531c.253 136.64-111.18 248.372-247.82 248.468-59.015.042-113.223-20.53-155.822-54.911-11.077-8.94-11.905-25.541-1.839-35.607l11.267-11.267c8.609-8.609 22.353-9.551 31.891-1.984C173.062 425.135 212.781 440 256 440c101.705 0 184-82.311 184-184 0-101.705-82.311-184-184-184-48.814 0-93.149 18.969-126.068 49.932l50.754 50.754c10.08 10.08 2.941 27.314-11.313 27.314H24c-8.837 0-16-7.163-16-16V38.627c0-14.254 17.234-21.393 27.314-11.314l49.372 49.372C129.209 34.136 189.552 8 256 8c136.81 0 247.747 110.78 248 247.531zm-180.912 78.784l9.823-12.63c8.138-10.463 6.253-25.542-4.21-33.679L288 256.349V152c0-13.255-10.745-24-24-24h-16c-13.255 0-24 10.745-24 24v135.651l65.409 50.874c10.463 8.137 25.541 6.253 33.679-4.21z"
                     />
                   </svg>
@@ -296,7 +286,6 @@
                     style="width: 100px; height: auto"
                   >
                     <path
-                      fill="currentColor"
                       d="M80 368H16a16 16 0 0 0-16 16v64a16 16 0 0 0 16 16h64a16 16 0 0 0 16-16v-64a16 16 0 0 0-16-16zm0-320H16A16 16 0 0 0 0 64v64a16 16 0 0 0 16 16h64a16 16 0 0 0 16-16V64a16 16 0 0 0-16-16zm0 160H16a16 16 0 0 0-16 16v64a16 16 0 0 0 16 16h64a16 16 0 0 0 16-16v-64a16 16 0 0 0-16-16zm416 176H176a16 16 0 0 0-16 16v32a16 16 0 0 0 16 16h320a16 16 0 0 0 16-16v-32a16 16 0 0 0-16-16zm0-320H176a16 16 0 0 0-16 16v32a16 16 0 0 0 16 16h320a16 16 0 0 0 16-16V80a16 16 0 0 0-16-16zm0 160H176a16 16 0 0 0-16 16v32a16 16 0 0 0 16 16h320a16 16 0 0 0 16-16v-32a16 16 0 0 0-16-16z"
                     />
                   </svg>
@@ -390,7 +379,10 @@
       </section>
     </main>
 
-    <!-- Scripts de Lógica -->
+    <!-- Scripts de Lógica y Librerías al final para optimizar el renderizado -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/menuindex.js"></script>
     <script src="js/conexion-supabase.js"></script>
     <script src="js/gestion-sistema.js"></script>
 
