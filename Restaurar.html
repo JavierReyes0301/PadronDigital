@@ -56,54 +56,79 @@
     <div id="nav-placeholder"></div>
 
     <main>
-      <section class="seccion-restaurar">
-        <div class="titulo-seccion">RESTAURAR <span>CONTRASEÑA</span></div>
-        <div class="container">
-          <div class="cuadro-blanco">
-            <p class="instrucciones-formulario">
-              Ingrese la dirección de correo electrónico que usa para el Padrón
-              de Proveedores y le enviaremos un enlace para restaurar su
-              contraseña:
-            </p>
-            <form id="FormRecupera">
-              <div class="row justify-content-center">
-                <div class="col-md-10">
-                  <div class="form-group row align-items-center">
-                    <label class="col-sm-4 control-label"
-                      >Correo electrónico:</label
-                    >
-                    <div class="col-sm-8">
-                      <input
-                        type="email"
-                        class="form-control delgado"
-                        id="CorreoUsuario"
-                        oninput="Revisar()"
-                      />
+      <main>
+        <section>
+          <div class="titulo-seccion">RESTAURAR <span>CONTRASEÑA</span></div>
+
+          <!-- "container" para el ancho y "cuadro-blanco" para el diseño de la tarjeta -->
+          <div class="container">
+            <div class="cuadro-blanco">
+              <p
+                style="
+                  text-align: center;
+                  margin-bottom: 30px;
+                  color: var(--gris-oscuro);
+                  font-size: 1.1rem;
+                "
+              >
+                Ingrese la dirección de correo electrónico que usa para el
+                Padrón de Proveedores y le enviaremos un enlace para restaurar
+                su contraseña:
+              </p>
+
+              <form id="FormRecupera">
+                <div class="row justify-content-center">
+                  <div class="col-md-10">
+                    <div class="form-group row align-items-center">
+                      <!-- Clase label-formulario que ya usas en historial -->
+                      <label
+                        class="col-sm-4 control-label"
+                        style="font-weight: 600; color: var(--gris-oscuro)"
+                        >Correo electrónico:</label
+                      >
+                      <div class="col-sm-8">
+                        <input
+                          type="email"
+                          class="form-control delgado"
+                          id="CorreoUsuario"
+                          oninput="Revisar()"
+                          placeholder="ejemplo@correo.com"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-              <div class="btn-contenedor">
-                <button
-                  type="button"
-                  class="btn-restaurar"
-                  id="BotonRestaurar"
-                  disabled
+
+                <!-- Contenedor de botones centrado -->
+                <div
+                  style="
+                    display: flex;
+                    justify-content: center;
+                    gap: 15px;
+                    margin-top: 30px;
+                  "
                 >
-                  <i class="fas fa-sync-alt"></i> RESTAURAR
-                </button>
-                <button
-                  type="button"
-                  class="btn-nueva"
-                  onclick="history.back()"
-                >
-                  <i class="fas fa-reply"></i> REGRESAR
-                </button>
-              </div>
-            </form>
+                  <button
+                    type="button"
+                    class="btn-buscar"
+                    id="BotonRestaurar"
+                    disabled
+                  >
+                    <i class="fas fa-sync-alt"></i> RESTAURAR
+                  </button>
+                  <button
+                    type="button"
+                    class="btn-nueva"
+                    onclick="history.back()"
+                  >
+                    <i class="fas fa-reply"></i> REGRESAR
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </main>
     </main>
     <div
       class="modal fade"

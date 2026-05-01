@@ -268,60 +268,6 @@ const modalesPadron = `
 `;
 document.body.insertAdjacentHTML("beforeend", modalesPadron);
 
-// --- 2. GESTIÓN DE CATÁLOGOS ---
-let mapaDatos = {};
-
-function extraerNumero(texto) {
-  if (!texto) return 0;
-  return parseInt(texto.toString().replace(/\D/g, ""), 10) || 0;
-}
-
-async function cargarDatosSupabase() {
-  try {
-    if (!window.clientSupa) return setTimeout(cargarDatosSupabase, 500);
-    const { data, error } = await window.clientSupa
-      .from("giros_lineas")
-      .select("id_giro, nombre_giro, linea, descripcion")
-      .order("id_giro", { ascending: true });
-
-    if (error) throw error;
-
-    mapaDatos = {};
-    data.forEach((fila) => {
-      if (!mapaDatos[fila.id_giro]) {
-        mapaDatos[fila.id_giro] = { nombre: fila.nombre_giro, lineas: [] };
-      }
-      mapaDatos[fila.id_giro].lineas.push({
-        nombre: fila.linea,
-        desc: fila.descripcion || "Sin descripción",
-      });
-    });
-    dibujarTablasCatalogo();
-  } catch (err) {
-    console.error("Error catálogos:", err.message);
-  }
-}
-
-function dibujarTablasCatalogo() {
-  const contenedor = document.getElementById("contenedor-tablas");
-  if (!contenedor) return;
-  contenedor.innerHTML = "";
-  const idsOrdenados = Object.keys(mapaDatos).sort(
-    (a, b) => extraerNumero(a) - extraerNumero(b),
-  );
-  idsOrdenados.forEach((id) => {
-    const giro = mapaDatos[id];
-    const seccion = document.createElement("div");
-    seccion.className =
-      "seccion-contenedor-giro my-4 p-3 shadow-sm bg-white rounded border";
-    seccion.innerHTML = `<h5 class="text-center" style="color: #ab0a3d;">GIRO ${id.replace(/\D/g, "")}: ${giro.nombre.toUpperCase()}</h5>
-                         <div class="table-responsive"><table class="table table-sm table-hover table-bordered">
-                         <thead style="background-color: #ab0a3d; color: white;"><tr><th>Línea</th><th>Descripción</th></tr></thead>
-                         <tbody>${giro.lineas.map((l) => `<tr><td><strong>${l.nombre}</strong></td><td>${l.desc}</td></tr>`).join("")}</tbody></table></div>`;
-    contenedor.appendChild(seccion);
-  });
-}
-
 // --- 3. CONTROLADOR DE REGISTRO Y LOGIN ---
 document.addEventListener("submit", async (e) => {
   const targetId = e.target.id;
