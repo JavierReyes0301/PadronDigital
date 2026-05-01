@@ -443,61 +443,68 @@ section {
 }
 
 /* ============================================================
-   7. FORMULARIOS Y BOTONES
+   7. FORMULARIOS Y BOTONES (CORREGIDO)
    ============================================================ */
-.cuadro-blanco {
-  background: var(--blanco);
-  padding: 40px;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-  border: 1px solid #f0f0f0;
-  margin-bottom: 50px;
-}
 
-.form-control.delgado {
-  background-color: #f4f7ff;
-  border: 1px solid #e1e8f5;
-  border-radius: 6px;
-  height: 45px;
-  transition: 0.3s;
-}
-
+/* 1. Corrección del recuadro azul en inputs generales */
 .form-control.delgado:focus {
-  border-color: var(--guinda);
-  box-shadow: 0 0 0 0.2rem rgba(171, 10, 61, 0.1);
+  border-color: var(--guinda) !important; /* Forzamos el guinda */
+  box-shadow: 0 0 0 0.2rem rgba(171, 10, 61, 0.25) !important; /* Resplandor guinda suave */
   outline: none;
 }
 
-.btn-buscar,
-.btn-restaurar,
-.btn-nueva,
-.btn {
-  padding: 12px 25px;
-  border-radius: 6px;
-  font-weight: 700;
-  transition: 0.3s;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  color: var(--blanco) !important;
-  text-decoration: none;
-  border: none;
-  cursor: pointer;
+/* 2. Específico para el Buscador de Catálogos (Input Group) */
+#inputBuscador:focus {
+  border-color: var(--guinda);
+  box-shadow: 0 0 0 0.2rem rgba(171, 10, 61, 0.25);
+  outline: none;
 }
 
-.btn-buscar,
-.btn-restaurar,
-.btn {
-  background-color: var(--guinda);
+/* 3. Corrección de Iconos Azules (Sección Aclaraciones) */
+.icono-pequeno {
+  width: 35px;
+  height: 35px;
+  fill: var(--guinda); /* Cambiado de #007bff (azul) a Guinda */
+  flex-shrink: 0;
 }
-.btn-nueva {
-  background-color: var(--gris-oscuro);
+
+/* 4. Corrección de Enlaces de Ubicación (Azul por defecto) */
+.link-ubicacion {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--gris-oscuro);
+  text-decoration: none;
+  font-weight: 400;
+  transition: 0.3s;
 }
-.btn-buscar:hover,
-.btn-restaurar:hover,
-.btn-nueva:hover:not(:disabled) {
-  transform: translateY(-2px);
-  opacity: 0.9;
+
+.link-ubicacion:hover {
+  color: var(--guinda); /* Al pasar el mouse se vuelve guinda, no azul */
+  text-decoration: underline;
+}
+
+/* 5. Estilo para el prefijo del buscador (lupa) */
+.input-group-text {
+  background-color: var(--blanco);
+  border-color: #e1e8f5;
+  color: var(--guinda); /* Icono de lupa en guinda */
+}
+
+/* ============================================================
+   ADICIONAL: TABLAS (Para que coincidan con la imagen)
+   ============================================================ */
+#contenedor-tablas thead th {
+  background-color: var(--guinda) !important;
+  color: var(--blanco) !important;
+  text-transform: uppercase;
+  font-weight: 700;
+  border: none;
+}
+
+#contenedor-tablas .table-bordered td {
+  border: 1px solid #dee2e6;
+  vertical-align: middle;
 }
 
 /* ============================================================
