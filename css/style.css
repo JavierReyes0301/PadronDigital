@@ -97,6 +97,18 @@ section[id] {
 }
 
 /* ============================================================
+   X. PIE DE PÁGINA (FOOTER)
+   ============================================================ */
+.mi-footer p {
+  color: white; /* O el color que prefieras */
+  text-decoration: none;
+  font-weight: 700; /* Igual que el menú */
+  font-size: 1.1rem; /* Igual que el menú */
+  text-transform: uppercase; /* Igual que el menú */
+  margin-bottom: 0;
+}
+
+/* ============================================================
    3. ESTILOS GLOBALES DE SECCIONES
    ============================================================ */
 section {
