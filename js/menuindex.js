@@ -9,14 +9,14 @@ const ICONOS = {
   atencion:
     '<svg viewBox="0 0 512 512"><path d="M256 32C114.6 32 0 125.1 0 240c0 49.6 21.4 95 57 130.7C44.5 421.1 2.7 466 2.2 466.5c-2.2 2.3-2.8 5.7-1.5 8.7S4.8 480 8 480c66.3 0 116-31.8 140.6-51.4 32.7 12.3 69 19.4 107.4 19.4 141.4 0 256-93.1 256-208S397.4 32 256 32z"></path></svg>',
   marco:
-    '<svg viewBox="0 0 512 512"><path d="M504.971 199.362l-22.627-22.627c-9.373-9.373-24.569-9.373-33.941 0l-5.657 5.657-115.705-115.705 5.657-5.657c9.373-9.373 9.373-24.569 0-33.941L312.638 7.029c-9.373-9.373-24.569-9.373-33.941 0L154.246 131.48c-9.373 131.48-9.373 24.569 0 33.941l22.627 22.627c9.373 9.373 24.569 9.373 33.941 0l5.657-5.657 39.598 39.598-81.04 81.04-5.657-5.657c-12.497-12.497-32.758-12.497-45.255 0L9.373 412.118c-12.497 12.497-12.497 32.758 0 45.255l45.255 45.255c12.497 12.497 32.758 12.497 45.255 0l114.745-114.745c12.497-12.497 12.497-32.758 0-45.255l-5.657-5.657 81.04-81.04 39.598 39.598-5.657 5.657c9.373 9.373 24.569 9.373 33.941 0l22.627-22.627c9.373-9.373 9.373-24.569 0-33.941l-5.657-5.657 115.705 115.705 5.657-5.657c9.372-9.372 9.372-24.568 0-33.941z"></path></svg>',
+    '<svg viewBox="0 0 512 512"><path d="M504.971 199.362l-22.627-22.627c-9.373-9.373-24.569-9.373-33.941 0l-5.657 5.657-115.705-115.705 5.657-5.657c9.373-9.373 9.373-24.569 0-33.941L312.638 7.029c-9.373-9.373-24.569-9.373-33.941 0L154.246 131.48c-9.373 131.48-9.373 24.569 0 33.941l22.627 22.627c9.373 9.373 24.569 9.373 33.941 0l5.657-5.657 39.598 39.598-81.04 81.04-5.657-5.657c-12.497-12.497-32.758-12.497-45.255 0L9.373 412.118c-12.497 12.497-12.497 32.758 0 45.255l45.255 45.255c12.497 12.497 32.758 12.497 45.255 0l114.745-114.745c12.497-12.497 12.497-32.758 0-45.255l-5.657-5.657 81.04-81.04 39.598 39.598-5.657 5.657c9.373 9.373 24.569 9.373 33.941 0l22.627-22.627c9.373-9.373 9.373-24.569 0-33.941l-5.657-5.657 115.705 115.705 5.657-5.657c0 0 9.372-9.372 0-33.941z"></path></svg>',
   user: '<svg viewBox="0 0 448 512"><path d="M224 256c70.7 0 128-57.3 128-128S294.7 0 224 0 96 57.3 96 128s57.3 128 128 128zm89.6 32h-16.7c-22.2 10.2-46.9 16-72.9 16s-50.6-5.8-72.9-16h-16.7C60.2 288 0 348.2 0 422.4V464c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48v-41.6c0-74.2-60.2-134.4-134.4-134.4z"></path></svg>',
 };
 
-// --- 2. FUNCIÓN DE RENDERIZADO DEL MENÚ (GLOBAL) ---
+// --- 2. FUNCIÓN DE RENDERIZADO DEL MENÚ ---
 async function renderizarMenu() {
   const esPaginaInicio = window.location.pathname.includes("inicio.html");
-  const prefijoURL = esPaginaInicio ? "/index.html" : "";
+  const prefijoURL = esPaginaInicio ? "" : "index.html";
   let itemUsuarioHTML = `<li><a href="#" data-toggle="modal" data-target="#ModalLogin" class="nav-link-item">${ICONOS.user} Acceder</a></li>`;
 
   try {
@@ -27,23 +27,23 @@ async function renderizarMenu() {
       if (session) {
         const accionEstado = esPaginaInicio
           ? "gestionarVisibilidadSeccion('estado-perfil');"
-          : "window.location.href='inicio.html';";
+          : "window.location.href='inicio.html?sec=estado-perfil';";
         const accionActualizar = esPaginaInicio
           ? "gestionarVisibilidadSeccion('actualizar-datos');"
-          : "window.location.href='inicio.html';";
+          : "window.location.href='inicio.html?sec=actualizar-datos';";
 
         itemUsuarioHTML = `
-                    <li class="nav-item dropdown">
-                        <a class="nav-link-item dropdown-toggle" href="javascript:void(0);" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            ${ICONOS.user} MI CUENTA
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right menu-guinda-compacto" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="javascript:void(0);" onclick="${accionEstado}"><i class="fas fa-info-circle"></i> ESTADO DE PERFIL</a>
-                            <a class="dropdown-item" href="javascript:void(0);" onclick="${accionActualizar}"><i class="fas fa-edit"></i> ACTUALIZAR DATOS</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="javascript:void(0);" onclick="cerrarSesion();"><i class="fas fa-external-link-alt"></i> CERRAR SESIÓN</a>
-                        </div>
-                    </li>`;
+                <li class="nav-item dropdown">
+                    <a class="nav-link-item dropdown-toggle" href="javascript:void(0);" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        ${ICONOS.user} MI CUENTA
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right menu-guinda-compacto" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="javascript:void(0);" onclick="${accionEstado}"><i class="fas fa-info-circle"></i> ESTADO DE PERFIL</a>
+                        <a class="dropdown-item" href="javascript:void(0);" onclick="${accionActualizar}"><i class="fas fa-edit"></i> ACTUALIZAR DATOS</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="javascript:void(0);" onclick="cerrarSesion();"><i class="fas fa-external-link-alt"></i> CERRAR SESIÓN</a>
+                    </div>
+                </li>`;
       }
     }
   } catch (e) {
@@ -51,22 +51,22 @@ async function renderizarMenu() {
   }
 
   const navbarHTML = `
-        <nav class="mi-navbar">
-            <div class="mi-container">
-                <a href="${prefijoURL}#inicio" class="mi-brand">Padrón de Proveedores</a>
-                <button class="menu-toggle" id="btn-toggle">
-                    <span class="bar"></span><span class="bar"></span><span class="bar"></span>
-                </button>
-                <ul class="mi-menu" id="nav-menu">
-                    <li><a href="${prefijoURL}#inicio" class="nav-link-item">${ICONOS.inicio}Inicio</a></li>
-                    <li><a href="${prefijoURL}#registro" class="nav-link-item">${ICONOS.registro}Registro</a></li>
-                    <li><a href="${prefijoURL}#consultar" class="nav-link-item">${ICONOS.consultar}Consultar</a></li>
-                    <li><a href="${prefijoURL}#atencion-aclaraciones" class="nav-link-item">${ICONOS.atencion}Atención</a></li>
-                    <li><a href="${prefijoURL}#marco" class="nav-link-item">${ICONOS.marco}Marco Legal</a></li>
-                    ${itemUsuarioHTML}
-                </ul>
-            </div>
-        </nav>`;
+    <nav class="mi-navbar">
+        <div class="mi-container">
+            <a href="${prefijoURL}#inicio" class="mi-brand">Padrón de Proveedores</a>
+            <button class="menu-toggle" id="btn-toggle">
+                <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+            </button>
+            <ul class="mi-menu" id="nav-menu">
+                <li><a href="${prefijoURL}#inicio" class="nav-link-item">${ICONOS.inicio}Inicio</a></li>
+                <li><a href="${prefijoURL}#registro" class="nav-link-item">${ICONOS.registro}Registro</a></li>
+                <li><a href="${prefijoURL}#consultar" class="nav-link-item">${ICONOS.consultar}Consultar</a></li>
+                <li><a href="${prefijoURL}#atencion-aclaraciones" class="nav-link-item">${ICONOS.atencion}Atención</a></li>
+                <li><a href="${prefijoURL}#marco" class="nav-link-item">${ICONOS.marco}Marco Legal</a></li>
+                ${itemUsuarioHTML}
+            </ul>
+        </div>
+    </nav>`;
 
   const navPlaceholder = document.getElementById("nav-placeholder");
   if (navPlaceholder) {
@@ -88,67 +88,79 @@ window.renderizarMenu = renderizarMenu;
 
 // --- 3. LÓGICA PRINCIPAL AL CARGAR EL DOM ---
 document.addEventListener("DOMContentLoaded", async function () {
-  // --- INYECCIÓN DE ESTILOS (CORREGIDO: URLs completas para evitar Timeout) ---
   const headContenido = `
-  <style>
-    .mi-navbar .mi-menu svg { width: 1.2rem !important; height: 1.2rem !important; margin-right: 8px; fill: currentColor; vertical-align: middle; flex-shrink: 0; }
-    #footer-placeholder { margin-top: auto; }
-    .active-scroll { font-weight: bold; color: #ffd700 !important; }
-    .js-link { cursor: pointer; }
-    .menu-guinda-compacto { background-color: #ab0a3d; border: 1px solid #ffd700; }
-    .menu-guinda-compacto .dropdown-item { color: white; font-weight: 600; font-size: 0.85rem; }
-    .menu-guinda-compacto .dropdown-item:hover { background-color: #323232; color: #ffd700; }
-    .menu-guinda-compacto .dropdown-divider { border-top: 1px solid rgba(255,255,255,0.2); }
-    .mi-footer { background-color: #ab0a3d; padding: 20px 0; border-top: 1px solid #e0e0e0; color: white; font-weight: 700; font-size: 1.1rem; text-transform: uppercase; }
-    .contenido-seccion { display: none !important; }
-    .contenido-seccion.activa { display: block !important; }
-</style> `;
+    <style>
+        .mi-navbar .mi-menu svg { width: 1.2rem !important; height: 1.2rem !important; margin-right: 8px; fill: currentColor; vertical-align: middle; flex-shrink: 0; }
+        .menu-guinda-compacto { background-color: #ab0a3d; border: 1px solid #ffd700; }
+        .menu-guinda-compacto .dropdown-item { color: white; font-weight: 600; font-size: 0.85rem; }
+        .menu-guinda-compacto .dropdown-item:hover { background-color: #323232; color: #ffd700; }
+        .mi-footer { background-color: #ab0a3d; padding: 20px 0; color: white; font-weight: 700; font-size: 1.1rem; text-transform: uppercase; }
+        
+        /* CORRECCIÓN DE VISIBILIDAD: Eliminado !important de 'none' para permitir cambios vía JS */
+        .contenido-seccion { display: none; } 
+        .contenido-seccion.activa { display: block !important; }
+    </style>`;
 
   if (document.getElementById("nav-placeholder")) {
     document.head.insertAdjacentHTML("beforeend", headContenido);
   }
 
-  // --- RENDERIZADO INICIAL ---
+  // Render inicial del menú
   await renderizarMenu();
 
-  // Re-chequeo para asegurar sincronización con sesión persistente
-  setTimeout(() => {
-    if (window.clientSupa) {
-      window.clientSupa.auth.getSession().then(({ data }) => {
-        if (data.session) renderizarMenu();
-      });
-    }
-  }, 150);
+  // --- LISTENER DE SUPABASE PARA LOGIN/LOGOUT ---
+  if (window.clientSupa) {
+    window.clientSupa.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN") {
+        // Si el usuario acaba de entrar y no está en inicio.html, lo mandamos allá
+        if (!window.location.pathname.includes("inicio.html")) {
+          window.location.href = "inicio.html";
+        }
+      }
+      renderizarMenu();
+    });
+  }
 
-  // --- FOOTER ---
-  const footerHTML = `<footer class="mi-footer"><div class="container-fluid"><div class="row"><div class="col-12 d-flex justify-content-center align-items-center"><p class="mb-0 text-center">© 2026 H. Ayuntamiento de Atlixco. Todos los derechos reservados.</p></div></div></div></footer>`;
+  // --- MANEJO DE SECCIONES EN INICIO.HTML ---
+  if (window.location.pathname.includes("inicio.html")) {
+    // Al cargar inicio.html, forzamos la vista de bienvenida
+    gestionarVisibilidadSeccion("seccion-bienvenida");
+
+    // Soporte para saltar a secciones específicas mediante URL (ej: ?sec=actualizar-datos)
+    const urlParams = new URLSearchParams(window.location.search);
+    const seccionCargar = urlParams.get("sec");
+    if (seccionCargar) {
+      gestionarVisibilidadSeccion(seccionCargar);
+    }
+  }
+
+  // Inyección de Footer
+  const footerHTML = `<footer class="mi-footer"><div class="container-fluid"><p class="mb-0 text-center">© 2026 H. Ayuntamiento de Atlixco. Todos los derechos reservados.</p></div></footer>`;
   const footerPlaceholder = document.getElementById("footer-placeholder");
   if (footerPlaceholder) footerPlaceholder.innerHTML = footerHTML;
+});
 
-  // --- DETECCIÓN DE SECCIONES (CORREGIDO PARA BIENVENIDA) ---
-if (window.location.pathname.includes("inicio.html")) {
-    const seccionesInicio = document.querySelectorAll(".contenido-seccion");
-    if (seccionesInicio.length > 0) {
-        // Ignoramos si es nuevo o no para la vista inicial; siempre mostramos bienvenida
-        gestionarVisibilidadSeccion("seccion-bienvenida");
-    }
-}
-
-// --- FUNCIONES GLOBALES ---
+// --- 4. FUNCIONES GLOBALES ---
 window.esUsuarioNuevo = true;
 
 function gestionarVisibilidadSeccion(idObjetivo) {
+  // Lógica de restricción para usuarios nuevos
   if (window.esUsuarioNuevo === true && idObjetivo === "estado-perfil") {
     alert(
       "Atención: Primero debes completar la captura de tus datos en la sección actual.",
     );
     return;
   }
+
   const secciones = document.querySelectorAll(".contenido-seccion");
+
+  // Ocultamos todas primero
   secciones.forEach((sec) => {
     sec.classList.remove("activa");
     sec.style.display = "none";
   });
+
+  // Mostramos la objetivo
   const seccionAMostrar = document.getElementById(idObjetivo);
   if (seccionAMostrar) {
     seccionAMostrar.classList.add("activa");
@@ -156,6 +168,7 @@ function gestionarVisibilidadSeccion(idObjetivo) {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 }
+window.gestionarVisibilidadSeccion = gestionarVisibilidadSeccion;
 
 async function cerrarSesion() {
   try {
