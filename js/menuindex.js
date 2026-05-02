@@ -90,18 +90,21 @@ window.renderizarMenu = renderizarMenu;
 document.addEventListener("DOMContentLoaded", async function () {
   // --- INYECCIÓN DE ESTILOS (CORREGIDO: URLs completas para evitar Timeout) ---
   const headContenido = `
-    <link rel="stylesheet" href="https://jsdelivr.net" />
-    <link rel="stylesheet" href="https://cloudflare.com" />
-    <style>
-        .mi-navbar .mi-menu svg { width: 1.2rem !important; height: 1.2rem !important; margin-right: 8px; fill: currentColor; vertical-align: middle; flex-shrink: 0; }
-        .menu-guinda-compacto { background-color: #ab0a3d; border: 1px solid #ffd700; }
-        .menu-guinda-compacto .dropdown-item { color: white; font-weight: 600; font-size: 0.85rem; }
-        .menu-guinda-compacto .dropdown-item:hover { background-color: #323232; color: #ffd700; }
-        .mi-footer { background-color: #ab0a3d; padding: 20px 0; color: white; text-transform: uppercase; }
-        /* Fix para pantalla blanca */
-        .contenido-seccion { display: none !important; }
-        .contenido-seccion.activa { display: block !important; }
-    </style> `;
+<link rel="stylesheet" href="https://jsdelivr.net" />
+<link rel="stylesheet" href="https://cloudflare.com" />
+<style>
+    .mi-navbar .mi-menu svg { width: 1.2rem !important; height: 1.2rem !important; margin-right: 8px; fill: currentColor; vertical-align: middle; flex-shrink: 0; }
+    #footer-placeholder { margin-top: auto; }
+    .active-scroll { font-weight: bold; color: #ffd700 !important; }
+    .js-link { cursor: pointer; }
+    .menu-guinda-compacto { background-color: #ab0a3d; border: 1px solid #ffd700; }
+    .menu-guinda-compacto .dropdown-item { color: white; font-weight: 600; font-size: 0.85rem; }
+    .menu-guinda-compacto .dropdown-item:hover { background-color: #323232; color: #ffd700; }
+    .menu-guinda-compacto .dropdown-divider { border-top: 1px solid rgba(255,255,255,0.2); }
+    .mi-footer { background-color: #ab0a3d; padding: 20px 0; border-top: 1px solid #e0e0e0; color: white; font-weight: 700; font-size: 1.1rem; text-transform: uppercase; }
+    .contenido-seccion { display: none !important; }
+    .contenido-seccion.activa { display: block !important; }
+</style> `;
 
   if (document.getElementById("nav-placeholder")) {
     document.head.insertAdjacentHTML("beforeend", headContenido);
