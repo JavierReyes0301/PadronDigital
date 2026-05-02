@@ -415,23 +415,25 @@
 
       <div id="footer-placeholder"></div>
     </main>
-    
-<script src="https://jsdelivr.net"></script>
+    <!-- 1. CARGA DE LIBRERÍAS (ORDEN CORRECTO) -->
+    <!-- Supabase JS -->
+    <script src="https://jsdelivr.net"></script>
+    <!-- Font Awesome para los iconos -->
+    <script src="https://cloudflare.com"></script>
 
-    <script src="js/conexion-supabase.js"></script>
-
-
+    <!-- 2. TUS SCRIPTS DE LÓGICA -->
+    <!-- Primero la conexión para que window.clientSupa exista -->
+    <script src="/js/conexion-supabase.js"></script>
+    <!-- Después el menú para que use la conexión -->
     <script src="/js/menuindex.js"></script>
-    <script src="js/gestion-sistema.js"></script>
-
+    <!-- Al final la gestión del sistema -->
+    <script src="/js/gestion-sistema.js"></script>
 
     <script>
-      // La lógica del menú (menuindex.js) ahora toma el control automáticamente.
-      // Solo necesitas definir esta variable aquí. Cuando conectes con Supabase,
-      // esta variable deberá alimentarse del resultado de la base de datos:
-      // true = Usuario no ha completado el padrón.
-      // false = Usuario ya tiene todos sus datos.
-      window.esUsuarioNuevo = true;
+      // IMPORTANTE: Asegúrate de que las rutas a tus archivos .js empiecen con "/"
+      // si están en la raíz para que inicio.html los encuentre correctamente.
+
+      window.esUsuarioNuevo = true; // Esto debería venir de tu base de datos después
     </script>
   </body>
 </html>
