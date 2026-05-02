@@ -47,6 +47,78 @@
     <div id="nav-placeholder"></div>
 
     <main class="flex-grow-content">
+      <!-- Nueva Sección de Bienvenida -->
+      <section id="seccion-bienvenida" class="contenido-seccion">
+        <div class="container mt-5">
+          <div class="row justify-content-center text-center">
+            <div class="col-md-10">
+              <div class="card shadow-lg border-0" style="border-radius: 15px">
+                <div class="card-body p-5">
+                  <h1
+                    class="display-4"
+                    style="color: #ab0a3d; font-weight: 700"
+                  >
+                    ¡Bienvenido al Panel de Proveedor!
+                  </h1>
+                  <p class="lead text-muted mb-5">
+                    Desde aquí puedes gestionar toda tu información y consultar
+                    el estado de tu registro.
+                  </p>
+
+                  <div class="row">
+                    <!-- Opción 1: Cargar Información -->
+                    <div class="col-md-6 mb-4">
+                      <div
+                        class="p-4 border rounded-lg h-100 shadow-sm"
+                        style="transition: 0.3s; cursor: pointer"
+                        onclick="
+                          gestionarVisibilidadSeccion('actualizar-datos')
+                        "
+                      >
+                        <i
+                          class="fas fa-cloud-upload-alt fa-4x mb-3"
+                          style="color: #ab0a3d"
+                        ></i>
+                        <h3>Cargar Información</h3>
+                        <p>
+                          Sube tus expedientes y mantén tus datos de proveedor
+                          actualizados.
+                        </p>
+                        <button class="btn btn-outline-danger btn-block">
+                          Ir a Carga
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- Opción 2: Ver Estado -->
+                    <div class="col-md-6 mb-4">
+                      <div
+                        class="p-4 border rounded-lg h-100 shadow-sm"
+                        style="transition: 0.3s; cursor: pointer"
+                        onclick="gestionarVisibilidadSeccion('estado-perfil')"
+                      >
+                        <i
+                          class="fas fa-id-card fa-4x mb-3"
+                          style="color: #ab0a3d"
+                        ></i>
+                        <h3>Estado del Perfil</h3>
+                        <p>
+                          Consulta si tus documentos han sido revisados y el
+                          estatus de tu alta.
+                        </p>
+                        <button class="btn btn-outline-danger btn-block">
+                          Ver Estatus
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section id="actualizar-datos" class="contenido-seccion">
         <div class="titulo-seccion">Actualizar <span>Datos</span></div>
         <div class="container">

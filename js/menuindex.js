@@ -125,18 +125,14 @@ document.addEventListener("DOMContentLoaded", async function () {
   const footerPlaceholder = document.getElementById("footer-placeholder");
   if (footerPlaceholder) footerPlaceholder.innerHTML = footerHTML;
 
-  // --- DETECCIÓN DE SECCIONES (Solo para inicio.html) ---
-  if (window.location.pathname.includes("inicio.html")) {
+  // --- DETECCIÓN DE SECCIONES (CORREGIDO PARA BIENVENIDA) ---
+if (window.location.pathname.includes("inicio.html")) {
     const seccionesInicio = document.querySelectorAll(".contenido-seccion");
     if (seccionesInicio.length > 0) {
-      if (window.esUsuarioNuevo === true) {
-        gestionarVisibilidadSeccion("actualizar-datos");
-      } else {
-        gestionarVisibilidadSeccion("estado-perfil");
-      }
+        // Ignoramos si es nuevo o no para la vista inicial; siempre mostramos bienvenida
+        gestionarVisibilidadSeccion("seccion-bienvenida");
     }
-  }
-});
+}
 
 // --- FUNCIONES GLOBALES ---
 window.esUsuarioNuevo = true;
