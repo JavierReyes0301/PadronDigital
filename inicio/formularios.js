@@ -1,204 +1,71 @@
 /**
- * ==========================================
- * 1. GESTIÓN DE ESTATUS E INICIO (CRÍTICO)
- * ==========================================
+ * GESTIÓN DE FORMULARIOS Y ESTADOS DE PERFIL
+ * Este archivo controla qué secciones se muestran según el estatus en Supabase.
  */
+
 async function gestionarEstadoYSecciones() {
-  const divNuevo = document.getElementById("instruccionesNuevo");
-  const divRegistrado = document.getElementById("instruccionesRegistrado");
-  const seccionActualizar = document.getElementById("actualizar-datos");
-  const seccionEstado = document.getElementById("estado-perfil");
-
   try {
+    // Obtenemos la sesión actual
     const {
-      data: { user },
-    } = await window.clientSupa.auth.getUser();
+      data: { session },
+    } = await window.clientSupa.auth.getSession();
 
-    if (!user) {
-      window.location.href = "../index.html";
+    if (!session) {
+      console.log("No hay sesión activa.");
       return;
     }
 
-    // Consultamos el perfil en la tabla proveedores
+    // Consultamos el estatus del perfil
     const { data: perfil, error } = await window.clientSupa
-      .from("proveedores")
+      .from("perfiles")
       .select("estatus")
-      .eq("id_auth", user.id)
-      .maybeSingle();
+      .eq("id", session.user.id)
+      .single();
 
-    // Ocultamos todo por defecto usando la lógica de tu CSS
-    [seccionActualizar, seccionEstado].forEach((s) => {
-      if (s) s.style.setProperty("display", "none", "important");
-    });
-
-    // LÓGICA DE DECISIÓN: ¿A dónde va el usuario?
-    if (!perfil || perfil.estatus === "Pendiente") {
-      // USUARIO NUEVO O INCOMPLETO
-      if (seccionActualizar) {
-        seccionActualizar.style.setProperty("display", "flex", "important");
-        seccionActualizar.classList.add("activa");
-      }
-      if (divNuevo) divNuevo.style.display = "block";
-      if (divRegistrado) divRegistrado.style.display = "none";
-
-      // Bloqueamos pestañas avanzadas de Actualizar Datos si es nuevo
-      document
-        .querySelectorAll("#actualizar-datos .nav-link")
-        .forEach((tab, index) => {
-          if (index > 0) tab.classList.add("disabled-tab");
-        });
-    } else {
-      // USUARIO REGISTRADO / VALIDADO
-      if (seccionEstado) {
-        seccionEstado.style.setProperty("display", "flex", "important");
-        seccionEstado.classList.add("activa");
-      }
-      if (divNuevo) divNuevo.style.display = "none";
-      if (divRegistrado) divRegistrado.style.display = "block";
+    if (error && error.code !== "PGRST116") {
+      // PGRST116 es "no se encontró registro"
+      throw error;
     }
-  } catch (err) {
-    console.error("Error validando estatus:", err);
+
+    // Lógica de visualización basada en el estatus
+    // Si el perfil no existe o está pendiente, es "Usuario Nuevo" para la UI
+    if (!perfil || perfil.estatus === "Pendiente") {
+      window.esUsuarioNuevo = true;
+      console.log("Perfil pendiente o nuevo: Redirigiendo a Actualizar Datos.");
+      gestionarVisibilidadSeccion("actualizar-datos");
+    } else {
+      window.esUsuarioNuevo = false;
+      console.log("Perfil validado: Redirigiendo a Estado de Perfil.");
+      gestionarVisibilidadSeccion("estado-perfil");
+    }
+  } catch (error) {
+    console.error("Error en la gestión de estados:", error.message);
   }
 }
 
-/**
- * ==========================================
- * 2. CONFIGURACIÓN DE SELECTS DINÁMICOS
- * ==========================================
- */
-const configurarSelectsUbicacion = () => {
-  const selectEstado = document.getElementById("select-estado");
-  const selectMunicipio = document.getElementById("select-municipio");
+// Función para validar formularios antes de enviarlos (Mejora de UX)
+function validarFormularioProveedor(idForm) {
+  const form = document.getElementById(idForm);
+  if (!form) return false;
 
-  if (selectEstado && selectMunicipio) {
-    selectEstado.addEventListener("change", async (e) => {
-      const estadoId = e.target.value;
-      if (!estadoId) return;
+  const inputs = form.querySelectorAll("input[required], select[required]");
+  let valido = true;
 
-      selectMunicipio.innerHTML =
-        '<option value="">Cargando municipios...</option>';
-
-      const { data, error } = await window.clientSupa
-        .from("municipios")
-        .select("id, nombre")
-        .eq("estado_id", estadoId)
-        .order("nombre", { ascending: true });
-
-      if (data) {
-        selectMunicipio.innerHTML =
-          '<option value="">Selecciona un municipio</option>';
-        data.forEach((muni) => {
-          const option = new Option(muni.nombre, muni.id);
-          selectMunicipio.add(option);
-        });
-      }
-    });
-  }
-};
-
-/**
- * ==========================================
- * 3. LÓGICA DE DESBLOQUEO Y NAVEGACIÓN
- * ==========================================
- */
-function toggleDesbloqueo(id) {
-  const el = document.getElementById(id);
-  const parent = el?.closest(".form-group-custom") || el?.parentElement;
-  const lockIcon = parent?.querySelector(".fa-lock");
-  const unlockIcon = parent?.querySelector(".fa-lock-open");
-
-  if (el) {
-    el.readOnly = false;
-    el.disabled = false;
-    el.style.pointerEvents = "auto";
-    el.style.backgroundColor = "moccasin";
-    el.focus();
-
-    if (lockIcon) lockIcon.classList.add("d-none");
-    if (unlockIcon) unlockIcon.classList.remove("d-none");
-  }
-}
-
-function navegarAPestana(targetHash) {
-  const tabLink = document.querySelector(`.nav-link[href="${targetHash}"]`);
-  if (tabLink) {
-    $(tabLink).removeClass("disabled-tab disabled").css({
-      "pointer-events": "auto",
-      opacity: "1",
-    });
-    $(tabLink).tab("show");
-    window.location.hash = targetHash;
-  }
-}
-
-/**
- * ==========================================
- * 4. GESTIÓN DE INDICADORES (CHECKMARKS)
- * ==========================================
- */
-function vincularIndicador(idInput, idIcono) {
-  const input = document.getElementById(idInput);
-  const icono = document.getElementById(idIcono);
-
-  if (input && icono) {
-    input.addEventListener("input", () => {
-      if (input.value.trim().length > 0) {
-        icono.className = "fas fa-check-circle color-guinda";
-      } else {
-        icono.className = "far fa-circle";
-      }
-    });
-  }
-}
-
-/**
- * ==========================================
- * 5. INICIALIZACIÓN GLOBAL
- * ==========================================
- */
-document.addEventListener("DOMContentLoaded", () => {
-  // 1. Decidir qué sección mostrar
-  gestionarEstadoYSecciones();
-
-  // 2. Configuración de Ubicación
-  configurarSelectsUbicacion();
-
-  // 3. Mapeo de Indicadores
-  vincularIndicador("txtRFC", "icono-rfc");
-  vincularIndicador("txtRazonSocial", "icono-razon");
-  vincularIndicador("txtCalle", "icono-calle");
-  vincularIndicador("txtNumExt", "icono-num");
-
-  // 4. Mayúsculas automáticas (excepto email/pass)
-  document.querySelectorAll("input").forEach((input) => {
-    input.addEventListener("input", function () {
-      if (this.type !== "password" && this.type !== "email") {
-        this.value = this.value.toUpperCase();
-      }
-    });
+  inputs.forEach((input) => {
+    if (!input.value.trim()) {
+      input.classList.add("is-invalid");
+      valido = false;
+    } else {
+      input.classList.remove("is-invalid");
+    }
   });
 
-  // 5. Hash Navigation
-  if (window.location.hash) {
-    $(`.nav-tabs a[href="${window.location.hash}"]`).tab("show");
+  return valido;
+}
+
+// Inicialización automática si estamos en la página de inicio
+document.addEventListener("DOMContentLoaded", () => {
+  if (window.location.pathname.includes("inicio.html")) {
+    gestionarEstadoYSecciones();
   }
 });
-
-/**
- * ==========================================
- * 6. CIERRE DE SESIÓN
- * ==========================================
- */
-async function cerrarSesion() {
-  if (confirm("¿Está seguro que desea cerrar su sesión?")) {
-    try {
-      await window.clientSupa.auth.signOut();
-      sessionStorage.clear();
-      localStorage.clear();
-      window.location.href = "../index.html";
-    } catch (error) {
-      console.error("Error al salir:", error);
-      window.location.href = "../index.html";
-    }
-  }
-}

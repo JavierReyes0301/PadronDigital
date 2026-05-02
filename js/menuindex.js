@@ -1,10 +1,9 @@
 document.addEventListener("DOMContentLoaded", async function () {
-  // --- 0. INYECCIÓN DE RECURSOS ---
+  // --- 0. CONFIGURACIÓN INICIAL Y RECURSOS ---
   const headContenido = `
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
     <style>
-      /* Estabilización de iconos para evitar variaciones visuales */
       .mi-navbar .mi-menu svg { 
         width: 1.2rem !important; 
         height: 1.2rem !important; 
@@ -16,14 +15,10 @@ document.addEventListener("DOMContentLoaded", async function () {
       #footer-placeholder { margin-top: auto; }
       .active-scroll { font-weight: bold; color: #ffd700 !important; }
       .js-link { cursor: pointer; }
-      
-      /* Estilos del Dropdown Mi Cuenta */
       .menu-guinda-compacto { background-color: #ab0a3d; border: 1px solid #ffd700; }
       .menu-guinda-compacto .dropdown-item { color: white; font-weight: 600; font-size: 0.85rem; }
       .menu-guinda-compacto .dropdown-item:hover { background-color: #323232; color: #ffd700; }
       .menu-guinda-compacto .dropdown-divider { border-top: 1px solid rgba(255,255,255,0.2); }
-      
-      /* Ajuste de Footer para que coincida con el Menú */
       .mi-footer { 
         background-color: #ab0a3d; 
         padding: 20px 0; 
@@ -40,7 +35,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.head.insertAdjacentHTML("beforeend", headContenido);
   }
 
-  // --- 1. ICONOS SVG ---
   const ICONOS = {
     inicio:
       '<svg viewBox="0 0 576 512"><path d="M280.37 148.26L96 300.11V464a16 16 0 0 0 16 16l112.06-.29a16 16 0 0 0 15.92-16V368a16 16 0 0 1 16-16h64a16 16 0 0 1 16 16v95.64a16 16 0 0 0 16 16.05L464 480a16 16 0 0 0 16-16V300L295.67 148.26a12.19 12.19 0 0 0-15.3 0zM571.6 251.47L488 182.56V44.05a12 12 0 0 0-12-12h-56a12 12 0 0 0-12 12v72.61L318.47 43a48 48 0 0 0-61 0L4.34 251.47a12 12 0 0 0-1.6 16.9l25.5 31A12 12 0 0 0 45.15 301l235.22-193.74a12.19 12.19 0 0 1 15.3 0L530.9 301a12 12 0 0 0 16.9-1.6l25.5-31a12 12 0 0 0-1.7-16.93z"></path></svg>',
@@ -55,71 +49,102 @@ document.addEventListener("DOMContentLoaded", async function () {
     user: '<svg viewBox="0 0 448 512"><path d="M224 256c70.7 0 128-57.3 128-128S294.7 0 224 0 96 57.3 96 128s57.3 128 128 128zm89.6 32h-16.7c-22.2 10.2-46.9 16-72.9 16s-50.6-5.8-72.9-16h-16.7C60.2 288 0 348.2 0 422.4V464c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48v-41.6c0-74.2-60.2-134.4-134.4-134.4z"></path></svg>',
   };
 
-  // --- DETECCIÓN DE PÁGINA ---
   const esPaginaInicio = window.location.pathname.includes("inicio.html");
   const prefijoURL = esPaginaInicio ? "index.html" : "";
 
-  // --- 2. LÓGICA DE SESIÓN (MEJORADA) ---
-  let itemUsuario = `<li><a href="#" data-toggle="modal" data-target="#ModalLogin" class="nav-link-item">${ICONOS.user} Acceder</a></li>`;
+  // --- 1. FUNCIÓN DE RENDERIZADO DEL MENÚ ---
+  async function renderizarMenu() {
+    let itemUsuario = `<li><a href="#" data-toggle="modal" data-target="#ModalLogin" class="nav-link-item">${ICONOS.user} Acceder</a></li>`;
 
-  try {
-    // Si Supabase no ha cargado, esperamos un poco
-    if (!window.clientSupa) {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+    try {
+      if (window.clientSupa) {
+        const {
+          data: { session },
+        } = await window.clientSupa.auth.getSession();
+
+        if (session) {
+          const accionEstado = esPaginaInicio
+            ? "gestionarVisibilidadSeccion('estado-perfil');"
+            : "window.location.href='inicio.html';";
+          const accionActualizar = esPaginaInicio
+            ? "gestionarVisibilidadSeccion('actualizar-datos');"
+            : "window.location.href='inicio.html';";
+
+          itemUsuario = `
+            <li class="nav-item dropdown">
+              <a class="nav-link-item dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                ${ICONOS.user} MI CUENTA
+              </a>
+              <div class="dropdown-menu dropdown-menu-right menu-guinda-compacto" aria-labelledby="navbarDropdown">
+                <a class="dropdown-item" href="javascript:void(0);" onclick="${accionEstado}"><i class="fas fa-info-circle"></i> ESTADO DE PERFIL</a>
+                <a class="dropdown-item" href="javascript:void(0);" onclick="${accionActualizar}"><i class="fas fa-edit"></i> ACTUALIZAR DATOS</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="javascript:void(0);" onclick="cerrarSesion();"><i class="fas fa-external-link-alt"></i> CERRAR SESIÓN</a>
+              </div>
+            </li>
+          `;
+        }
+      }
+    } catch (e) {
+      console.error("Error en validación de sesión:", e);
     }
 
-    if (window.clientSupa) {
-      const {
-        data: { session },
-      } = await window.clientSupa.auth.getSession();
+    const navbarHTML = `
+      <nav class="mi-navbar">
+        <div class="mi-container">
+          <a href="${prefijoURL}#inicio" class="mi-brand">Padrón de Proveedores</a>
+          <button class="menu-toggle" id="btn-toggle">
+            <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+          </button>
+          <ul class="mi-menu" id="nav-menu">
+            <li><a href="${prefijoURL}#inicio" class="nav-link-item">${ICONOS.inicio}Inicio</a></li>
+            <li><a href="${prefijoURL}#registro" class="nav-link-item">${ICONOS.registro}Registro</a></li>
+            <li><a href="${prefijoURL}#consultar" class="nav-link-item">${ICONOS.consultar}Consultar</a></li>
+            <li><a href="${prefijoURL}#atencion-aclaraciones" class="nav-link-item">${ICONOS.atencion}Atención</a></li>
+            <li><a href="${prefijoURL}#marco" class="nav-link-item">${ICONOS.marco}Marco Legal</a></li>
+            ${itemUsuario}
+          </ul>
+        </div>
+      </nav>
+    `;
 
-      if (session) {
-        const accionEstado = esPaginaInicio
-          ? "gestionarVisibilidadSeccion('estado-perfil');"
-          : "window.location.href='inicio.html';";
-        const accionActualizar = esPaginaInicio
-          ? "gestionarVisibilidadSeccion('actualizar-datos');"
-          : "window.location.href='inicio.html';";
+    const navPlaceholder = document.getElementById("nav-placeholder");
+    if (navPlaceholder) {
+      navPlaceholder.innerHTML = navbarHTML;
 
-        itemUsuario = `
-          <li class="nav-item dropdown">
-            <a class="nav-link-item dropdown-toggle" href="javascript:void(0);" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              ${ICONOS.user} MI CUENTA
-            </a>
-            <div class="dropdown-menu dropdown-menu-right menu-guinda-compacto" aria-labelledby="navbarDropdown">
-              <a class="dropdown-item" href="javascript:void(0);" onclick="${accionEstado}"><i class="fas fa-info-circle"></i> ESTADO DE PERFIL</a>
-              <a class="dropdown-item" href="javascript:void(0);" onclick="${accionActualizar}"><i class="fas fa-edit"></i> ACTUALIZAR DATOS</a>
-              <div class="dropdown-divider"></div>
-              <a class="dropdown-item" href="javascript:void(0);" onclick="cerrarSesion();"><i class="fas fa-external-link-alt"></i> CERRAR SESIÓN</a>
-            </div>
-          </li>
-        `;
+      // Re-vincular eventos del menú móvil
+      const btnToggle = document.getElementById("btn-toggle");
+      const navMenu = document.getElementById("nav-menu");
+      if (btnToggle && navMenu) {
+        btnToggle.onclick = () => {
+          navMenu.classList.toggle("active");
+          btnToggle.classList.toggle("open");
+        };
+      }
+
+      // Re-inicializar Dropdowns de Bootstrap (Crítico para que funcione el click)
+      if (typeof $ !== "undefined" && $(".dropdown-toggle").length) {
+        $(".dropdown-toggle").dropdown();
       }
     }
-  } catch (e) {
-    console.error("Error en validación de sesión:", e);
   }
 
-  // --- 3. CONTENIDO HTML (NAVBAR Y FOOTER) ---
-  const navbarHTML = `
-    <nav class="mi-navbar">
-      <div class="mi-container">
-        <a href="${prefijoURL}#inicio" class="mi-brand">Padrón de Proveedores</a>
-        <button class="menu-toggle" id="btn-toggle">
-          <span class="bar"></span><span class="bar"></span><span class="bar"></span>
-        </button>
-        <ul class="mi-menu" id="nav-menu">
-          <li><a href="${prefijoURL}#inicio" class="nav-link-item">${ICONOS.inicio}Inicio</a></li>
-          <li><a href="${prefijoURL}#registro" class="nav-link-item">${ICONOS.registro}Registro</a></li>
-          <li><a href="${prefijoURL}#consultar" class="nav-link-item">${ICONOS.consultar}Consultar</a></li>
-          <li><a href="${prefijoURL}#atencion-aclaraciones" class="nav-link-item">${ICONOS.atencion}Atención</a></li>
-          <li><a href="${prefijoURL}#marco" class="nav-link-item">${ICONOS.marco}Marco Legal</a></li>
-          ${itemUsuario}
-        </ul>
-      </div>
-    </nav>
-  `;
+  // --- 2. GESTIÓN DE SESIÓN EN TIEMPO REAL ---
+  if (window.clientSupa) {
+    // Escucha cambios: SIGN_IN, SIGN_OUT, etc.
+    window.clientSupa.auth.onAuthStateChange((event, session) => {
+      renderizarMenu();
 
+      // Si estamos en inicio.html y el usuario se loguea, actualizamos las vistas
+      if (event === "SIGNED_IN" && esPaginaInicio) {
+        if (typeof gestionarEstadoYSecciones === "function") {
+          gestionarEstadoYSecciones();
+        }
+      }
+    });
+  }
+
+  // --- 3. INYECCIÓN DE FOOTER ---
   const footerHTML = `
     <footer class="mi-footer">
       <div class="container-fluid"> 
@@ -132,29 +157,13 @@ document.addEventListener("DOMContentLoaded", async function () {
     </footer>
   `;
 
-  // --- 4. INYECCIÓN ---
-  const navPlaceholder = document.getElementById("nav-placeholder");
-  if (navPlaceholder) navPlaceholder.innerHTML = navbarHTML;
-
   const footerPlaceholder = document.getElementById("footer-placeholder");
   if (footerPlaceholder) footerPlaceholder.innerHTML = footerHTML;
 
-  // Re-inicializar Dropdowns de Bootstrap
-  if (typeof $ !== "undefined" && $(".dropdown-toggle").length) {
-    $(".dropdown-toggle").dropdown();
-  }
+  // --- 4. EJECUCIÓN INICIAL ---
+  await renderizarMenu();
 
-  // Toggle Mobile
-  const btnToggle = document.getElementById("btn-toggle");
-  const navMenu = document.getElementById("nav-menu");
-  if (btnToggle && navMenu) {
-    btnToggle.onclick = () => {
-      navMenu.classList.toggle("active");
-      btnToggle.classList.toggle("open");
-    };
-  }
-
-  // --- REDIRECCIONES ---
+  // --- REDIRECCIONES EXTERNAS ---
   document.addEventListener("click", function (e) {
     const target = e.target.closest(".js-link");
     if (target) {
@@ -163,7 +172,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
   });
 
-  // --- SCROLLSPY ---
+  // --- SCROLLSPY (Solo fuera de inicio.html) ---
   if (!esPaginaInicio) {
     window.addEventListener("scroll", () => {
       const sections = document.querySelectorAll("section[id]");
@@ -189,23 +198,13 @@ document.addEventListener("DOMContentLoaded", async function () {
       });
     });
   }
-
-  // --- DETECCIÓN INICIAL SEGURA (Solo para inicio.html) ---
-  const seccionesInicio = document.querySelectorAll(".contenido-seccion");
-  if (seccionesInicio.length > 0) {
-    if (window.esUsuarioNuevo === true) {
-      gestionarVisibilidadSeccion("actualizar-datos");
-    } else {
-      gestionarVisibilidadSeccion("estado-perfil");
-    }
-  }
 });
 
 // --- FUNCIONES GLOBALES ---
-
 window.esUsuarioNuevo = true;
 
 function gestionarVisibilidadSeccion(idObjetivo) {
+  // Solo aplicamos restricción si es usuario nuevo y quiere ir al estado de perfil
   if (window.esUsuarioNuevo === true && idObjetivo === "estado-perfil") {
     alert(
       "Atención: Primero debes completar la captura de tus datos en la sección actual.",
