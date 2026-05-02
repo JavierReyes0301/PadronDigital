@@ -161,7 +161,7 @@ async function cerrarSesion() {
   try {
     if (window.clientSupa) {
       await window.clientSupa.auth.signOut();
-      window.location.href = "index.html";
+      window.location.href = "/index.html";
     }
   } catch (e) {
     console.error("Error al cerrar sesión:", e);
