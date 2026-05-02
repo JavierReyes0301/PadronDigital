@@ -1,4 +1,4 @@
-// --- 1. ICONOS SVG (Se mantienen globales para usarse en el renderizado) ---
+// --- 1. ICONOS SVG ---
 const ICONOS = {
   inicio:
     '<svg viewBox="0 0 576 512"><path d="M280.37 148.26L96 300.11V464a16 16 0 0 0 16 16l112.06-.29a16 16 0 0 0 15.92-16V368a16 16 0 0 1 16-16h64a16 16 0 0 1 16 16v95.64a16 16 0 0 0 16 16.05L464 480a16 16 0 0 0 16-16V300L295.67 148.26a12.19 12.19 0 0 0-15.3 0zM571.6 251.47L488 182.56V44.05a12 12 0 0 0-12-12h-56a12 12 0 0 0-12 12v72.61L318.47 43a48 48 0 0 0-61 0L4.34 251.47a12 12 0 0 0-1.6 16.9l25.5 31A12 12 0 0 0 45.15 301l235.22-193.74a12.19 12.19 0 0 1 15.3 0L530.9 301a12 12 0 0 0 16.9-1.6l25.5-31a12 12 0 0 0-1.7-16.93z"></path></svg>',
@@ -16,12 +16,12 @@ const ICONOS = {
 // --- 2. FUNCIÓN DE RENDERIZADO DEL MENÚ (GLOBAL) ---
 async function renderizarMenu() {
   const esPaginaInicio = window.location.pathname.includes("inicio.html");
-  const prefijoURL = esPaginaInicio ? "index.html" : "";
+  const prefijoURL = esPaginaInicio ? "/index.html" : "";
   let itemUsuarioHTML = `<li><a href="#" data-toggle="modal" data-target="#ModalLogin" class="nav-link-item">${ICONOS.user} Acceder</a></li>`;
 
   try {
     if (window.clientSupa) {
-      // Obtenemos sesión actualizada
+      // Obtenemos sesión actualizada forzando espera si es necesario
       const {
         data: { session },
       } = await window.clientSupa.auth.getSession();
@@ -72,6 +72,7 @@ async function renderizarMenu() {
   const navPlaceholder = document.getElementById("nav-placeholder");
   if (navPlaceholder) {
     navPlaceholder.innerHTML = navbarHTML;
+    // Eventos del toggle
     const btnToggle = document.getElementById("btn-toggle");
     const navMenu = document.getElementById("nav-menu");
     if (btnToggle && navMenu) {
@@ -80,19 +81,17 @@ async function renderizarMenu() {
         btnToggle.classList.toggle("open");
       };
     }
-    // Re-inicializar Dropdowns de Bootstrap
+    // Re-inicializar Dropdowns
     if (typeof $ !== "undefined" && $(".dropdown-toggle").length) {
       $(".dropdown-toggle").dropdown();
     }
   }
 }
-
-// ✅ EXPOSICIÓN GLOBAL (Fuera de cualquier listener para que sea visible de inmediato)
 window.renderizarMenu = renderizarMenu;
 
-// --- 3. LÓGICA PRINCIPAL AL CARGAR EL DOM ---
+// --- 3. LÓGICA PRINCIPAL ---
 document.addEventListener("DOMContentLoaded", async function () {
-  // --- INYECCIÓN DE ESTILOS ---
+  // --- INYECCIÓN DE ESTILOS Y LIBRERÍAS ---
   const headContenido = `
     <link rel="stylesheet" href="https://jsdelivr.net" />
     <link rel="stylesheet" href="https://cloudflare.com" />
@@ -106,45 +105,37 @@ document.addEventListener("DOMContentLoaded", async function () {
         .menu-guinda-compacto .dropdown-item:hover { background-color: #323232; color: #ffd700; }
         .menu-guinda-compacto .dropdown-divider { border-top: 1px solid rgba(255,255,255,0.2); }
         .mi-footer { background-color: #ab0a3d; padding: 20px 0; border-top: 1px solid #e0e0e0; color: white; font-weight: 700; font-size: 1.1rem; text-transform: uppercase; }
+        /* Evitar saltos visuales en inicio.html */
+        .contenido-seccion { display: none; }
+        .contenido-seccion.activa { display: block; }
     </style> `;
 
   if (document.getElementById("nav-placeholder")) {
     document.head.insertAdjacentHTML("beforeend", headContenido);
   }
 
-  // --- INYECCIÓN INICIAL DEL MENÚ ---
+  // --- RENDERIZADO CON ESPERA DE SESIÓN ---
   await renderizarMenu();
 
-  // --- INYECCIÓN DEL FOOTER ---
-  const footerHTML = `
-    <footer class="mi-footer">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-12 d-flex justify-content-center align-items-center">
-                    <p class="mb-0 text-center">© 2026 H. Ayuntamiento de Atlixco. Todos los derechos reservados.</p>
-                </div>
-            </div>
-        </div>
-    </footer>`;
+  // Re-chequeo rápido por si Supabase tardó en cargar la sesión persistente
+  setTimeout(() => {
+    if (window.clientSupa) {
+      window.clientSupa.auth.getSession().then(({ data }) => {
+        if (data.session) renderizarMenu();
+      });
+    }
+  }, 200);
 
+  // --- FOOTER ---
+  const footerHTML = `<footer class="mi-footer"><div class="container-fluid"><div class="row"><div class="col-12 d-flex justify-content-center align-items-center"><p class="mb-0 text-center">© 2026 H. Ayuntamiento de Atlixco. Todos los derechos reservados.</p></div></div></div></footer>`;
   const footerPlaceholder = document.getElementById("footer-placeholder");
   if (footerPlaceholder) footerPlaceholder.innerHTML = footerHTML;
 
-  // --- REDIRECCIONES Y EVENTOS ---
-  document.addEventListener("click", function (e) {
-    const target = e.target.closest(".js-link");
-    if (target) {
-      const url = target.getAttribute("data-url");
-      if (url) window.open(url, "_blank");
-    }
-  });
-
-  // --- SCROLLSPY (Solo en Index) ---
+  // --- SCROLLSPY ---
   const esPaginaInicio = window.location.pathname.includes("inicio.html");
   if (!esPaginaInicio) {
     window.addEventListener("scroll", () => {
       const sections = document.querySelectorAll("section[id]");
-      if (sections.length === 0) return;
       const scrollY = window.pageYOffset;
       sections.forEach((current) => {
         const sectionHeight = current.offsetHeight;
@@ -167,7 +158,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   }
 
-  // --- DETECCIÓN DE SECCIONES (inicio.html) ---
+  // --- DETECCIÓN DE SECCIONES ---
   const seccionesInicio = document.querySelectorAll(".contenido-seccion");
   if (seccionesInicio.length > 0) {
     if (window.esUsuarioNuevo === true) {
@@ -178,7 +169,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 });
 
-// --- FUNCIONES GLOBALES DE NAVEGACIÓN ---
+// --- FUNCIONES GLOBALES ---
 window.esUsuarioNuevo = true;
 
 function gestionarVisibilidadSeccion(idObjetivo) {
@@ -189,7 +180,6 @@ function gestionarVisibilidadSeccion(idObjetivo) {
     return;
   }
   const secciones = document.querySelectorAll(".contenido-seccion");
-  if (secciones.length === 0) return;
   secciones.forEach((sec) => {
     sec.classList.remove("activa");
     sec.style.display = "none";
@@ -202,21 +192,14 @@ function gestionarVisibilidadSeccion(idObjetivo) {
   }
 }
 
-// --- FUNCIÓN CERRAR SESIÓN ---
 async function cerrarSesion() {
   try {
     if (window.clientSupa) {
-      const { error } = await window.clientSupa.auth.signOut();
-      if (error) throw error;
-
-      if (window.location.pathname.includes("inicio.html")) {
-        window.location.href = "index.html";
-      } else {
-        renderizarMenu(); // Actualizar menú si ya estamos en index
-      }
+      await window.clientSupa.auth.signOut();
+      window.location.href = "index.html";
     }
   } catch (e) {
-    console.error("Error crítico en cerrarSesion:", e);
+    console.error("Error al cerrar sesión:", e);
   }
 }
 window.cerrarSesion = cerrarSesion;
