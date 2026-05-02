@@ -8,9 +8,6 @@ const supabaseKey =
 
 // 1. VALIDACIÓN Y CREACIÓN DEL CLIENTE
 if (typeof supabase !== "undefined") {
-  // NOTA: Para que el usuario NO tenga que loguearse cada vez que refresca,
-  // persistSession DEBE SER true. El error "object is not extensible"
-  // usualmente ocurre por Object.freeze, el cual ya eliminaste.
   const options = {
     auth: {
       autoRefreshToken: true,
@@ -29,16 +26,22 @@ if (typeof supabase !== "undefined") {
   window.clientSupa = instanciaSupa;
   console.log("🟢 Supabase: Cliente inicializado correctamente.");
 
-  // 3. ESCUCHADOR DE CAMBIOS DE SESIÓN
-  // Importante: Usamos renderizarMenu() que es el nombre en tu archivo principal
+  // 3. ESCUCHADOR DE CAMBIOS DE SESIÓN (AJUSTADO)
   window.clientSupa.auth.onAuthStateChange((event, session) => {
-    console.log("⚡ Supabase Evento:", event);
+    console.log("⚡ Supabase Evento detectado:", event);
 
-    // Verificamos si la función existe antes de llamarla
-    if (typeof renderizarMenu === "function") {
-      renderizarMenu();
-    } else if (typeof actualizarMenuUsuario === "function") {
-      actualizarMenuUsuario();
+    // Buscamos la función de redibujar el menú en el ámbito global (window)
+    // Esto soluciona el conflicto si la función se llama renderizarMenu o actualizarMenuUsuario
+    const funcActualizar =
+      window.renderizarMenu || window.actualizarMenuUsuario;
+
+    if (typeof funcActualizar === "function") {
+      console.log("🔄 Actualizando interfaz de usuario...");
+      funcActualizar();
+    } else {
+      console.warn(
+        "⚠️ Advertencia: No se encontró la función para redibujar el menú (renderizarMenu).",
+      );
     }
   });
 } else {

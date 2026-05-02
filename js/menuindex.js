@@ -40,6 +40,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   // --- 2. FUNCIÓN DE RENDERIZADO DEL MENÚ (REUTILIZABLE) ---
   async function renderizarMenu() {
+    // Quitamos la línea de aquí adentro
     let itemUsuarioHTML = `<li><a href="#" data-toggle="modal" data-target="#ModalLogin" class="nav-link-item">${ICONOS.user} Acceder</a></li>`;
 
     try {
@@ -56,17 +57,17 @@ document.addEventListener("DOMContentLoaded", async function () {
             : "window.location.href='inicio.html';";
 
           itemUsuarioHTML = `
-                        <li class="nav-item dropdown">
-                            <a class="nav-link-item dropdown-toggle" href="javascript:void(0);" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                ${ICONOS.user} MI CUENTA
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-right menu-guinda-compacto" aria-labelledby="navbarDropdown">
-                                <a class="dropdown-item" href="javascript:void(0);" onclick="${accionEstado}"><i class="fas fa-info-circle"></i> ESTADO DE PERFIL</a>
-                                <a class="dropdown-item" href="javascript:void(0);" onclick="${accionActualizar}"><i class="fas fa-edit"></i> ACTUALIZAR DATOS</a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="javascript:void(0);" onclick="cerrarSesion();"><i class="fas fa-external-link-alt"></i> CERRAR SESIÓN</a>
-                            </div>
-                        </li>`;
+                    <li class="nav-item dropdown">
+                        <a class="nav-link-item dropdown-toggle" href="javascript:void(0);" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            ${ICONOS.user} MI CUENTA
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right menu-guinda-compacto" aria-labelledby="navbarDropdown">
+                            <a class="dropdown-item" href="javascript:void(0);" onclick="${accionEstado}"><i class="fas fa-info-circle"></i> ESTADO DE PERFIL</a>
+                            <a class="dropdown-item" href="javascript:void(0);" onclick="${accionActualizar}"><i class="fas fa-edit"></i> ACTUALIZAR DATOS</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="javascript:void(0);" onclick="cerrarSesion();"><i class="fas fa-external-link-alt"></i> CERRAR SESIÓN</a>
+                        </div>
+                    </li>`;
         }
       }
     } catch (e) {
@@ -74,27 +75,26 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
 
     const navbarHTML = `
-            <nav class="mi-navbar">
-                <div class="mi-container">
-                    <a href="${prefijoURL}#inicio" class="mi-brand">Padrón de Proveedores</a>
-                    <button class="menu-toggle" id="btn-toggle">
-                        <span class="bar"></span><span class="bar"></span><span class="bar"></span>
-                    </button>
-                    <ul class="mi-menu" id="nav-menu">
-                        <li><a href="${prefijoURL}#inicio" class="nav-link-item">${ICONOS.inicio}Inicio</a></li>
-                        <li><a href="${prefijoURL}#registro" class="nav-link-item">${ICONOS.registro}Registro</a></li>
-                        <li><a href="${prefijoURL}#consultar" class="nav-link-item">${ICONOS.consultar}Consultar</a></li>
-                        <li><a href="${prefijoURL}#atencion-aclaraciones" class="nav-link-item">${ICONOS.atencion}Atención</a></li>
-                        <li><a href="${prefijoURL}#marco" class="nav-link-item">${ICONOS.marco}Marco Legal</a></li>
-                        ${itemUsuarioHTML}
-                    </ul>
-                </div>
-            </nav>`;
+        <nav class="mi-navbar">
+            <div class="mi-container">
+                <a href="${prefijoURL}#inicio" class="mi-brand">Padrón de Proveedores</a>
+                <button class="menu-toggle" id="btn-toggle">
+                    <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+                </button>
+                <ul class="mi-menu" id="nav-menu">
+                    <li><a href="${prefijoURL}#inicio" class="nav-link-item">${ICONOS.inicio}Inicio</a></li>
+                    <li><a href="${prefijoURL}#registro" class="nav-link-item">${ICONOS.registro}Registro</a></li>
+                    <li><a href="${prefijoURL}#consultar" class="nav-link-item">${ICONOS.consultar}Consultar</a></li>
+                    <li><a href="${prefijoURL}#atencion-aclaraciones" class="nav-link-item">${ICONOS.atencion}Atención</a></li>
+                    <li><a href="${prefijoURL}#marco" class="nav-link-item">${ICONOS.marco}Marco Legal</a></li>
+                    ${itemUsuarioHTML}
+                </ul>
+            </div>
+        </nav>`;
 
     const navPlaceholder = document.getElementById("nav-placeholder");
     if (navPlaceholder) {
       navPlaceholder.innerHTML = navbarHTML;
-      // Reinicializar eventos de toggle mobile
       const btnToggle = document.getElementById("btn-toggle");
       const navMenu = document.getElementById("nav-menu");
       if (btnToggle && navMenu) {
@@ -103,12 +103,14 @@ document.addEventListener("DOMContentLoaded", async function () {
           btnToggle.classList.toggle("open");
         };
       }
-      // Re-inicializar Dropdowns de Bootstrap
       if (typeof $ !== "undefined" && $(".dropdown-toggle").length) {
         $(".dropdown-toggle").dropdown();
       }
     }
   }
+
+  // ✅ AQUÍ ES DONDE DEBE IR, AFUERA DE LA FUNCIÓN:
+  window.renderizarMenu = renderizarMenu;
 
   // --- 3. INYECCIÓN INICIAL ---
   await renderizarMenu();
