@@ -90,7 +90,6 @@ window.renderizarMenu = renderizarMenu;
 document.addEventListener("DOMContentLoaded", async function () {
   // --- INYECCIÓN DE ESTILOS (CORREGIDO: URLs completas para evitar Timeout) ---
   const headContenido = `
-  <link rel="stylesheet" href="https://jsdelivr.net" />
 <link rel="stylesheet" href="https://cloudflare.com" />
 
 <style>
