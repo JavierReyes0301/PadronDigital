@@ -90,6 +90,9 @@ window.renderizarMenu = renderizarMenu;
 document.addEventListener("DOMContentLoaded", async function () {
   // --- INYECCIÓN DE ESTILOS (CORREGIDO: URLs completas para evitar Timeout) ---
   const headContenido = `
+  <link rel="stylesheet" href="https://jsdelivr.net" />
+<link rel="stylesheet" href="https://cloudflare.com" />
+
 <style>
     .mi-navbar .mi-menu svg { width: 1.2rem !important; height: 1.2rem !important; margin-right: 8px; fill: currentColor; vertical-align: middle; flex-shrink: 0; }
     #footer-placeholder { margin-top: auto; }

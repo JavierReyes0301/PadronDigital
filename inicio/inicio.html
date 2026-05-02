@@ -419,19 +419,12 @@
 
       <div id="footer-placeholder"></div>
     </main>
-    <!-- 1. CARGA DE LIBRERÍAS (ORDEN CORRECTO) -->
-    <!-- Supabase JS -->
-    <script src="https://jsdelivr.net"></script>
-    <!-- Font Awesome para los iconos -->
-    <script src="https://cloudflare.com"></script>
 
-    <!-- 2. TUS SCRIPTS DE LÓGICA -->
-    <!-- Primero la conexión para que window.clientSupa exista -->
     <script src="/js/conexion-supabase.js"></script>
-    <!-- Después el menú para que use la conexión -->
     <script src="/js/menuindex.js"></script>
-    <!-- Al final la gestión del sistema -->
     <script src="/js/gestion-sistema.js"></script>
+    <!-- Corrige también este que te marca 404 -->
+    <script src="/inicio/formularios.js" defer></script>
 
     <script>
       // IMPORTANTE: Asegúrate de que las rutas a tus archivos .js empiecen con "/"
