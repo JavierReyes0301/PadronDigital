@@ -16,10 +16,14 @@ const ICONOS = {
 // --- 2. FUNCIÓN DE RENDERIZADO DEL MENÚ ---
 async function renderizarMenu() {
   const navPlaceholder = document.getElementById("nav-placeholder");
-  if (!navPlaceholder) return; // Si no existe el div, no hace nada
+  if (!navPlaceholder) return;
 
-  const esPaginaInicio = window.location.pathname.includes("inicio.html");
-  const prefijoURL = esPaginaInicio ? "" : "index.html";
+  const pathActual = window.location.pathname;
+  const esPaginaInicio = pathActual.includes("/inicio/inicio.html");
+
+  const baseRaiz = esPaginaInicio ? "../index.html" : "index.html";
+  const baseInicio = esPaginaInicio ? "inicio.html" : "inicio/inicio.html";
+
   let itemUsuarioHTML = `<li><a href="#" data-toggle="modal" data-target="#ModalLogin" class="nav-link-item">${ICONOS.user} Acceder</a></li>`;
 
   try {
@@ -28,12 +32,15 @@ async function renderizarMenu() {
         data: { session },
       } = await window.clientSupa.auth.getSession();
       if (session) {
+        const accionBienvenida = esPaginaInicio
+          ? "gestionarVisibilidadSeccion('seccion-bienvenida');"
+          : `window.location.href='${baseInicio}?sec=seccion-bienvenida';`;
         const accionEstado = esPaginaInicio
           ? "gestionarVisibilidadSeccion('estado-perfil');"
-          : "window.location.href='inicio.html?sec=estado-perfil';";
+          : `window.location.href='${baseInicio}?sec=estado-perfil';`;
         const accionActualizar = esPaginaInicio
           ? "gestionarVisibilidadSeccion('actualizar-datos');"
-          : "window.location.href='inicio.html?sec=actualizar-datos';";
+          : `window.location.href='${baseInicio}?sec=actualizar-datos';`;
 
         itemUsuarioHTML = `
                 <li class="nav-item dropdown">
@@ -41,6 +48,7 @@ async function renderizarMenu() {
                         ${ICONOS.user} MI CUENTA
                     </a>
                     <div class="dropdown-menu dropdown-menu-right menu-guinda-compacto" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="javascript:void(0);" onclick="${accionBienvenida}"><i class="fas fa-home"></i> INICIO</a>
                         <a class="dropdown-item" href="javascript:void(0);" onclick="${accionEstado}"><i class="fas fa-info-circle"></i> ESTADO DE PERFIL</a>
                         <a class="dropdown-item" href="javascript:void(0);" onclick="${accionActualizar}"><i class="fas fa-edit"></i> ACTUALIZAR DATOS</a>
                         <div class="dropdown-divider"></div>
@@ -56,16 +64,14 @@ async function renderizarMenu() {
   const navbarHTML = `
     <nav class="mi-navbar">
         <div class="mi-container">
-            <a href="index.html#inicio" class="mi-brand">Padrón de Proveedores</a>
-            <button class="menu-toggle" id="btn-toggle">
-                <span class="bar"></span><span class="bar"></span><span class="bar"></span>
-            </button>
+            <a href="${baseRaiz}#inicio" class="mi-brand">Padrón de Proveedores</a>
+            <button class="menu-toggle" id="btn-toggle"><span class="bar"></span><span class="bar"></span><span class="bar"></span></button>
             <ul class="mi-menu" id="nav-menu">
-                <li><a href="index.html#inicio" class="nav-link-item">${ICONOS.inicio}Inicio</a></li>
-                <li><a href="index.html#registro" class="nav-link-item">${ICONOS.registro}Registro</a></li>
-                <li><a href="index.html#consultar" class="nav-link-item">${ICONOS.consultar}Consultar</a></li>
-                <li><a href="index.html#atencion-aclaraciones" class="nav-link-item">${ICONOS.atencion}Atención</a></li>
-                <li><a href="index.html#marco" class="nav-link-item">${ICONOS.marco}Marco Legal</a></li>
+                <li><a href="${baseRaiz}#inicio" class="nav-link-item">${ICONOS.inicio}Inicio</a></li>
+                <li><a href="${baseRaiz}#registro" class="nav-link-item">${ICONOS.registro}Registro</a></li>
+                <li><a href="${baseRaiz}#consultar" class="nav-link-item">${ICONOS.consultar}Consultar</a></li>
+                <li><a href="${baseRaiz}#atencion-aclaraciones" class="nav-link-item">${ICONOS.atencion}Atención</a></li>
+                <li><a href="${baseRaiz}#marco" class="nav-link-item">${ICONOS.marco}Marco Legal</a></li>
                 ${itemUsuarioHTML}
             </ul>
         </div>
@@ -73,7 +79,6 @@ async function renderizarMenu() {
 
   navPlaceholder.innerHTML = navbarHTML;
 
-  // Listeners del menú móvil
   const btnToggle = document.getElementById("btn-toggle");
   const navMenu = document.getElementById("nav-menu");
   if (btnToggle && navMenu) {
@@ -82,7 +87,6 @@ async function renderizarMenu() {
       btnToggle.classList.toggle("open");
     };
   }
-  // Inicializar dropdown si Bootstrap está presente
   if (typeof $ !== "undefined" && $(".dropdown-toggle").length) {
     $(".dropdown-toggle").dropdown();
   }
@@ -91,12 +95,12 @@ window.renderizarMenu = renderizarMenu;
 
 // --- 3. LÓGICA PRINCIPAL ---
 document.addEventListener("DOMContentLoaded", async function () {
-  // Inyectar estilos siempre
   const headContenido = `
     <style>
         .mi-navbar .mi-menu svg { width: 1.2rem !important; height: 1.2rem !important; margin-right: 8px; fill: currentColor; vertical-align: middle; flex-shrink: 0; }
         .menu-guinda-compacto { background-color: #ab0a3d; border: 1px solid #ffd700; z-index: 9999; }
-        .menu-guinda-compacto .dropdown-item { color: white; font-weight: 600; font-size: 0.85rem; }
+        .menu-guinda-compacto .dropdown-item { color: white; font-weight: 600; font-size: 0.85rem; padding: 10px 20px; }
+        .menu-guinda-compacto .dropdown-item i { margin-right: 10px; width: 15px; text-align: center; }
         .menu-guinda-compacto .dropdown-item:hover { background-color: #323232; color: #ffd700; }
         .mi-footer { background-color: #ab0a3d; padding: 20px 0; color: white; text-align: center; text-transform: uppercase; font-weight: 700; }
         .contenido-seccion { display: none; } 
@@ -104,30 +108,41 @@ document.addEventListener("DOMContentLoaded", async function () {
     </style>`;
   document.head.insertAdjacentHTML("beforeend", headContenido);
 
-  // Renderizar menú de inmediato
   await renderizarMenu();
 
-  // Listener para cambios de sesión
+  // Listener para redirección tras LOGIN
   if (window.clientSupa) {
     window.clientSupa.auth.onAuthStateChange((event, session) => {
-      if (
-        event === "SIGNED_IN" &&
-        !window.location.pathname.includes("inicio.html")
-      ) {
-        window.location.href = "inicio.html";
+      if (event === "SIGNED_IN") {
+        const enInicio = window.location.pathname.includes("inicio.html");
+        if (!enInicio) {
+          // Reemplazamos el historial al entrar para que "atrás" no vuelva al login
+          window.location.replace("inicio/inicio.html");
+        }
       }
       renderizarMenu();
     });
   }
 
-  // Configuración específica de inicio.html
+  // --- MANEJO DE HISTORIAL Y SECCIONES ---
   if (window.location.pathname.includes("inicio.html")) {
     const urlParams = new URLSearchParams(window.location.search);
-    const seccionCargar = urlParams.get("sec") || "seccion-bienvenida";
-    gestionarVisibilidadSeccion(seccionCargar);
+    const seccionInicial = urlParams.get("sec") || "seccion-bienvenida";
+
+    // Carga inicial sin añadir al historial para evitar bucles
+    gestionarVisibilidadSeccion(seccionInicial, false);
+
+    // Detectar cuando el usuario presiona "Regresar" en el navegador
+    window.onpopstate = function (event) {
+      if (event.state && event.state.id) {
+        gestionarVisibilidadSeccion(event.state.id, false);
+      } else {
+        // Si vuelve al inicio de la cadena, forzamos bienvenida
+        gestionarVisibilidadSeccion("seccion-bienvenida", false);
+      }
+    };
   }
 
-  // Footer
   const footerPlaceholder = document.getElementById("footer-placeholder");
   if (footerPlaceholder) {
     footerPlaceholder.innerHTML = `<footer class="mi-footer">© 2026 H. Ayuntamiento de Atlixco. Todos los derechos reservados.</footer>`;
@@ -137,21 +152,28 @@ document.addEventListener("DOMContentLoaded", async function () {
 // --- 4. FUNCIONES GLOBALES ---
 window.esUsuarioNuevo = true;
 
-function gestionarVisibilidadSeccion(idObjetivo) {
+function gestionarVisibilidadSeccion(idObjetivo, addToHistory = true) {
   if (window.esUsuarioNuevo === true && idObjetivo === "estado-perfil") {
     alert("Atención: Primero debes completar la captura de tus datos.");
     return;
   }
+
   const secciones = document.querySelectorAll(".contenido-seccion");
   secciones.forEach((sec) => {
     sec.classList.remove("activa");
     sec.style.display = "none";
   });
+
   const seccionAMostrar = document.getElementById(idObjetivo);
   if (seccionAMostrar) {
     seccionAMostrar.classList.add("activa");
     seccionAMostrar.style.display = "block";
     window.scrollTo({ top: 0, behavior: "smooth" });
+
+    // AGREGAR AL HISTORIAL DEL NAVEGADOR
+    if (addToHistory) {
+      history.pushState({ id: idObjetivo }, "", `?sec=${idObjetivo}`);
+    }
   }
 }
 window.gestionarVisibilidadSeccion = gestionarVisibilidadSeccion;
@@ -160,7 +182,8 @@ async function cerrarSesion() {
   try {
     if (window.clientSupa) {
       await window.clientSupa.auth.signOut();
-      window.location.href = "/index.html";
+      const enSubcarpeta = window.location.pathname.includes("/inicio/");
+      window.location.href = enSubcarpeta ? "../index.html" : "index.html";
     }
   } catch (e) {
     console.error("Error al cerrar sesión:", e);
