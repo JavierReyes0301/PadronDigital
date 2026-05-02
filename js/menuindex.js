@@ -21,7 +21,6 @@ async function renderizarMenu() {
 
   try {
     if (window.clientSupa) {
-      // Obtenemos sesión actualizada forzando espera si es necesario
       const {
         data: { session },
       } = await window.clientSupa.auth.getSession();
@@ -72,7 +71,6 @@ async function renderizarMenu() {
   const navPlaceholder = document.getElementById("nav-placeholder");
   if (navPlaceholder) {
     navPlaceholder.innerHTML = navbarHTML;
-    // Eventos del toggle
     const btnToggle = document.getElementById("btn-toggle");
     const navMenu = document.getElementById("nav-menu");
     if (btnToggle && navMenu) {
@@ -81,7 +79,6 @@ async function renderizarMenu() {
         btnToggle.classList.toggle("open");
       };
     }
-    // Re-inicializar Dropdowns
     if (typeof $ !== "undefined" && $(".dropdown-toggle").length) {
       $(".dropdown-toggle").dropdown();
     }
@@ -89,9 +86,9 @@ async function renderizarMenu() {
 }
 window.renderizarMenu = renderizarMenu;
 
-// --- 3. LÓGICA PRINCIPAL ---
+// --- 3. LÓGICA PRINCIPAL AL CARGAR EL DOM ---
 document.addEventListener("DOMContentLoaded", async function () {
-  // --- INYECCIÓN DE ESTILOS Y LIBRERÍAS ---
+  // --- INYECCIÓN DE ESTILOS (CORREGIDO: URLs completas para evitar Timeout) ---
   const headContenido = `
     <link rel="stylesheet" href="https://jsdelivr.net" />
     <link rel="stylesheet" href="https://cloudflare.com" />
@@ -105,7 +102,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         .menu-guinda-compacto .dropdown-item:hover { background-color: #323232; color: #ffd700; }
         .menu-guinda-compacto .dropdown-divider { border-top: 1px solid rgba(255,255,255,0.2); }
         .mi-footer { background-color: #ab0a3d; padding: 20px 0; border-top: 1px solid #e0e0e0; color: white; font-weight: 700; font-size: 1.1rem; text-transform: uppercase; }
-        /* Evitar saltos visuales en inicio.html */
         .contenido-seccion { display: none; }
         .contenido-seccion.activa { display: block; }
     </style> `;
@@ -114,57 +110,32 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.head.insertAdjacentHTML("beforeend", headContenido);
   }
 
-  // --- RENDERIZADO CON ESPERA DE SESIÓN ---
+  // --- RENDERIZADO INICIAL ---
   await renderizarMenu();
 
-  // Re-chequeo rápido por si Supabase tardó en cargar la sesión persistente
+  // Re-chequeo para asegurar sincronización con sesión persistente
   setTimeout(() => {
     if (window.clientSupa) {
       window.clientSupa.auth.getSession().then(({ data }) => {
         if (data.session) renderizarMenu();
       });
     }
-  }, 200);
+  }, 150);
 
   // --- FOOTER ---
   const footerHTML = `<footer class="mi-footer"><div class="container-fluid"><div class="row"><div class="col-12 d-flex justify-content-center align-items-center"><p class="mb-0 text-center">© 2026 H. Ayuntamiento de Atlixco. Todos los derechos reservados.</p></div></div></div></footer>`;
   const footerPlaceholder = document.getElementById("footer-placeholder");
   if (footerPlaceholder) footerPlaceholder.innerHTML = footerHTML;
 
-  // --- SCROLLSPY ---
-  const esPaginaInicio = window.location.pathname.includes("inicio.html");
-  if (!esPaginaInicio) {
-    window.addEventListener("scroll", () => {
-      const sections = document.querySelectorAll("section[id]");
-      const scrollY = window.pageYOffset;
-      sections.forEach((current) => {
-        const sectionHeight = current.offsetHeight;
-        const sectionTop = current.offsetTop - 150;
-        const sectionId = current.getAttribute("id");
-        const navLink = document.querySelector(
-          `.mi-menu a[href*="${sectionId}"]`,
-        );
-        if (navLink) {
-          if (scrollY > sectionTop && scrollY <= sectionTop + sectionHeight) {
-            document
-              .querySelectorAll(".nav-link-item")
-              .forEach((el) => el.classList.remove("active-scroll"));
-            navLink.classList.add("active-scroll");
-          } else {
-            navLink.classList.remove("active-scroll");
-          }
-        }
-      });
-    });
-  }
-
-  // --- DETECCIÓN DE SECCIONES ---
-  const seccionesInicio = document.querySelectorAll(".contenido-seccion");
-  if (seccionesInicio.length > 0) {
-    if (window.esUsuarioNuevo === true) {
-      gestionarVisibilidadSeccion("actualizar-datos");
-    } else {
-      gestionarVisibilidadSeccion("estado-perfil");
+  // --- DETECCIÓN DE SECCIONES (Solo para inicio.html) ---
+  if (window.location.pathname.includes("inicio.html")) {
+    const seccionesInicio = document.querySelectorAll(".contenido-seccion");
+    if (seccionesInicio.length > 0) {
+      if (window.esUsuarioNuevo === true) {
+        gestionarVisibilidadSeccion("actualizar-datos");
+      } else {
+        gestionarVisibilidadSeccion("estado-perfil");
+      }
     }
   }
 });
