@@ -15,6 +15,9 @@ const ICONOS = {
 
 // --- 2. FUNCIÓN DE RENDERIZADO DEL MENÚ ---
 async function renderizarMenu() {
+  const navPlaceholder = document.getElementById("nav-placeholder");
+  if (!navPlaceholder) return; // Si no existe el div, no hace nada
+
   const esPaginaInicio = window.location.pathname.includes("inicio.html");
   const prefijoURL = esPaginaInicio ? "" : "index.html";
   let itemUsuarioHTML = `<li><a href="#" data-toggle="modal" data-target="#ModalLogin" class="nav-link-item">${ICONOS.user} Acceder</a></li>`;
@@ -53,114 +56,97 @@ async function renderizarMenu() {
   const navbarHTML = `
     <nav class="mi-navbar">
         <div class="mi-container">
-            <a href="${prefijoURL}#inicio" class="mi-brand">Padrón de Proveedores</a>
+            <a href="index.html#inicio" class="mi-brand">Padrón de Proveedores</a>
             <button class="menu-toggle" id="btn-toggle">
                 <span class="bar"></span><span class="bar"></span><span class="bar"></span>
             </button>
             <ul class="mi-menu" id="nav-menu">
-                <li><a href="${prefijoURL}#inicio" class="nav-link-item">${ICONOS.inicio}Inicio</a></li>
-                <li><a href="${prefijoURL}#registro" class="nav-link-item">${ICONOS.registro}Registro</a></li>
-                <li><a href="${prefijoURL}#consultar" class="nav-link-item">${ICONOS.consultar}Consultar</a></li>
-                <li><a href="${prefijoURL}#atencion-aclaraciones" class="nav-link-item">${ICONOS.atencion}Atención</a></li>
-                <li><a href="${prefijoURL}#marco" class="nav-link-item">${ICONOS.marco}Marco Legal</a></li>
+                <li><a href="index.html#inicio" class="nav-link-item">${ICONOS.inicio}Inicio</a></li>
+                <li><a href="index.html#registro" class="nav-link-item">${ICONOS.registro}Registro</a></li>
+                <li><a href="index.html#consultar" class="nav-link-item">${ICONOS.consultar}Consultar</a></li>
+                <li><a href="index.html#atencion-aclaraciones" class="nav-link-item">${ICONOS.atencion}Atención</a></li>
+                <li><a href="index.html#marco" class="nav-link-item">${ICONOS.marco}Marco Legal</a></li>
                 ${itemUsuarioHTML}
             </ul>
         </div>
     </nav>`;
 
-  const navPlaceholder = document.getElementById("nav-placeholder");
-  if (navPlaceholder) {
-    navPlaceholder.innerHTML = navbarHTML;
-    const btnToggle = document.getElementById("btn-toggle");
-    const navMenu = document.getElementById("nav-menu");
-    if (btnToggle && navMenu) {
-      btnToggle.onclick = () => {
-        navMenu.classList.toggle("active");
-        btnToggle.classList.toggle("open");
-      };
-    }
-    if (typeof $ !== "undefined" && $(".dropdown-toggle").length) {
-      $(".dropdown-toggle").dropdown();
-    }
+  navPlaceholder.innerHTML = navbarHTML;
+
+  // Listeners del menú móvil
+  const btnToggle = document.getElementById("btn-toggle");
+  const navMenu = document.getElementById("nav-menu");
+  if (btnToggle && navMenu) {
+    btnToggle.onclick = () => {
+      navMenu.classList.toggle("active");
+      btnToggle.classList.toggle("open");
+    };
+  }
+  // Inicializar dropdown si Bootstrap está presente
+  if (typeof $ !== "undefined" && $(".dropdown-toggle").length) {
+    $(".dropdown-toggle").dropdown();
   }
 }
 window.renderizarMenu = renderizarMenu;
 
-// --- 3. LÓGICA PRINCIPAL AL CARGAR EL DOM ---
+// --- 3. LÓGICA PRINCIPAL ---
 document.addEventListener("DOMContentLoaded", async function () {
+  // Inyectar estilos siempre
   const headContenido = `
     <style>
         .mi-navbar .mi-menu svg { width: 1.2rem !important; height: 1.2rem !important; margin-right: 8px; fill: currentColor; vertical-align: middle; flex-shrink: 0; }
-        .menu-guinda-compacto { background-color: #ab0a3d; border: 1px solid #ffd700; }
+        .menu-guinda-compacto { background-color: #ab0a3d; border: 1px solid #ffd700; z-index: 9999; }
         .menu-guinda-compacto .dropdown-item { color: white; font-weight: 600; font-size: 0.85rem; }
         .menu-guinda-compacto .dropdown-item:hover { background-color: #323232; color: #ffd700; }
-        .mi-footer { background-color: #ab0a3d; padding: 20px 0; color: white; font-weight: 700; font-size: 1.1rem; text-transform: uppercase; }
-        
-        /* CORRECCIÓN DE VISIBILIDAD: Eliminado !important de 'none' para permitir cambios vía JS */
+        .mi-footer { background-color: #ab0a3d; padding: 20px 0; color: white; text-align: center; text-transform: uppercase; font-weight: 700; }
         .contenido-seccion { display: none; } 
         .contenido-seccion.activa { display: block !important; }
     </style>`;
+  document.head.insertAdjacentHTML("beforeend", headContenido);
 
-  if (document.getElementById("nav-placeholder")) {
-    document.head.insertAdjacentHTML("beforeend", headContenido);
-  }
-
-  // Render inicial del menú
+  // Renderizar menú de inmediato
   await renderizarMenu();
 
-  // --- LISTENER DE SUPABASE PARA LOGIN/LOGOUT ---
+  // Listener para cambios de sesión
   if (window.clientSupa) {
     window.clientSupa.auth.onAuthStateChange((event, session) => {
-      if (event === "SIGNED_IN") {
-        // Si el usuario acaba de entrar y no está en inicio.html, lo mandamos allá
-        if (!window.location.pathname.includes("inicio.html")) {
-          window.location.href = "inicio.html";
-        }
+      if (
+        event === "SIGNED_IN" &&
+        !window.location.pathname.includes("inicio.html")
+      ) {
+        window.location.href = "inicio.html";
       }
       renderizarMenu();
     });
   }
 
-  // --- MANEJO DE SECCIONES EN INICIO.HTML ---
+  // Configuración específica de inicio.html
   if (window.location.pathname.includes("inicio.html")) {
-    // Al cargar inicio.html, forzamos la vista de bienvenida
-    gestionarVisibilidadSeccion("seccion-bienvenida");
-
-    // Soporte para saltar a secciones específicas mediante URL (ej: ?sec=actualizar-datos)
     const urlParams = new URLSearchParams(window.location.search);
-    const seccionCargar = urlParams.get("sec");
-    if (seccionCargar) {
-      gestionarVisibilidadSeccion(seccionCargar);
-    }
+    const seccionCargar = urlParams.get("sec") || "seccion-bienvenida";
+    gestionarVisibilidadSeccion(seccionCargar);
   }
 
-  // Inyección de Footer
-  const footerHTML = `<footer class="mi-footer"><div class="container-fluid"><p class="mb-0 text-center">© 2026 H. Ayuntamiento de Atlixco. Todos los derechos reservados.</p></div></footer>`;
+  // Footer
   const footerPlaceholder = document.getElementById("footer-placeholder");
-  if (footerPlaceholder) footerPlaceholder.innerHTML = footerHTML;
+  if (footerPlaceholder) {
+    footerPlaceholder.innerHTML = `<footer class="mi-footer">© 2026 H. Ayuntamiento de Atlixco. Todos los derechos reservados.</footer>`;
+  }
 });
 
 // --- 4. FUNCIONES GLOBALES ---
 window.esUsuarioNuevo = true;
 
 function gestionarVisibilidadSeccion(idObjetivo) {
-  // Lógica de restricción para usuarios nuevos
   if (window.esUsuarioNuevo === true && idObjetivo === "estado-perfil") {
-    alert(
-      "Atención: Primero debes completar la captura de tus datos en la sección actual.",
-    );
+    alert("Atención: Primero debes completar la captura de tus datos.");
     return;
   }
-
   const secciones = document.querySelectorAll(".contenido-seccion");
-
-  // Ocultamos todas primero
   secciones.forEach((sec) => {
     sec.classList.remove("activa");
     sec.style.display = "none";
   });
-
-  // Mostramos la objetivo
   const seccionAMostrar = document.getElementById(idObjetivo);
   if (seccionAMostrar) {
     seccionAMostrar.classList.add("activa");
