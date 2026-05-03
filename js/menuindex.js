@@ -43,18 +43,26 @@ async function renderizarMenu() {
           : `window.location.href='${baseInicio}?sec=actualizar-datos';`;
 
         itemUsuarioHTML = `
-                <li class="nav-item dropdown">
-                    <a class="nav-link-item dropdown-toggle" href="javascript:void(0);" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        ${ICONOS.user} MI CUENTA
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right menu-guinda-compacto" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="javascript:void(0);" onclick="${accionBienvenida}"><i class="fas fa-home"></i> INICIO</a>
-                        <a class="dropdown-item" href="javascript:void(0);" onclick="${accionEstado}"><i class="fas fa-info-circle"></i> ESTADO DE PERFIL</a>
-                        <a class="dropdown-item" href="javascript:void(0);" onclick="${accionActualizar}"><i class="fas fa-edit"></i> ACTUALIZAR DATOS</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="javascript:void(0);" onclick="cerrarSesion();"><i class="fas fa-external-link-alt"></i> CERRAR SESIÓN</a>
-                    </div>
-                </li>`;
+ <li class="nav-item dropdown">
+    <a class="nav-link-item dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown">
+        ${ICONOS.user} MI CUENTA
+    </a>
+    <div class="dropdown-menu dropdown-menu-right menu-guinda-compacto">
+        <a class="dropdown-item nav-action-link" href="#" data-sec="seccion-bienvenida">
+            <i class="fas fa-home"></i> INICIO
+        </a>
+        <a class="dropdown-item nav-action-link" href="#" data-sec="estado-perfil">
+            <i class="fas fa-info-circle"></i> ESTADO DE PERFIL
+        </a>
+        <a class="dropdown-item nav-action-link" href="#" data-sec="actualizar-datos">
+            <i class="fas fa-edit"></i> ACTUALIZAR DATOS
+        </a>
+        <div class="dropdown-divider"></div>
+        <a class="dropdown-item" href="#" id="btn-logout">
+            <i class="fas fa-external-link-alt"></i> CERRAR SESIÓN
+        </a>
+    </div>
+ </li>`;
       }
     }
   } catch (e) {
