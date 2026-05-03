@@ -132,17 +132,7 @@ const modalesPadron = `
             </ul>
           </div>
         </div>
-
-        <div class="caja-formatos-municipio">
-          <h4 class="subtitulo-requisito">Formatos Proporcionados por el Municipio</h4>
-          <ul class="lista-requisitos">
-            <li>Solicitud de registro/revalidación.</li>
-            <li>Carta de no impedimento (Art. 77).</li>
-            <li>Carta de manifiesto de no inhabilitado.</li>
-            <li>Carta de no conflicto de interés.</li>
-            <li>Carta de cumplimiento fiscal.</li>
-          </ul>
-        </div>
+        
       </div>
     </div>
   </div>
