@@ -205,6 +205,7 @@ const modalesPadron = `
     </div>
 </div>
 `;
+
 // Insertar modales en el cuerpo (Solo los que no son el Login)
 document.body.insertAdjacentHTML("beforeend", modalesPadron);
 
@@ -306,5 +307,93 @@ window.abrirPreguntas = () => $("#ModalPreguntas").modal("show");
 document.addEventListener("click", (e) => {
   if (e.target.id === "btnAccesarInicio") {
     window.location.href = "inicio.html";
+  }
+});
+document.body.insertAdjacentHTML("beforeend", modalesPadron);
+
+// --- 2. CONTROLADOR DE APERTURA (FORZADO) ---
+// Usamos delegación de eventos para capturar clics en botones aunque se carguen después
+document.addEventListener("click", function (e) {
+  // Buscar si el elemento clicado o su padre tienen el atributo para abrir modales
+  const trigger = e.target.closest('[data-toggle="modal"]');
+  if (trigger) {
+    e.preventDefault();
+    const targetId = trigger.getAttribute("data-target");
+    $(targetId).modal("show");
+  }
+});
+
+// --- 3. FUNCIONES GLOBALES DE APERTURA ---
+// Estas funciones se aseguran de que jQuery encuentre el modal en el DOM actual
+window.abrirRegistro = function () {
+  $("#ModalRegistro").modal("show");
+};
+window.abrirLogin = function () {
+  $("#ModalLogin").modal("show");
+};
+window.abrirRequisitos = function () {
+  $("#modalRequisitos").modal("show");
+};
+window.abrirFormatos = function () {
+  $("#modalFormatos").modal("show");
+};
+window.abrirPreguntas = function () {
+  $("#ModalPreguntas").modal("show");
+};
+
+// --- 4. LÓGICA DE ENVÍO (REGISTRO Y LOGIN) ---
+document.addEventListener("submit", async (e) => {
+  const targetId = e.target.id;
+  if (!["FormRegistro", "FormaLogin"].includes(targetId)) return;
+  e.preventDefault();
+
+  const btn = e.target.querySelector('button[type="submit"]');
+  const formData = new FormData(e.target);
+  const datos = Object.fromEntries(formData);
+
+  if (targetId === "FormRegistro") {
+    const rfcLimpio = datos.rfc
+      .trim()
+      .toUpperCase()
+      .replace(/[^A-Z0-9]/g, "");
+    if (!document.getElementById("checkAviso").checked)
+      return alert("Debe aceptar el aviso de privacidad.");
+
+    try {
+      btn.disabled = true;
+      btn.innerText = "PROCESANDO...";
+      const { error } = await window.clientSupa.auth.signUp({
+        email: datos.correo.toLowerCase().trim(),
+        password: datos.pwd,
+        options: { data: { rfc: rfcLimpio, tipo_persona: datos.tipo_persona } },
+      });
+      if (error) throw error;
+      alert("Registro exitoso. Revisa tu correo.");
+      $("#ModalRegistro").modal("hide");
+    } catch (err) {
+      alert("Error: " + err.message);
+    } finally {
+      btn.disabled = false;
+      btn.innerText = "CONTINUAR REGISTRO";
+    }
+  }
+
+  if (targetId === "FormaLogin") {
+    try {
+      btn.disabled = true;
+      btn.innerText = "ENTRANDO...";
+      const { error } = await window.clientSupa.auth.signInWithPassword({
+        email: datos.correo_login.toLowerCase().trim(),
+        password: datos.password_login,
+      });
+      if (error) throw error;
+      $("#ModalLogin").modal("hide");
+      window.location.href = "inicio/inicio.html";
+    } catch (err) {
+      alert("Error: " + err.message);
+    } finally {
+      btn.disabled = false;
+      btn.innerText = "INICIAR SESIÓN";
+    }
   }
 });
