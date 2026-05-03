@@ -205,7 +205,7 @@ const modalesPadron = `
     </div>
 </div>
 `;
-
+// Insertar modales en el cuerpo (Solo los que no son el Login)
 document.body.insertAdjacentHTML("beforeend", modalesPadron);
 
 // --- 2. CONTROLADOR DE FORMULARIOS (DELEGACIÓN DE EVENTOS) ---
