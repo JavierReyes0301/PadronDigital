@@ -246,25 +246,6 @@ const modalesPadron = `
         </div>
     </div>
 </div>
-<div class="modal fade" id="ModalBienvenida" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
-    <div class="modal-dialog modal-dialog-centered" style="max-width: 400px;">
-        <div class="modal-content text-center" style="border-radius: 20px; padding: 30px; border: none; font-family: 'Montserrat', sans-serif;">
-            <div class="modal-body">
-                <div class="mb-4 d-flex justify-content-center">
-                    <div style="width: 100px; height: 100px; border-radius: 50%; border: 4px solid #28a745; display: flex; align-items: center; justify-content: center;">
-                        <i class="fas fa-check" style="font-size: 50px; color: #28a745;"></i>
-                    </div>
-                </div>
-                <h1 style="font-weight: 800; color: #323232; font-size: 1.8rem; margin-bottom: 5px;">¡Bienvenido!</h1>
-                <p id="txtRFCBienvenida" style="font-size: 1.3rem; color: #666; font-weight: 500; margin-bottom: 30px;"></p>
-                <button id="btnAccesarInicio" class="btn-sitio" 
-                    style="width: 100%; background-color: #ab0a3d !important; color: #ffffff !important; font-weight: 700 !important; border: none; padding: 15px 0; border-radius: 8px;">
-                    ACCESAR
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
 `;
 document.body.insertAdjacentHTML("beforeend", modalesPadron);
 

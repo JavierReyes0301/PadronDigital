@@ -418,5 +418,31 @@
       async
       defer
     ></script>
+    <script>
+      // Esperamos a que el DOM esté completamente cargado
+      document.addEventListener("DOMContentLoaded", function () {
+        // Buscamos todos los elementos con la clase 'js-link'
+        const interactiveDivs = document.querySelectorAll(".js-link");
+
+        interactiveDivs.forEach((div) => {
+          // Cambiamos el cursor a "manita" para que el usuario sepa que es clickable
+          div.style.cursor = "pointer";
+
+          div.addEventListener("click", function () {
+            // Extraemos la ruta del atributo data-url
+            const destination = this.getAttribute("data-url");
+
+            if (destination) {
+              window.location.href = destination;
+            } else {
+              console.error(
+                "Falta el atributo data-url en este elemento:",
+                this,
+              );
+            }
+          });
+        });
+      });
+    </script>
   </body>
 </html>
