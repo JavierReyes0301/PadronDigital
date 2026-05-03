@@ -12,6 +12,7 @@ if (typeof supabase !== "undefined") {
     auth: {
       autoRefreshToken: true,
       persistSession: true,
+      storage: window.sessionStorage,
       detectSessionInUrl: true,
     },
   };

@@ -24,8 +24,9 @@ async function renderizarMenu() {
   const baseRaiz = esPaginaInicio ? "../index.html" : "index.html";
   const baseInicio = esPaginaInicio ? "inicio.html" : "inicio/inicio.html";
 
-  let itemUsuarioHTML = `<li><a href="#" data-toggle="modal" data-target="#ModalLogin" class="nav-link-item">${ICONOS.user} Acceder</a></li>`;
-
+  let itemUsuarioHTML = `<li id="cargando-auth" class="nav-link-item" style="color: #666;">
+                            <i class="fas fa-spinner fa-spin"></i> Verificando...
+                         </li>`;
   try {
     if (window.clientSupa) {
       const {
