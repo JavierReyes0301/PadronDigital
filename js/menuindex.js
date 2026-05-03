@@ -97,15 +97,46 @@ window.renderizarMenu = renderizarMenu;
 document.addEventListener("DOMContentLoaded", async function () {
   const headContenido = `
     <style>
-        .mi-navbar .mi-menu svg { width: 1.2rem !important; height: 1.2rem !important; margin-right: 8px; fill: currentColor; vertical-align: middle; flex-shrink: 0; }
-        .menu-guinda-compacto { background-color: #ab0a3d; border: 1px solid #ffd700; z-index: 9999; }
-        .menu-guinda-compacto .dropdown-item { color: white; font-weight: 600; font-size: 0.85rem; padding: 10px 20px; }
-        .menu-guinda-compacto .dropdown-item i { margin-right: 10px; width: 15px; text-align: center; }
-        .menu-guinda-compacto .dropdown-item:hover { background-color: #323232; color: #ffd700; }
-        .mi-footer { background-color: #ab0a3d; padding: 20px 0; color: white; text-align: center; text-transform: uppercase; font-weight: 700; }
-        .contenido-seccion { display: none; } 
-        .contenido-seccion.activa { display: block !important; }
-    </style>`;
+    /* 1. CONFIGURACIÓN DEL CUERPO PARA FOOTER AL FINAL */
+    html, body {
+        height: 100%;
+        margin: 0;
+    }
+    body {
+        display: flex;
+        flex-direction: column;
+    }
+    #nav-placeholder {
+        flex-shrink: 0; /* Que el nav no se encoja */
+    }
+    /* Este es el truco: el contenedor principal crece y empuja al footer */
+    main, .container, #contenedor-principal-inicio { 
+        flex: 1 0 auto; 
+    }
+    #footer-placeholder {
+        flex-shrink: 0; /* El footer mantiene su tamaño */
+    }
+
+    /* 2. ESTILOS VISUALES ORIGINALES */
+    .mi-navbar .mi-menu svg { width: 1.2rem !important; height: 1.2rem !important; margin-right: 8px; fill: currentColor; vertical-align: middle; flex-shrink: 0; }
+    .menu-guinda-compacto { background-color: #ab0a3d; border: 1px solid #ffd700; z-index: 9999; }
+    .menu-guinda-compacto .dropdown-item { color: white; font-weight: 600; font-size: 0.85rem; padding: 10px 20px; }
+    .menu-guinda-compacto .dropdown-item i { margin-right: 10px; width: 15px; text-align: center; }
+    .menu-guinda-compacto .dropdown-item:hover { background-color: #323232; color: #ffd700; }
+    
+    .mi-footer { 
+        background-color: #ab0a3d; 
+        padding: 20px 0; 
+        color: white; 
+        text-align: center; 
+        text-transform: uppercase; 
+        font-weight: 700;
+        width: 100%;
+    }
+
+    .contenido-seccion { display: none; } 
+    .contenido-seccion.activa { display: block !important; }
+</style>`;
   document.head.insertAdjacentHTML("beforeend", headContenido);
 
   await renderizarMenu();

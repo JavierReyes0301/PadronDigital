@@ -366,7 +366,7 @@ window.abrirPreguntas = () => $("#ModalPreguntas").modal("show");
 
 document.addEventListener("click", (e) => {
   if (e.target.id === "btnAccesarInicio") {
-    window.location.href = "/inicio/inicio.html";
+    window.location.href = "inicio.html";
   }
 });
 
