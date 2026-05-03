@@ -1,37 +1,5 @@
-/**
- * js/gestion-sistema.js
- * CONTROLADOR MAESTRO: Catálogos, Registro y Autenticación.
- */
-
 // --- 1. CONFIGURACIÓN DE MODALES (INTEGROS - SIN CAMBIOS) ---
 const modalesPadron = `
-<div class="modal fade" id="ModalLogin" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content modal-caja-login">
-            <div class="modal-header-login">
-                <h2>Inicio de Sesión</h2>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-            </div>
-            <div class="modal-body" style="padding: 30px;">
-                <form id="FormaLogin">
-                    <div class="form-group-custom">
-                        <label>Correo Electrónico:</label>
-                        <input type="email" name="correo_login" class="input-institucional" placeholder="ejemplo@correo.com" required />
-                    </div>
-                    <div class="form-group-custom">
-                        <label>Contraseña:</label>
-                        <input type="password" name="password_login" class="input-institucional" placeholder="********" required />
-                    </div>
-                    <button type="submit" class="btn-registro-continuar" style="width:100%; margin-top:10px;">INICIAR SESIÓN</button>
-                </form>
-                <div style="text-align:center; margin-top:20px;">
-                    <a href="restaurar.html" style="font-size:0.9rem; color:#ab0a3d; font-weight:700; text-decoration:none;">¿Olvidó su contraseña?</a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <div class="modal fade" id="ModalRegistro" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -237,11 +205,14 @@ const modalesPadron = `
     </div>
 </div>
 `;
+
 document.body.insertAdjacentHTML("beforeend", modalesPadron);
 
-// --- 3. CONTROLADOR DE REGISTRO Y LOGIN ---
+// --- 2. CONTROLADOR DE FORMULARIOS (DELEGACIÓN DE EVENTOS) ---
 document.addEventListener("submit", async (e) => {
   const targetId = e.target.id;
+
+  // Escuchamos tanto el Registro (físico) como el Login (que viene del Menú)
   if (!["FormRegistro", "FormaLogin"].includes(targetId)) return;
 
   e.preventDefault();
@@ -260,7 +231,6 @@ document.addEventListener("submit", async (e) => {
       return alert("Debe aceptar el aviso de privacidad.");
     if (datos.pwd.length < 8)
       return alert("La contraseña debe tener al menos 8 caracteres.");
-    // CORRECCIÓN TÉCNICA: Acceso a confirm-pwd con corchetes
     if (datos.pwd !== datos["confirm-pwd"])
       return alert("Las contraseñas no coinciden.");
 
@@ -272,14 +242,11 @@ document.addEventListener("submit", async (e) => {
         email: datos.correo.toLowerCase().trim(),
         password: datos.pwd,
         options: {
-          // CORRECCIÓN TÉCNICA: name tipo_persona unificado
           data: { rfc: rfcLimpio, tipo_persona: datos.tipo_persona },
-          currSession: false,
         },
       });
 
       if (error) throw error;
-
       alert(
         "¡Registro enviado! Por favor, revise su correo para confirmar su cuenta.",
       );
@@ -287,15 +254,11 @@ document.addEventListener("submit", async (e) => {
       e.target.reset();
     } catch (err) {
       if (err.message && err.message.includes("changedAccessToken")) {
-        alert(
-          "¡Registro completado! Revise su bandeja de entrada para confirmar su cuenta.",
-        );
+        alert("¡Registro completado! Revise su correo.");
         $("#ModalRegistro").modal("hide");
         e.target.reset();
       } else {
-        alert(
-          "Error: " + (err.description || err.message || "Error desconocido"),
-        );
+        alert("Error: " + (err.message || "Error desconocido"));
       }
     } finally {
       btn.disabled = false;
@@ -303,7 +266,7 @@ document.addEventListener("submit", async (e) => {
     }
   }
 
-  // --- LÓGICA DE LOGIN ---
+  // --- LÓGICA DE LOGIN (Viene del modal inyectado por el Menú) ---
   if (targetId === "FormaLogin") {
     try {
       btn.disabled = true;
@@ -317,8 +280,12 @@ document.addEventListener("submit", async (e) => {
       if (error) throw error;
 
       $("#ModalLogin").modal("hide");
-      $("#txtRFCBienvenida").text(data.user.user_metadata.rfc || "Usuario");
-      $("#ModalBienvenida").modal("show");
+
+      // Si existe el modal de bienvenida en la página actual
+      if ($("#ModalBienvenida").length) {
+        $("#txtRFCBienvenida").text(data.user.user_metadata.rfc || "Usuario");
+        $("#ModalBienvenida").modal("show");
+      }
     } catch (err) {
       alert("Error al iniciar sesión: " + err.message);
     } finally {
@@ -328,18 +295,16 @@ document.addEventListener("submit", async (e) => {
   }
 });
 
-// --- 4. AYUDANTES DE APERTURA Y CARGA (RESTAURADOS) ---
+// --- 3. AYUDANTES DE APERTURA ---
 window.abrirRegistro = () => $("#ModalRegistro").modal("show");
 window.abrirLogin = () => $("#ModalLogin").modal("show");
 window.abrirRequisitos = () => $("#modalRequisitos").modal("show");
 window.abrirFormatos = () => $("#modalFormatos").modal("show");
 window.abrirPreguntas = () => $("#ModalPreguntas").modal("show");
 
+// --- 4. REDIRECCIONES ---
 document.addEventListener("click", (e) => {
   if (e.target.id === "btnAccesarInicio") {
     window.location.href = "inicio.html";
   }
 });
-
-// Nota: Asegúrate de tener definida la función cargarDatosSupabase si la usas abajo.
-// document.addEventListener("DOMContentLoaded", cargarDatosSupabase);

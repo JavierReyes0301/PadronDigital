@@ -1,4 +1,4 @@
-// --- 1. ICONOS SVG ---
+// --- 1. ICONOS SVG --- (Se mantiene igual)
 const ICONOS = {
   inicio:
     '<svg viewBox="0 0 576 512"><path d="M280.37 148.26L96 300.11V464a16 16 0 0 0 16 16l112.06-.29a16 16 0 0 0 15.92-16V368a16 16 0 0 1 16-16h64a16 16 0 0 1 16 16v95.64a16 16 0 0 0 16 16.05L464 480a16 16 0 0 0 16-16V300L295.67 148.26a12.19 12.19 0 0 0-15.3 0zM571.6 251.47L488 182.56V44.05a12 12 0 0 0-12-12h-56a12 12 0 0 0-12 12v72.61L318.47 43a48 48 0 0 0-61 0L4.34 251.47a12 12 0 0 0-1.6 16.9l25.5 31A12 12 0 0 0 45.15 301l235.22-193.74a12.19 12.19 0 0 1 15.3 0L530.9 301a12 12 0 0 0 16.9-1.6l25.5-31a12 12 0 0 0-1.7-16.93z"></path></svg>',
@@ -13,16 +13,51 @@ const ICONOS = {
   user: '<svg viewBox="0 0 448 512"><path d="M224 256c70.7 0 128-57.3 128-128S294.7 0 224 0 96 57.3 96 128s57.3 128 128 128zm89.6 32h-16.7c-22.2 10.2-46.9 16-72.9 16s-50.6-5.8-72.9-16h-16.7C60.2 288 0 348.2 0 422.4V464c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48v-41.6c0-74.2-60.2-134.4-134.4-134.4z"></path></svg>',
 };
 
-// --- 2. FUNCIÓN DE RENDERIZADO DEL MENÚ ---
+// --- 2. FUNCIÓN DE RENDERIZADO DEL MENÚ Y MODALES ---
 async function renderizarMenu() {
   const navPlaceholder = document.getElementById("nav-placeholder");
   if (!navPlaceholder) return;
 
   const pathActual = window.location.pathname;
   const esPaginaInicio = pathActual.includes("/inicio/inicio.html");
+  const enSubcarpeta =
+    pathActual.includes("/inicio/") || pathActual.includes("/paginas/");
 
   const baseRaiz = esPaginaInicio ? "../index.html" : "index.html";
   const baseInicio = esPaginaInicio ? "inicio.html" : "inicio/inicio.html";
+  const rutaRestaurar = enSubcarpeta ? "../restaurar.html" : "restaurar.html";
+
+  // 1. INTEGRACIÓN DEL MODAL DE LOGIN (Se inyecta si no existe)
+  if (!document.getElementById("ModalLogin")) {
+    const modalLoginHTML = `
+        <div class="modal fade" id="ModalLogin" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content modal-caja-login">
+                    <div class="modal-header-login">
+                        <h2>Inicio de Sesión</h2>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body" style="padding: 30px;">
+                        <form id="FormaLogin">
+                            <div class="form-group-custom">
+                                <label>Correo Electrónico:</label>
+                                <input type="email" name="correo_login" class="input-institucional" placeholder="ejemplo@correo.com" required />
+                            </div>
+                            <div class="form-group-custom">
+                                <label>Contraseña:</label>
+                                <input type="password" name="password_login" class="input-institucional" placeholder="********" required />
+                            </div>
+                            <button type="submit" class="btn-registro-continuar" style="width:100%; margin-top:10px;">INICIAR SESIÓN</button>
+                        </form>
+                        <div style="text-align:center; margin-top:20px;">
+                            <a href="${rutaRestaurar}" style="font-size:0.9rem; color:#ab0a3d; font-weight:700; text-decoration:none;">¿Olvidó su contraseña?</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+    document.body.insertAdjacentHTML("beforeend", modalLoginHTML);
+  }
 
   let itemUsuarioHTML = `<li><a href="#" data-toggle="modal" data-target="#ModalLogin" class="nav-link-item">${ICONOS.user} Acceder</a></li>`;
 
@@ -32,37 +67,19 @@ async function renderizarMenu() {
         data: { session },
       } = await window.clientSupa.auth.getSession();
       if (session) {
-        const accionBienvenida = esPaginaInicio
-          ? "gestionarVisibilidadSeccion('seccion-bienvenida');"
-          : `window.location.href='${baseInicio}?sec=seccion-bienvenida';`;
-        const accionEstado = esPaginaInicio
-          ? "gestionarVisibilidadSeccion('estado-perfil');"
-          : `window.location.href='${baseInicio}?sec=estado-perfil';`;
-        const accionActualizar = esPaginaInicio
-          ? "gestionarVisibilidadSeccion('actualizar-datos');"
-          : `window.location.href='${baseInicio}?sec=actualizar-datos';`;
-
         itemUsuarioHTML = `
- <li class="nav-item dropdown">
-    <a class="nav-link-item dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown">
-        ${ICONOS.user} MI CUENTA
-    </a>
-    <div class="dropdown-menu dropdown-menu-right menu-guinda-compacto">
-        <a class="dropdown-item nav-action-link" href="#" data-sec="seccion-bienvenida">
-            <i class="fas fa-home"></i> INICIO
-        </a>
-        <a class="dropdown-item nav-action-link" href="#" data-sec="estado-perfil">
-            <i class="fas fa-info-circle"></i> ESTADO DE PERFIL
-        </a>
-        <a class="dropdown-item nav-action-link" href="#" data-sec="actualizar-datos">
-            <i class="fas fa-edit"></i> ACTUALIZAR DATOS
-        </a>
-        <div class="dropdown-divider"></div>
-        <a class="dropdown-item" href="#" id="btn-logout">
-            <i class="fas fa-external-link-alt"></i> CERRAR SESIÓN
-        </a>
-    </div>
- </li>`;
+                <li class="nav-item dropdown">
+                    <a class="nav-link-item dropdown-toggle" href="javascript:void(0);" id="navbarDropdown" role="button" data-toggle="dropdown">
+                        ${ICONOS.user} MI CUENTA
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right menu-guinda-compacto">
+                        <a class="dropdown-item nav-action-link" href="javascript:void(0);" data-sec="seccion-bienvenida"><i class="fas fa-home"></i> INICIO</a>
+                        <a class="dropdown-item nav-action-link" href="javascript:void(0);" data-sec="estado-perfil"><i class="fas fa-info-circle"></i> ESTADO DE PERFIL</a>
+                        <a class="dropdown-item nav-action-link" href="javascript:void(0);" data-sec="actualizar-datos"><i class="fas fa-edit"></i> ACTUALIZAR DATOS</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="javascript:void(0);" id="btn-logout"><i class="fas fa-external-link-alt"></i> CERRAR SESIÓN</a>
+                    </div>
+                </li>`;
       }
     }
   } catch (e) {
@@ -87,6 +104,32 @@ async function renderizarMenu() {
 
   navPlaceholder.innerHTML = navbarHTML;
 
+  // --- MANEJO SEGURO DE EVENTOS ---
+  document.querySelectorAll(".nav-action-link").forEach((link) => {
+    link.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const idObjetivo = e.currentTarget.getAttribute("data-sec");
+      if (idObjetivo) {
+        if (esPaginaInicio) {
+          window.gestionarVisibilidadSeccion(idObjetivo);
+        } else {
+          window.location.href = `${baseInicio}?sec=${idObjetivo}`;
+        }
+      }
+    });
+  });
+
+  const btnLogout = document.getElementById("btn-logout");
+  if (btnLogout) {
+    btnLogout.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      window.cerrarSesion();
+    });
+  }
+
+  // --- LÓGICA DE UI (Toggle Menú) ---
   const btnToggle = document.getElementById("btn-toggle");
   const navMenu = document.getElementById("nav-menu");
   if (btnToggle && navMenu) {
@@ -99,63 +142,35 @@ async function renderizarMenu() {
     $(".dropdown-toggle").dropdown();
   }
 }
+
 window.renderizarMenu = renderizarMenu;
 
-// --- 3. LÓGICA PRINCIPAL ---
+// --- 3. LÓGICA PRINCIPAL --- (Se mantiene igual)
 document.addEventListener("DOMContentLoaded", async function () {
   const headContenido = `
     <style>
-    /* 1. CONFIGURACIÓN DEL CUERPO PARA FOOTER AL FINAL */
-    html, body {
-        height: 100%;
-        margin: 0;
-    }
-    body {
-        display: flex;
-        flex-direction: column;
-    }
-    #nav-placeholder {
-        flex-shrink: 0; /* Que el nav no se encoja */
-    }
-    /* Este es el truco: el contenedor principal crece y empuja al footer */
-    main, .container, #contenedor-principal-inicio { 
-        flex: 1 0 auto; 
-    }
-    #footer-placeholder {
-        flex-shrink: 0; /* El footer mantiene su tamaño */
-    }
-
-    /* 2. ESTILOS VISUALES ORIGINALES */
-    .mi-navbar .mi-menu svg { width: 1.2rem !important; height: 1.2rem !important; margin-right: 8px; fill: currentColor; vertical-align: middle; flex-shrink: 0; }
-    .menu-guinda-compacto { background-color: #ab0a3d; border: 1px solid #ffd700; z-index: 9999; }
-    .menu-guinda-compacto .dropdown-item { color: white; font-weight: 600; font-size: 0.85rem; padding: 10px 20px; }
-    .menu-guinda-compacto .dropdown-item i { margin-right: 10px; width: 15px; text-align: center; }
-    .menu-guinda-compacto .dropdown-item:hover { background-color: #323232; color: #ffd700; }
-    
-    .mi-footer { 
-        background-color: #ab0a3d; 
-        padding: 20px 0; 
-        color: white; 
-        text-align: center; 
-        text-transform: uppercase; 
-        font-weight: 700;
-        width: 100%;
-    }
-
-    .contenido-seccion { display: none; } 
-    .contenido-seccion.activa { display: block !important; }
-</style>`;
+        html, body { height: 100%; margin: 0; }
+        body { display: flex; flex-direction: column; }
+        #nav-placeholder { flex-shrink: 0; }
+        main, .container, #contenedor-principal-inicio { flex: 1 0 auto; }
+        #footer-placeholder { flex-shrink: 0; }
+        .mi-navbar .mi-menu svg { width: 1.2rem !important; height: 1.2rem !important; margin-right: 8px; fill: currentColor; vertical-align: middle; flex-shrink: 0; }
+        .menu-guinda-compacto { background-color: #ab0a3d; border: 1px solid #ffd700; z-index: 9999; }
+        .menu-guinda-compacto .dropdown-item { color: white; font-weight: 600; font-size: 0.85rem; padding: 10px 20px; }
+        .menu-guinda-compacto .dropdown-item i { margin-right: 10px; width: 15px; text-align: center; }
+        .menu-guinda-compacto .dropdown-item:hover { background-color: #323232; color: #ffd700; }
+        .mi-footer { background-color: #ab0a3d; padding: 20px 0; color: white; text-align: center; text-transform: uppercase; font-weight: 700; width: 100%; }
+        .contenido-seccion { display: none; }
+        .contenido-seccion.activa { display: block !important; }
+    </style>`;
   document.head.insertAdjacentHTML("beforeend", headContenido);
-
   await renderizarMenu();
 
-  // Listener para redirección tras LOGIN
   if (window.clientSupa) {
     window.clientSupa.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_IN") {
         const enInicio = window.location.pathname.includes("inicio.html");
         if (!enInicio) {
-          // Reemplazamos el historial al entrar para que "atrás" no vuelva al login
           window.location.replace("inicio/inicio.html");
         }
       }
@@ -163,20 +178,14 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   }
 
-  // --- MANEJO DE HISTORIAL Y SECCIONES ---
   if (window.location.pathname.includes("inicio.html")) {
     const urlParams = new URLSearchParams(window.location.search);
     const seccionInicial = urlParams.get("sec") || "seccion-bienvenida";
-
-    // Carga inicial sin añadir al historial para evitar bucles
     gestionarVisibilidadSeccion(seccionInicial, false);
-
-    // Detectar cuando el usuario presiona "Regresar" en el navegador
     window.onpopstate = function (event) {
       if (event.state && event.state.id) {
         gestionarVisibilidadSeccion(event.state.id, false);
       } else {
-        // Si vuelve al inicio de la cadena, forzamos bienvenida
         gestionarVisibilidadSeccion("seccion-bienvenida", false);
       }
     };
@@ -188,28 +197,23 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 });
 
-// --- 4. FUNCIONES GLOBALES ---
+// --- 4. FUNCIONES GLOBALES --- (Se mantienen igual)
 window.esUsuarioNuevo = true;
-
 function gestionarVisibilidadSeccion(idObjetivo, addToHistory = true) {
   if (window.esUsuarioNuevo === true && idObjetivo === "estado-perfil") {
     alert("Atención: Primero debes completar la captura de tus datos.");
     return;
   }
-
   const secciones = document.querySelectorAll(".contenido-seccion");
   secciones.forEach((sec) => {
     sec.classList.remove("activa");
     sec.style.display = "none";
   });
-
   const seccionAMostrar = document.getElementById(idObjetivo);
   if (seccionAMostrar) {
     seccionAMostrar.classList.add("activa");
     seccionAMostrar.style.display = "block";
     window.scrollTo({ top: 0, behavior: "smooth" });
-
-    // AGREGAR AL HISTORIAL DEL NAVEGADOR
     if (addToHistory) {
       history.pushState({ id: idObjetivo }, "", `?sec=${idObjetivo}`);
     }
