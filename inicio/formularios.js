@@ -1,204 +1,184 @@
 /**
- * ==========================================
- * 1. GESTIÓN DE ESTATUS E INICIO (CRÍTICO)
- * ==========================================
+ * LÓGICA INTEGRAL PARA EL PADRÓN DE PROVEEDORES
+ * Conexión optimizada con window.clientSupa
  */
-async function gestionarEstadoYSecciones() {
-  const divNuevo = document.getElementById("instruccionesNuevo");
-  const divRegistrado = document.getElementById("instruccionesRegistrado");
-  const seccionActualizar = document.getElementById("actualizar-datos");
-  const seccionEstado = document.getElementById("estado-perfil");
 
-  try {
-    const {
-      data: { user },
-    } = await window.clientSupa.auth.getUser();
+let PROVEEDOR_ID = null; // Se obtendrá de la sesión activa
 
-    if (!user) {
-      window.location.href = "../index.html";
-      return;
-    }
+// 1. INICIALIZACIÓN Y CARGA DE DATOS
+document.addEventListener("DOMContentLoaded", async () => {
+  // Verificar sesión y obtener ID del usuario
+  const {
+    data: { session },
+  } = await window.clientSupa.auth.getSession();
 
-    // Consultamos el perfil en la tabla proveedores
-    const { data: perfil, error } = await window.clientSupa
-      .from("proveedores")
-      .select("estatus")
-      .eq("id_auth", user.id)
-      .maybeSingle();
-
-    // Ocultamos todo por defecto usando la lógica de tu CSS
-    [seccionActualizar, seccionEstado].forEach((s) => {
-      if (s) s.style.setProperty("display", "none", "important");
-    });
-
-    // LÓGICA DE DECISIÓN: ¿A dónde va el usuario?
-    if (!perfil || perfil.estatus === "Pendiente") {
-      // USUARIO NUEVO O INCOMPLETO
-      if (seccionActualizar) {
-        seccionActualizar.style.setProperty("display", "flex", "important");
-        seccionActualizar.classList.add("activa");
-      }
-      if (divNuevo) divNuevo.style.display = "block";
-      if (divRegistrado) divRegistrado.style.display = "none";
-
-      // Bloqueamos pestañas avanzadas de Actualizar Datos si es nuevo
-      document
-        .querySelectorAll("#actualizar-datos .nav-link")
-        .forEach((tab, index) => {
-          if (index > 0) tab.classList.add("disabled-tab");
-        });
-    } else {
-      // USUARIO REGISTRADO / VALIDADO
-      if (seccionEstado) {
-        seccionEstado.style.setProperty("display", "flex", "important");
-        seccionEstado.classList.add("activa");
-      }
-      if (divNuevo) divNuevo.style.display = "none";
-      if (divRegistrado) divRegistrado.style.display = "block";
-    }
-  } catch (err) {
-    console.error("Error validando estatus:", err);
+  if (session) {
+    PROVEEDOR_ID = session.user.id;
+    console.log("👤 Usuario autenticado:", PROVEEDOR_ID);
+    inicializarPagina();
+  } else {
+    console.error("🔴 No se detectó sesión activa. Redirigiendo...");
+    // window.location.href = 'login.html';
   }
-}
 
-/**
- * ==========================================
- * 2. CONFIGURACIÓN DE SELECTS DINÁMICOS
- * ==========================================
- */
-const configurarSelectsUbicacion = () => {
-  const selectEstado = document.getElementById("select-estado");
-  const selectMunicipio = document.getElementById("select-municipio");
-
-  if (selectEstado && selectMunicipio) {
-    selectEstado.addEventListener("change", async (e) => {
-      const estadoId = e.target.value;
-      if (!estadoId) return;
-
-      selectMunicipio.innerHTML =
-        '<option value="">Cargando municipios...</option>';
-
-      const { data, error } = await window.clientSupa
-        .from("municipios")
-        .select("id, nombre")
-        .eq("estado_id", estadoId)
-        .order("nombre", { ascending: true });
-
-      if (data) {
-        selectMunicipio.innerHTML =
-          '<option value="">Selecciona un municipio</option>';
-        data.forEach((muni) => {
-          const option = new Option(muni.nombre, muni.id);
-          selectMunicipio.add(option);
-        });
-      }
-    });
-  }
-};
-
-/**
- * ==========================================
- * 3. LÓGICA DE DESBLOQUEO Y NAVEGACIÓN
- * ==========================================
- */
-function toggleDesbloqueo(id) {
-  const el = document.getElementById(id);
-  const parent = el?.closest(".form-group-custom") || el?.parentElement;
-  const lockIcon = parent?.querySelector(".fa-lock");
-  const unlockIcon = parent?.querySelector(".fa-lock-open");
-
-  if (el) {
-    el.readOnly = false;
-    el.disabled = false;
-    el.style.pointerEvents = "auto";
-    el.style.backgroundColor = "moccasin";
-    el.focus();
-
-    if (lockIcon) lockIcon.classList.add("d-none");
-    if (unlockIcon) unlockIcon.classList.remove("d-none");
-  }
-}
-
-function navegarAPestana(targetHash) {
-  const tabLink = document.querySelector(`.nav-link[href="${targetHash}"]`);
-  if (tabLink) {
-    $(tabLink).removeClass("disabled-tab disabled").css({
-      "pointer-events": "auto",
-      opacity: "1",
-    });
-    $(tabLink).tab("show");
-    window.location.hash = targetHash;
-  }
-}
-
-/**
- * ==========================================
- * 4. GESTIÓN DE INDICADORES (CHECKMARKS)
- * ==========================================
- */
-function vincularIndicador(idInput, idIcono) {
-  const input = document.getElementById(idInput);
-  const icono = document.getElementById(idIcono);
-
-  if (input && icono) {
-    input.addEventListener("input", () => {
-      if (input.value.trim().length > 0) {
-        icono.className = "fas fa-check-circle color-guinda";
-      } else {
-        icono.className = "far fa-circle";
-      }
-    });
-  }
-}
-
-/**
- * ==========================================
- * 5. INICIALIZACIÓN GLOBAL
- * ==========================================
- */
-document.addEventListener("DOMContentLoaded", () => {
-  // 1. Decidir qué sección mostrar
-  gestionarEstadoYSecciones();
-
-  // 2. Configuración de Ubicación
-  configurarSelectsUbicacion();
-
-  // 3. Mapeo de Indicadores
-  vincularIndicador("txtRFC", "icono-rfc");
-  vincularIndicador("txtRazonSocial", "icono-razon");
-  vincularIndicador("txtCalle", "icono-calle");
-  vincularIndicador("txtNumExt", "icono-num");
-
-  // 4. Mayúsculas automáticas (excepto email/pass)
-  document.querySelectorAll("input").forEach((input) => {
-    input.addEventListener("input", function () {
-      if (this.type !== "password" && this.type !== "email") {
-        this.value = this.value.toUpperCase();
-      }
-    });
-  });
-
-  // 5. Hash Navigation
-  if (window.location.hash) {
-    $(`.nav-tabs a[href="${window.location.hash}"]`).tab("show");
-  }
+  configurarEscuchadores();
 });
 
-/**
- * ==========================================
- * 6. CIERRE DE SESIÓN
- * ==========================================
- */
-async function cerrarSesion() {
-  if (confirm("¿Está seguro que desea cerrar su sesión?")) {
-    try {
-      await window.clientSupa.auth.signOut();
-      sessionStorage.clear();
-      localStorage.clear();
-      window.location.href = "../index.html";
-    } catch (error) {
-      console.error("Error al salir:", error);
-      window.location.href = "../index.html";
+async function inicializarPagina() {
+  // Cargar años dinámicamente
+  const selectAnio = document.getElementById("select-anio");
+  const anioActual = new Date().getFullYear();
+  for (let i = anioActual; i >= 1970; i--) {
+    selectAnio.add(new Option(i, i));
+  }
+
+  // CARGA REAL: Obtener datos base de la tabla proveedores o perfil
+  const { data, error } = await window.clientSupa
+    .from("proveedores")
+    .select("rfc, correo, tipo_persona")
+    .eq("id", PROVEEDOR_ID)
+    .single();
+
+  if (data) {
+    document.getElementById("info-rfc").innerText = data.rfc || "No registrado";
+    document.getElementById("info-correo").innerText =
+      data.correo || "No registrado";
+    document.getElementById("info-tipo-persona").innerText =
+      data.tipo_persona || "PERSONA FÍSICA";
+    gestionarCamposTipoPersona(data.tipo_persona);
+  }
+}
+
+// 2. LÓGICA DINÁMICA DE LA INTERFAZ (UI)
+function gestionarCamposTipoPersona(tipo) {
+  const contenedorPoder = document.getElementById("contenedor-poder-notarial");
+  const labelActa = document.getElementById("label-acta");
+  if (tipo === "PERSONA MORAL") {
+    contenedorPoder.style.display = "flex";
+    labelActa.innerHTML =
+      '<span class="text-danger">*</span> Acta Constitutiva:';
+  } else {
+    contenedorPoder.style.display = "none";
+    labelActa.innerHTML =
+      '<span class="text-danger">*</span> Acta de Nacimiento:';
+  }
+}
+
+function ajustarLabelIdentificacion() {
+  const tipo = document.getElementById("select_tipo_doc").value;
+  const label = document.getElementById("label-identificacion");
+  const input = document.getElementById("num_identificacion");
+  const etiquetas = {
+    ID: "Clave de Elector:",
+    PASAPORTE: "Número de Pasaporte:",
+    CEDULA: "Cédula Profesional:",
+  };
+  label.innerText = etiquetas[tipo] || "Dato de Identificación:";
+}
+
+function actualizarEstadoArchivo(tipo) {
+  const fileInput = document.getElementById(`file-${tipo}`);
+  const statusSpan = document.getElementById(`status-${tipo}`);
+  if (fileInput.files.length > 0) {
+    statusSpan.innerText = fileInput.files[0].name;
+    statusSpan.classList.replace("text-muted", "text-success");
+    statusSpan.classList.add("font-weight-bold");
+  }
+}
+
+// 3. FUNCIONES DE GUARDADO (CONEXIÓN REAL A SUPABASE)
+
+async function guardarGenerales() {
+  const payload = {
+    id: PROVEEDOR_ID,
+    num_acta: document.getElementById("num_acta").value,
+    poder_notarial: document.getElementById("poder_notarial").value,
+    nombre_comercial: document.getElementById("nombre_comercial").value,
+    rep_nombre: document.getElementById("rep_nombre").value,
+    rep_paterno: document.getElementById("rep_paterno").value,
+    rep_materno: document.getElementById("rep_materno").value,
+    tipo_representante: document.getElementById("tipo_representante").value,
+    tipo_identificacion: document.getElementById("select_tipo_doc").value,
+    num_identificacion: document.getElementById("num_identificacion").value,
+    updated_at: new Date(),
+  };
+
+  const { error } = await window.clientSupa.from("proveedores").upsert(payload);
+  if (error) alert("Error: " + error.message);
+  else alert("✅ Datos Generales sincronizados.");
+}
+
+async function guardarDomicilio() {
+  const payload = {
+    id: PROVEEDOR_ID,
+    estado: document.getElementById("select-estado").value,
+    municipio: document.getElementById("select-municipio").value,
+    localidad: document.getElementById("select-localidad").value,
+    vialidad: document.getElementById("vialidad").value,
+    num_ext: document.getElementById("num_ext").value,
+    num_int: document.getElementById("num_int").value,
+    colonia: document.getElementById("colonia").value,
+    cp: document.getElementById("cp").value,
+  };
+
+  const { error } = await window.clientSupa.from("proveedores").upsert(payload);
+  if (error) alert("Error: " + error.message);
+  else alert("✅ Domicilio guardado.");
+}
+
+async function guardarAdcionales() {
+  // Nombre corregido para tu HTML
+  const payload = {
+    id: PROVEEDOR_ID,
+    telefono: document.getElementById("input-telefono").value,
+    capacidad_crediticia: document.getElementById("select-capacidad").value,
+    num_empleados: document.getElementById("select-empleados").value,
+    anio_inicio: document.getElementById("select-anio").value,
+  };
+
+  const { error } = await window.clientSupa.from("proveedores").upsert(payload);
+  if (error) alert("Error: " + error.message);
+  else alert("✅ Información adicional guardada.");
+}
+
+// 4. ENVÍO FINAL Y CARGA DE ARCHIVOS
+async function SolicitudRevisionn() {
+  const rfc = document.getElementById("info-rfc").innerText;
+  const inputs = [
+    { id: "csf", input: document.getElementById("file-csf") },
+    { id: "acta", input: document.getElementById("file-acta") },
+    { id: "domicilio", input: document.getElementById("file-domicilio") },
+    { id: "ine", input: document.getElementById("file-ine") },
+  ];
+
+  for (const item of inputs) {
+    if (item.input.files.length > 0) {
+      const file = item.input.files[0];
+      const filePath = `${rfc}/${item.id}.pdf`;
+
+      const { error: uploadError } = await window.clientSupa.storage
+        .from("expedientes")
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) {
+        alert(`Error en archivo ${item.id}: ` + uploadError.message);
+        return;
+      }
     }
   }
+
+  // Actualizar estatus a PENDIENTE
+  await window.clientSupa
+    .from("proveedores")
+    .update({ estatus: "PENDIENTE" })
+    .eq("id", PROVEEDOR_ID);
+  alert("🚀 Expediente enviado a revisión con éxito.");
+}
+
+function configurarEscuchadores() {
+  const selectEstado = document.getElementById("select-estado");
+  const selectMunicipio = document.getElementById("select-municipio");
+  selectEstado.addEventListener("change", () => {
+    selectMunicipio.disabled = selectEstado.value === "";
+  });
 }

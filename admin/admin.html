@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Padrón de Proveedores | Atlixco</title>
+    <link
+      rel="icon"
+      href="https://onckgyxtttcbddezmnsj.supabase.co/storage/v1/object/public/LOGO/Logotipo%20sin%20fondo.png"
+    />
+
+    <!-- Pre-conexión para optimizar tiempos de respuesta -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
+      integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+      integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+
+    <link rel="preconnect" href="https://maopuzbvxucsarrydmte.supabase.co" />
+
+    <link rel="canonical" href="https://padron.digital/" />
+    <link rel="stylesheet" href="css/style.css" />
+
+    <!-- jQuery se mantiene en el head por dependencias de otros scripts si fuera necesario -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
+    />
+
+    <style>
+      #nav-placeholder {
+        min-height: 65px;
+      }
+      body {
+        margin: 0;
+        font-family: "Montserrat", sans-serif;
+      }
+      .icon-box {
+        cursor: pointer;
+        transition: transform 0.2s;
+      }
+      .icon-box:hover {
+        transform: translateY(-5px);
+        background-color: rgba(0, 0, 0, 0.02);
+      }
+      /* Optimización de SVGs: control centralizado de color */
+      .icon-wrapper svg,
+      .icon-svg svg,
+      .btn svg,
+      .flecha-guinda-unificada svg {
+        fill: currentColor;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="container-fluid mt-4">
+        <h2 class="mb-4">
+          <i class="fas fa-user-shield"></i> Panel de Administración - Padron de
+          Proveedores
+        </h2>
+
+        <div class="card shadow mb-4">
+          <div
+            class="card-header py-3 d-flex justify-content-between align-items-center"
+          >
+            <h6 class="m-0 font-weight-bold text-primary">
+              Listado de Registros Pendientes y Validados
+            </h6>
+            <button
+              class="btn btn-sm btn-outline-secondary"
+              onclick="consultarProveedores()"
+            >
+              <i class="fas fa-sync"></i> Actualizar
+            </button>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table
+                class="table table-bordered table-hover"
+                id="tablaProveedores"
+                width="100%"
+                cellspacing="0"
+              >
+                <thead class="thead-light">
+                  <tr>
+                    <th>Folio</th>
+                    <th>RFC</th>
+                    <th>Razón Social / Nombre</th>
+                    <th>Tipo Persona</th>
+                    <th>Teléfono</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="lista-proveedores-body">
+                  <!-- Los datos se insertarán aquí dinámicamente -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODAL DE DETALLES DEL PROVEEDOR -->
+      <div
+        class="modal fade"
+        id="modalDetalle"
+        tabindex="-1"
+        role="dialog"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-xl" role="document">
+          <div class="modal-content">
+            <div class="modal-header bg-guinda text-white">
+              <h5 class="modal-title" id="modalLabel">
+                Detalle Completo del Proveedor
+              </h5>
+              <button
+                type="button"
+                class="close text-white"
+                data-dismiss="modal"
+                aria-label="Close"
+              >
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body" id="detalle-proveedor-content">
+              <!-- Se llena con JavaScript -->
+              <!-- Dentro del modal-body, al final del contenido dinámico -->
+              <hr />
+              <div class="row">
+                <div class="col-md-12">
+                  <h6 class="text-danger">
+                    <strong
+                      ><i class="fas fa-comment-dots"></i> Observaciones para el
+                      Proveedor</strong
+                    >
+                  </h6>
+                  <textarea
+                    id="txt-observaciones-admin"
+                    class="form-control"
+                    rows="4"
+                    placeholder="Escriba aquí las correcciones o detalles faltantes..."
+                  ></textarea>
+                  <div class="text-right mt-3">
+                    <button
+                      class="btn btn-warning"
+                      onclick="enviarObservaciones()"
+                    >
+                      <i class="fas fa-paper-plane"></i> Enviar Observaciones al
+                      Proveedor
+                    </button>
+                    <button
+                      class="btn btn-success"
+                      onclick="validarRegistroCompleto()"
+                    >
+                      <i class="fas fa-check-double"></i> Validar Todo
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="admin/gestion-admin.js"></script>
+  </body>
+</html>

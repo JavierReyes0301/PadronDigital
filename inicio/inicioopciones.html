@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Padrón de Proveedores | Atlixco</title>
+    <link
+      rel="icon"
+      href="https://onckgyxtttcbddezmnsj.supabase.co/storage/v1/object/public/LOGO/Logotipo%20sin%20fondo.png"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
+      integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+      integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/style-modales.css" />
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <style>
+      #nav-placeholder {
+        min-height: 65px;
+      }
+      body {
+        margin: 0;
+        font-family: "Montserrat", sans-serif;
+      }
+      .btn-buscar {
+        background-color: #ab0a3d;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+      }
+      .btn-nueva {
+        background-color: #bc955c;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+      }
+      .cuadro-blanco {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="nav-placeholder"></div>
+
+    <main>
+      <section id="seccion-bienvenida" class="contenido-seccion">
+        <div class="titulo-seccion">
+          ¡BIENVENIDO AL PANEL<span class="anio-dinamico">DE PROVEEDOR!</span>
+        </div>
+
+        <div id="Bienvenida" class="container">
+          <div class="cuadro-blanco">
+
+                    <div class="row">
+                      <!-- Opción 1: Cargar Información -->
+                      <div class="col-md-6 mb-4">
+                        <div
+                          class="icon-box border-dashed"
+                          style="transition: 0.3s; cursor: pointer"
+                          onclick="
+                            gestionarVisibilidadSeccion('actualizar-datos')
+                          "
+                        >
+                          <i
+                            class="fas fa-cloud-upload-alt fa-4x mb-3"
+                            style="color: #ab0a3d"
+                          ></i>
+                          <h3 class="text-center"><strong>Cargar Información</strong></h3>
+
+                          <p>
+                            Sube tus expedientes y mantén tus datos de proveedor
+                            actualizados.
+                          </p>
+                        </div>
+                      </div>
+
+                      <!-- Opción 2: Ver Estado -->
+                      <div class="col-md-6 mb-4">
+                        <div
+                          class="icon-box border-dashed"
+                          style="transition: 0.3s; cursor: pointer"
+                          onclick="gestionarVisibilidadSeccion('estado-perfil')"
+                        >
+                          <i
+                            class="fas fa-id-card fa-4x mb-3"
+                            style="color: #ab0a3d"
+                          ></i>
+                          <h3><strong>Estado del Perfil</strong></h3>
+                          <p>
+                            Consulta si tus documentos han sido revisados y el
+                            estatus de tu alta.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="actualizar-datos" class="contenido-seccion">
+        <div class="titulo-seccion">Actualizar <span>Datos</span></div>
+        <div class="container">
+          <ul class="nav nav-tabs d-flex" role="tablist">
+            <li class="nav-item flex-fill">
+              <a
+                class="nav-link active"
+                data-toggle="tab"
+                href="#Instrucciones"
+                role="tab"
+              >
+                <i class="fas fa-tasks"></i> Instrucciones
+              </a>
+            </li>
+            <li class="nav-item flex-fill">
+              <a
+                class="nav-link disabled-tab"
+                data-toggle="tab"
+                href="#Generales"
+                role="tab"
+              >
+                <i class="fas fa-id-card"></i> Datos Generales
+              </a>
+            </li>
+            <li class="nav-item flex-fill">
+              <a
+                class="nav-link disabled-tab"
+                data-toggle="tab"
+                href="#Domicilio"
+                role="tab"
+              >
+                <i class="fas fa-globe-americas"></i> Domicilio Fiscal
+              </a>
+            </li>
+            <li class="nav-item flex-fill">
+              <a
+                class="nav-link"
+                data-toggle="tab"
+                href="#Seguimiento"
+                role="tab"
+              >
+                <i class="fas fa-hourglass-half"></i> Seguimiento
+              </a>
+            </li>
+          </ul>
+
+          <div class="tab-content">
+            <div id="Instrucciones" class="tab-pane fade show active">
+              <div class="contenedor-bloque-instrucciones">
+                <div class="row">
+                  <div
+                    id="instruccionesNuevo"
+                    class="col-sm-12 text-justify"
+                    style="display: none"
+                  >
+                    <h5>
+                      Siga las instrucciones que se indican a continuación para
+                      finalizar el proceso de inscripción al padrón:
+                    </h5>
+                    <br />
+                    <ol class="instrucciones-lista">
+                      <li>
+                        <h7>
+                          Ingrese a la pestaña donde desea modificar sus datos
+                          (Datos Generales, Domicilio Fiscal, Datos Adicionales,
+                          Documentación y Finalizar Captura).
+                        </h7>
+                      </li>
+                      <li>
+                        <h7>
+                          Para guardar las modificaciones, haga clic en
+                          <span class="badge-instruccion-outline"
+                            ><i class="fas fa-save"></i> Guardar Datos</span
+                          >
+                          o en
+                          <span class="badge-instruccion-outline"
+                            ><i class="fas fa-cloud-upload-alt"></i> Subir
+                            Archivo</span
+                          >
+                          en la pestaña de Documentación.
+                        </h7>
+                      </li>
+                      <li>
+                        <h7>
+                          Al capturar los datos obligatorios (<i
+                            class="fas fa-asterisk text-danger"
+                          ></i
+                          >), se encenderá el indicador (<i
+                            class="far fa-circle"
+                          ></i>
+                          <i class="fas fa-arrow-right"></i>
+                          <i class="fas fa-check-circle color-guinda"></i>).
+                        </h7>
+                      </li>
+                      <li>
+                        <h7>
+                          Al finalizar, se habilitará el botón
+                          <span class="badge-instruccion-guinda"
+                            ><i class="fas fa-envelope"></i> Enviar Solicitud a
+                            Revisión</span
+                          >.
+                        </h7>
+                      </li>
+                    </ol>
+                    <div class="row mt-2">
+                      <div class="col-sm-12 d-flex justify-content-center">
+                        <div
+                          class="alert alert-warning text-center"
+                          style="max-width: 800px; border-radius: 10px"
+                        >
+                          Consulta nuestro
+                          <a
+                            href="AvisoSIMPLIFICADO.pdf"
+                            target="_blank"
+                            style="color: #856404; text-decoration: underline"
+                            ><b>Aviso de Privacidad</b></a
+                          >
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row mt-2">
+                      <div class="col-sm-12 text-center">
+                        <button
+                          type="button"
+                          class="btn-sitio"
+                          id="BtnIniciar"
+                          onclick="iniciarActualizacion()"
+                        >
+                          <i class="fas fa-edit fa-lg mr-2"></i> Iniciar Captura
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    id="instruccionesRegistrado"
+                    class="col-sm-12 text-justify"
+                    style="display: none"
+                  >
+                    <h5>
+                      Aquí podrá hacer las modificaciones a su perfil, ya sea
+                      por algún cambio hecho por usted o que le haya indicado el
+                      personal de la Oficina de Registro y Control de
+                      Proveedores. Para ello, siga estas instrucciones:
+                    </h5>
+                    <br />
+                    <ol class="instrucciones-lista">
+                      <li>
+                        <h7>
+                          Ingrese a la pestaña donde desea modificar sus datos
+                          (Datos Generales, Domicilio Fiscal, Datos Adicionales,
+                          Documentación y Finalizar Captura).
+                        </h7>
+                      </li>
+                      <li>
+                        <h7>
+                          Para modificar la información, primero haga clic en el
+                          ícono de desbloqueo
+                          <span class="badge-instruccion-outline"
+                            ><i class="fas fa-lock" style="color: orange"></i>
+                            Bloqueado</span
+                          >. El campo cambiará a modo edición (<i
+                            class="fas fa-lock"
+                            style="color: orange"
+                          ></i>
+                          <i class="fas fa-arrow-right"></i>
+                          <i class="fas fa-lock-open" style="color: orange"></i
+                          >) y se resaltará en color crema:
+                          <span
+                            style="
+                              background-color: moccasin;
+                              border: 1px solid #ccc;
+                            "
+                            >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span
+                          >.
+                        </h7>
+                      </li>
+                      <li>
+                        <h7>
+                          Para guardar los cambios, haga clic en
+                          <span class="badge-instruccion-outline"
+                            ><i class="fas fa-save"></i> Guardar Datos</span
+                          >
+                          o en
+                          <span class="badge-instruccion-outline"
+                            ><i class="fas fa-cloud-upload-alt"></i> Subir
+                            Archivo</span
+                          >
+                          en la pestaña de Documentación.
+                        </h7>
+                      </li>
+                      <li>
+                        <h7>
+                          Al capturar los datos obligatorios (<i
+                            class="fas fa-asterisk text-danger"
+                          ></i
+                          >), el indicador cambiará de estado (<i
+                            class="far fa-circle"
+                          ></i>
+                          <i class="fas fa-arrow-right"></i>
+                          <i class="fas fa-check-circle color-guinda"></i>).
+                        </h7>
+                      </li>
+                      <li>
+                        <h7>
+                          Una vez completados los indicadores, en la pestaña
+                          Finalizar Captura se habilitará el botón
+                          <span class="badge-instruccion-guinda"
+                            ><i class="fas fa-envelope"></i> Enviar
+                            Actualización</span
+                          >
+                          para que el personal de la Oficina valide sus cambios.
+                        </h7>
+                      </li>
+                      <li>
+                        <h7>
+                          Si visualiza el ícono
+                          <i
+                            class="fas fa-exclamation-triangle"
+                            style="color: #ffc107"
+                          ></i
+                          >, haga clic en él para consultar las observaciones
+                          realizadas por la autoridad y realice los ajustes
+                          necesarios.
+                        </h7>
+                      </li>
+                    </ol>
+                    <div class="row mt-2">
+                      <div class="col-sm-12 d-flex justify-content-center">
+                        <div
+                          class="alert alert-warning text-center"
+                          style="max-width: 800px; border-radius: 10px"
+                        >
+                          Consulta nuestro
+                          <a
+                            href="AvisoSIMPLIFICADO.pdf"
+                            target="_blank"
+                            style="color: #856404; text-decoration: underline"
+                            ><b>Aviso de Privacidad</b></a
+                          >
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row mt-2">
+                      <div class="col-sm-12 text-center">
+                        <button
+                          type="button"
+                          class="btn-sitio"
+                          id="BtnIniciar"
+                          onclick="iniciarActualizacion()"
+                        >
+                          <i class="fas fa-edit fa-lg mr-2"></i> Iniciar
+                          Actualización
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="estado-perfil" class="contenido-seccion">
+        <div class="titulo-seccion">ESTADO DE <span>PERFIL</span></div>
+
+        <div class="container">
+          <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item">
+              <a
+                class="nav-link active"
+                data-toggle="tab"
+                href="#Resumen"
+                role="tab"
+              >
+                <i class="fas fa-list"></i> Resumen de su Perfil
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link"
+                data-toggle="tab"
+                href="#Observaciones"
+                role="tab"
+              >
+                <i class="fas fa-search"></i> Observaciones a su Perfil
+              </a>
+            </li>
+          </ul>
+
+          <div class="tab-content">
+            <div id="Resumen" class="tab-pane active text-center">
+              <h4 style="color: #666" class="text-left">
+                Su perfil se encuentra actualmente en el estado:
+              </h4>
+              <h2 class="estado-titulo">EN CAPTURA</h2>
+              <p class="text-muted">
+                <i
+                  >(En este momento está capturando su información y estamos en
+                  espera de que nos envíe la información requerida para su
+                  revisión)</i
+                >
+              </p>
+
+              <hr />
+
+              <div class="contenedor-adjuntar">
+                <span style="color: #ab0a3d; font-weight: 700"
+                  >* Adjuntar Carta Compromiso:</span
+                >
+                <label class="btn btn-perfil-adjuntar">
+                  ADJUNTAR
+                  <input
+                    type="file"
+                    style="display: none"
+                    onchange="
+                      document.getElementById('nombre-archivo').value =
+                        this.files[0].name
+                    "
+                  />
+                </label>
+                <input
+                  type="text"
+                  id="nombre-archivo"
+                  class="input-archivo-texto"
+                  readonly
+                  placeholder="Ningún archivo seleccionado"
+                />
+              </div>
+
+              <div style="margin-top: 20px">
+                <button
+                  class="btn btn-perfil-secundario"
+                  onclick="enviarFormSeguro('FormaSesion')"
+                >
+                  DESCARGAR CARTA COMPROMISO
+                </button>
+                <button class="btn btn-perfil-secundario">SUBIR ARCHIVO</button>
+                <button class="btn btn-perfil-primario">
+                  ENVIAR A VERIFICACIÓN
+                </button>
+              </div>
+            </div>
+
+            <div id="Observaciones" class="tab-pane">
+              <div class="table-responsive">
+                <table class="table table-bordered tabla-estilo-atlixco">
+                  <thead>
+                    <tr>
+                      <th style="width: 50px">#</th>
+                      <th style="width: 120px">Fecha</th>
+                      <th style="width: 100px">Hora</th>
+                      <th>Observación</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="text-center">1</td>
+                      <td class="text-center">28/01/2026</td>
+                      <td class="text-center">10:30 AM</td>
+                      <td
+                        class="text-justify text-uppercase"
+                        style="font-size: 11px; padding: 10px"
+                      >
+                        SU SOLICITUD TIENE OBSERVACIONES. ---------- PARA
+                        CORREGIR: ---------- 1. SELECCIONAR (MI CUENTA)
+                        ---------- 2. SELECCIONAR (ACTUALIZAR DATOS) ----------
+                        3. LEER INSTRUCCIONES ---------- 4. PRESIONAR ICONO
+                        AMARILLO.
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.105.1/dist/umd/supabase.min.js"></script>
+
+    <script src="/js/conexion-supabase.js"></script>
+    <script src="/js/menuindex.js"></script>
+    <script src="/js/gestion-sistema.js"></script>
+
+    <script>
+      window.esUsuarioNuevo = true; // Esto debería venir de tu base de datos después
+    </script>
+    
+    <div id="footer-placeholder"></div>
+
+  </body>
+</html>

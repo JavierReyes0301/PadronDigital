@@ -36,14 +36,16 @@
         margin: 0;
         font-family: "Montserrat", sans-serif;
       }
-      .btn-buscar {
+      .btn-iniciar-actualizacion,
+      .btn-solicitud-revision,
+      .btn-guardar-datos {
         background-color: #ab0a3d;
         color: white;
         border: none;
         padding: 10px 20px;
         border-radius: 5px;
       }
-      .btn-nueva {
+      .btn-adjuntar {
         background-color: #bc955c;
         color: white;
         border: none;
@@ -69,50 +71,45 @@
 
         <div id="Bienvenida" class="container">
           <div class="cuadro-blanco">
+            <div class="row">
+              <!-- Opción 1: Cargar Información -->
+              <div class="col-md-6">
+                <div
+                  class="icon-box border-dashed"
+                  style="transition: 0.3s; cursor: pointer"
+                  onclick="gestionarVisibilidadSeccion('actualizar-datos')"
+                >
+                  <i
+                    class="fas fa-cloud-upload-alt fa-4x mb-3"
+                    style="color: #323232"
+                  ></i>
+                  <h3 class="text-center">
+                    <strong>Cargar Información</strong>
+                  </h3>
 
-                    <div class="row">
-                      <!-- Opción 1: Cargar Información -->
-                      <div class="col-md-6 mb-4">
-                        <div
-                          class="icon-box border-dashed"
-                          style="transition: 0.3s; cursor: pointer"
-                          onclick="
-                            gestionarVisibilidadSeccion('actualizar-datos')
-                          "
-                        >
-                          <i
-                            class="fas fa-cloud-upload-alt fa-4x mb-3"
-                            style="color: #ab0a3d"
-                          ></i>
-                          <h3 class="text-center"><strong>Cargar Información</strong></h3>
+                  <p>
+                    Sube tus expedientes y mantén tus datos de proveedor
+                    actualizados.
+                  </p>
+                </div>
+              </div>
 
-                          <p>
-                            Sube tus expedientes y mantén tus datos de proveedor
-                            actualizados.
-                          </p>
-                        </div>
-                      </div>
-
-                      <!-- Opción 2: Ver Estado -->
-                      <div class="col-md-6 mb-4">
-                        <div
-                          class="icon-box border-dashed"
-                          style="transition: 0.3s; cursor: pointer"
-                          onclick="gestionarVisibilidadSeccion('estado-perfil')"
-                        >
-                          <i
-                            class="fas fa-id-card fa-4x mb-3"
-                            style="color: #ab0a3d"
-                          ></i>
-                          <h3><strong>Estado del Perfil</strong></h3>
-                          <p>
-                            Consulta si tus documentos han sido revisados y el
-                            estatus de tu alta.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+              <!-- Opción 2: Ver Estado -->
+              <div class="col-md-6">
+                <div
+                  class="icon-box border-dashed"
+                  style="transition: 0.3s; cursor: pointer"
+                  onclick="gestionarVisibilidadSeccion('estado-perfil')"
+                >
+                  <i
+                    class="fas fa-id-card fa-4x mb-3"
+                    style="color: #323232"
+                  ></i>
+                  <h3><strong>Estado del Perfil</strong></h3>
+                  <p>
+                    Consulta si tus documentos han sido revisados y el estatus
+                    de tu alta.
+                  </p>
                 </div>
               </div>
             </div>
@@ -122,267 +119,746 @@
 
       <section id="actualizar-datos" class="contenido-seccion">
         <div class="titulo-seccion">Actualizar <span>Datos</span></div>
-        <div class="container">
-          <ul class="nav nav-tabs d-flex" role="tablist">
-            <li class="nav-item flex-fill">
+
+        <div class="container-fluid px-4">
+          <!-- Navegación de Pestañas en una sola fila -->
+          <ul class="nav nav-tabs nav-tabs-custom mb-4" role="tablist">
+            <li class="nav-item">
               <a
                 class="nav-link active"
                 data-toggle="tab"
                 href="#Instrucciones"
                 role="tab"
               >
-                <i class="fas fa-tasks"></i> Instrucciones
+                <i class="fas fa-list-ul mr-2"></i> Instrucciones
               </a>
             </li>
-            <li class="nav-item flex-fill">
+
+            <li class="nav-item">
               <a
-                class="nav-link disabled-tab"
+                class="nav-link"
                 data-toggle="tab"
                 href="#Generales"
                 role="tab"
               >
-                <i class="fas fa-id-card"></i> Datos Generales
+                <i class="far fa-circle mr-1" style="font-size: 0.7rem"></i>
+                <i class="fas fa-address-card mr-1"></i> Datos Generales
               </a>
             </li>
-            <li class="nav-item flex-fill">
+
+            <li class="nav-item">
               <a
-                class="nav-link disabled-tab"
+                class="nav-link"
                 data-toggle="tab"
                 href="#Domicilio"
                 role="tab"
               >
-                <i class="fas fa-globe-americas"></i> Domicilio Fiscal
+                <i class="far fa-circle mr-1" style="font-size: 0.7rem"></i>
+                <i class="fas fa-globe mr-1"></i> Domicilio Fiscal
               </a>
             </li>
-            <li class="nav-item flex-fill">
+
+            <li class="nav-item">
               <a
                 class="nav-link"
                 data-toggle="tab"
-                href="#Seguimiento"
+                href="#Adicionales"
                 role="tab"
               >
-                <i class="fas fa-hourglass-half"></i> Seguimiento
+                <i class="far fa-circle mr-1" style="font-size: 0.7rem"></i>
+                <i class="fas fa-user-plus mr-1"></i> Datos Adicionales
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a
+                class="nav-link"
+                data-toggle="tab"
+                href="#Finalizar"
+                role="tab"
+              >
+                <i class="far fa-circle mr-1" style="font-size: 0.7rem"></i>
+                <i class="fas fa-print mr-1"></i> Finalizar Captura
               </a>
             </li>
           </ul>
 
-          <div class="tab-content">
-            <div id="Instrucciones" class="tab-pane fade show active">
-              <div class="contenedor-bloque-instrucciones">
-                <div class="row">
-                  <div
-                    id="instruccionesNuevo"
-                    class="col-sm-12 text-justify"
-                    style="display: none"
+          <!-- Contenido de las Pestañas -->
+          <div class="tab-content bg-white shadow-sm rounded p-4">
+            <div
+              id="Instrucciones"
+              class="tab-pane fade show active"
+              role="tabpanel"
+            >
+              <div
+                id="instruccionesRegistrado"
+                class="text-justify"
+                style="display: block"
+              >
+                <ol class="instrucciones-lista">
+                  <li class="mb-3">
+                    <span
+                      >Ingrese a la pestaña correspondiente (Datos Generales,
+                      Domicilio Fiscal, etc).</span
+                    >
+                  </li>
+                  <li class="mb-3">
+                    <span
+                      >Haga clic en el ícono de desbloqueo
+                      <span class="badge-instruccion-outline"
+                        ><i class="fas fa-lock" style="color: #bc955c"></i>
+                        Bloqueado</span
+                      >. El campo pasará a edición y se resaltará en color
+                      crema.</span
+                    >
+                  </li>
+                  <li class="mb-3">
+                    <span
+                      >Para guardar cambios, use
+                      <span class="badge-instruccion-outline"
+                        ><i class="fas fa-save"></i> Guardar Datos</span
+                      >.</span
+                    >
+                  </li>
+                  <li class="mb-3">
+                    <span
+                      >Al completar indicadores, en <b>Finalizar Captura</b> se
+                      habilitará
+                      <span class="badge-instruccion-guinda"
+                        ><i class="fas fa-envelope"></i> Enviar
+                        Actualización</span
+                      >.</span
+                    >
+                  </li>
+                  <li>
+                    <span
+                      >Si visualiza
+                      <i
+                        class="fas fa-exclamation-triangle"
+                        style="color: #bc955c"
+                      ></i
+                      >, haga clic para consultar las observaciones de la
+                      autoridad.</span
+                    >
+                  </li>
+                </ol>
+                <div class="d-flex justify-content-center">
+                  <button
+                    type="button"
+                    class="btn-iniciar-actualizacion mt-3"
+                    id="BtnIniciar"
+                    onclick="iniciarActualizacion()"
                   >
-                    <h5>
-                      Siga las instrucciones que se indican a continuación para
-                      finalizar el proceso de inscripción al padrón:
-                    </h5>
-                    <br />
-                    <ol class="instrucciones-lista">
-                      <li>
-                        <h7>
-                          Ingrese a la pestaña donde desea modificar sus datos
-                          (Datos Generales, Domicilio Fiscal, Datos Adicionales,
-                          Documentación y Finalizar Captura).
-                        </h7>
-                      </li>
-                      <li>
-                        <h7>
-                          Para guardar las modificaciones, haga clic en
-                          <span class="badge-instruccion-outline"
-                            ><i class="fas fa-save"></i> Guardar Datos</span
-                          >
-                          o en
-                          <span class="badge-instruccion-outline"
-                            ><i class="fas fa-cloud-upload-alt"></i> Subir
-                            Archivo</span
-                          >
-                          en la pestaña de Documentación.
-                        </h7>
-                      </li>
-                      <li>
-                        <h7>
-                          Al capturar los datos obligatorios (<i
-                            class="fas fa-asterisk text-danger"
-                          ></i
-                          >), se encenderá el indicador (<i
-                            class="far fa-circle"
-                          ></i>
-                          <i class="fas fa-arrow-right"></i>
-                          <i class="fas fa-check-circle color-guinda"></i>).
-                        </h7>
-                      </li>
-                      <li>
-                        <h7>
-                          Al finalizar, se habilitará el botón
-                          <span class="badge-instruccion-guinda"
-                            ><i class="fas fa-envelope"></i> Enviar Solicitud a
-                            Revisión</span
-                          >.
-                        </h7>
-                      </li>
-                    </ol>
-                    <div class="row mt-2">
-                      <div class="col-sm-12 d-flex justify-content-center">
-                        <div
-                          class="alert alert-warning text-center"
-                          style="max-width: 800px; border-radius: 10px"
-                        >
-                          Consulta nuestro
-                          <a
-                            href="AvisoSIMPLIFICADO.pdf"
-                            target="_blank"
-                            style="color: #856404; text-decoration: underline"
-                            ><b>Aviso de Privacidad</b></a
-                          >
-                        </div>
-                      </div>
-                    </div>
-                    <div class="row mt-2">
-                      <div class="col-sm-12 text-center">
-                        <button
-                          type="button"
-                          class="btn-sitio"
-                          id="BtnIniciar"
-                          onclick="iniciarActualizacion()"
-                        >
-                          <i class="fas fa-edit fa-lg mr-2"></i> Iniciar Captura
-                        </button>
-                      </div>
+                    <i class="fas fa-edit fa-lg mr-2"></i> Iniciar Actualización
+                  </button>
+                </div>
+              </div>
+            </div>
+            <!-- Contenedores para el resto de las secciones -->
+            <div id="Generales" class="tab-pane fade" role="tabpanel">
+              <div class="p-4">
+                <!-- Información del Sistema -->
+                <div class="row mb-4">
+                  <div class="col-md-12 text-right">
+                    <span class="badge badge-light p-2 border">
+                      <strong>FOLIO DE EXPEDIENTE:</strong>
+                      <span id="folio-expediente" class="text-danger"
+                        >GENERANDO...</span
+                      >
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Datos Informativos (Solo lectura) -->
+                <div class="row mb-3 align-items-center">
+                  <div class="col-md-3 text-right"><strong>RFC:</strong></div>
+                  <div class="col-md-9">
+                    <span id="info-rfc" class="text-muted font-weight-bold"
+                      >Cargando...</span
+                    >
+                  </div>
+                </div>
+                <div class="row mb-3 align-items-center">
+                  <div class="col-md-3 text-right">
+                    <strong>Tipo de Persona:</strong>
+                  </div>
+                  <div class="col-md-9">
+                    <span
+                      id="info-tipo-persona"
+                      class="text-muted font-weight-bold"
+                      >Cargando...</span
+                    >
+                  </div>
+                </div>
+                <div class="row mb-4 align-items-center">
+                  <div class="col-md-3 text-right">
+                    <strong>Correo Electrónico:</strong>
+                  </div>
+                  <div class="col-md-9">
+                    <span id="info-correo" class="text-muted font-weight-bold"
+                      >Cargando...</span
+                    >
+                  </div>
+                </div>
+
+                <form id="form-datos-generales">
+                  <!-- SECCIÓN DINÁMICA: NOMBRE / RAZÓN SOCIAL -->
+                  <div
+                    id="contenedor-razon-social"
+                    class="form-group row"
+                  ></div>
+
+                  <!-- SECCIÓN DINÁMICA: ACTAS Y PODER -->
+                  <div class="form-group row">
+                    <label class="col-md-3 col-form-label text-right">
+                      <strong id="label-acta"
+                        ><span class="text-danger">*</span> Acta:</strong
+                      >
+                    </label>
+                    <div class="col-md-9">
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="num_acta"
+                        placeholder="INGRESAR NÚMERO"
+                      />
                     </div>
                   </div>
 
                   <div
-                    id="instruccionesRegistrado"
-                    class="col-sm-12 text-justify"
+                    id="contenedor-poder-notarial"
+                    class="form-group row"
                     style="display: none"
                   >
-                    <h5>
-                      Aquí podrá hacer las modificaciones a su perfil, ya sea
-                      por algún cambio hecho por usted o que le haya indicado el
-                      personal de la Oficina de Registro y Control de
-                      Proveedores. Para ello, siga estas instrucciones:
-                    </h5>
-                    <br />
-                    <ol class="instrucciones-lista">
-                      <li>
-                        <h7>
-                          Ingrese a la pestaña donde desea modificar sus datos
-                          (Datos Generales, Domicilio Fiscal, Datos Adicionales,
-                          Documentación y Finalizar Captura).
-                        </h7>
-                      </li>
-                      <li>
-                        <h7>
-                          Para modificar la información, primero haga clic en el
-                          ícono de desbloqueo
-                          <span class="badge-instruccion-outline"
-                            ><i class="fas fa-lock" style="color: orange"></i>
-                            Bloqueado</span
-                          >. El campo cambiará a modo edición (<i
-                            class="fas fa-lock"
-                            style="color: orange"
-                          ></i>
-                          <i class="fas fa-arrow-right"></i>
-                          <i class="fas fa-lock-open" style="color: orange"></i
-                          >) y se resaltará en color crema:
-                          <span
-                            style="
-                              background-color: moccasin;
-                              border: 1px solid #ccc;
-                            "
-                            >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span
-                          >.
-                        </h7>
-                      </li>
-                      <li>
-                        <h7>
-                          Para guardar los cambios, haga clic en
-                          <span class="badge-instruccion-outline"
-                            ><i class="fas fa-save"></i> Guardar Datos</span
-                          >
-                          o en
-                          <span class="badge-instruccion-outline"
-                            ><i class="fas fa-cloud-upload-alt"></i> Subir
-                            Archivo</span
-                          >
-                          en la pestaña de Documentación.
-                        </h7>
-                      </li>
-                      <li>
-                        <h7>
-                          Al capturar los datos obligatorios (<i
-                            class="fas fa-asterisk text-danger"
-                          ></i
-                          >), el indicador cambiará de estado (<i
-                            class="far fa-circle"
-                          ></i>
-                          <i class="fas fa-arrow-right"></i>
-                          <i class="fas fa-check-circle color-guinda"></i>).
-                        </h7>
-                      </li>
-                      <li>
-                        <h7>
-                          Una vez completados los indicadores, en la pestaña
-                          Finalizar Captura se habilitará el botón
-                          <span class="badge-instruccion-guinda"
-                            ><i class="fas fa-envelope"></i> Enviar
-                            Actualización</span
-                          >
-                          para que el personal de la Oficina valide sus cambios.
-                        </h7>
-                      </li>
-                      <li>
-                        <h7>
-                          Si visualiza el ícono
-                          <i
-                            class="fas fa-exclamation-triangle"
-                            style="color: #ffc107"
-                          ></i
-                          >, haga clic en él para consultar las observaciones
-                          realizadas por la autoridad y realice los ajustes
-                          necesarios.
-                        </h7>
-                      </li>
-                    </ol>
-                    <div class="row mt-2">
-                      <div class="col-sm-12 d-flex justify-content-center">
-                        <div
-                          class="alert alert-warning text-center"
-                          style="max-width: 800px; border-radius: 10px"
-                        >
-                          Consulta nuestro
-                          <a
-                            href="AvisoSIMPLIFICADO.pdf"
-                            target="_blank"
-                            style="color: #856404; text-decoration: underline"
-                            ><b>Aviso de Privacidad</b></a
-                          >
-                        </div>
-                      </div>
-                    </div>
-                    <div class="row mt-2">
-                      <div class="col-sm-12 text-center">
-                        <button
-                          type="button"
-                          class="btn-sitio"
-                          id="BtnIniciar"
-                          onclick="iniciarActualizacion()"
-                        >
-                          <i class="fas fa-edit fa-lg mr-2"></i> Iniciar
-                          Actualización
-                        </button>
-                      </div>
+                    <label class="col-md-3 col-form-label text-right"
+                      ><strong>Poder Notarial:</strong></label
+                    >
+                    <div class="col-md-9">
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="poder_notarial"
+                        placeholder="INGRESAR DATOS DEL PODER NOTARIAL"
+                      />
                     </div>
                   </div>
+
+                  <div class="form-group row">
+                    <label class="col-md-3 col-form-label text-right"
+                      ><strong>Nombre Comercial:</strong></label
+                    >
+                    <div class="col-md-9">
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="nombre_comercial"
+                        placeholder="EN CASO DE NO TENER, INGRESAR RAZÓN SOCIAL"
+                      />
+                    </div>
+                  </div>
+
+                  <!-- REPRESENTANTE Y TIPO -->
+                  <div class="form-group row">
+                    <label class="col-md-3 col-form-label text-right"
+                      ><strong>Nombre del Representante:</strong></label
+                    >
+                    <div class="col-md-3">
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="rep_nombre"
+                        placeholder="NOMBRE(S)"
+                      />
+                    </div>
+                    <div class="col-md-3">
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="rep_paterno"
+                        placeholder="PRIMER APELLIDO"
+                      />
+                    </div>
+                    <div class="col-md-3">
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="rep_materno"
+                        placeholder="SEGUNDO APELLIDO"
+                      />
+                    </div>
+                  </div>
+
+                  <div class="form-group row">
+                    <label class="col-md-3 col-form-label text-right"
+                      ><strong>Tipo de Representante:</strong></label
+                    >
+                    <div class="col-md-9">
+                      <select class="form-control" id="tipo_representante">
+                        <option value="Representante Legal">
+                          Representante Legal
+                        </option>
+                        <option value="Administrador Único">
+                          Administrador Único
+                        </option>
+                        <option value="Propietario">Propietario</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <!-- DOCUMENTO IDENTIFICACIÓN DINÁMICO -->
+                  <div class="form-group row">
+                    <label class="col-md-3 col-form-label text-right"
+                      ><strong>Identificación:</strong></label
+                    >
+                    <div class="col-md-9">
+                      <select
+                        class="form-control"
+                        id="select_tipo_doc"
+                        onchange="ajustarLabelIdentificacion()"
+                      >
+                        <option value="ID">Identificación Oficial</option>
+                        <option value="PASAPORTE">Pasaporte</option>
+                        <option value="CEDULA">Cédula Profesional</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="form-group row">
+                    <label class="col-md-3 col-form-label text-right">
+                      <strong id="label-identificacion"
+                        >Clave de Elector:</strong
+                      >
+                    </label>
+                    <div class="col-md-9">
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="num_identificacion"
+                        placeholder="INGRESAR DATO"
+                      />
+                    </div>
+                  </div>
+
+                  <!-- Botones -->
+                  <div class="d-flex justify-content-center">
+                    <button
+                      type="button"
+                      class="btn-guardar-datos"
+                      id="BtnGenerales"
+                      onclick="guardarGenerales()"
+                    >
+                      <i class="fas fa-edit fa-lg mr-2"></i> Guardar Datos
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            <div id="Domicilio" class="tab-pane fade" role="tabpanel">
+              <div class="p-4">
+                <form id="form-domicilio">
+                  <!-- Estado -->
+                  <div class="form-group row">
+                    <label class="col-md-3 col-form-label text-right"
+                      ><span class="text-danger">*</span>
+                      <strong>Estado:</strong></label
+                    >
+                    <div class="col-md-9">
+                      <select class="form-control" id="select-estado">
+                        <option value="">SELECCIONE EL ESTADO...</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <!-- Municipio -->
+                  <div class="form-group row">
+                    <label class="col-md-3 col-form-label text-right"
+                      ><span class="text-danger">*</span>
+                      <strong>Municipio:</strong></label
+                    >
+                    <div class="col-md-9">
+                      <select
+                        class="form-control"
+                        id="select-municipio"
+                        disabled
+                      >
+                        <option value="">SELECCIONE EL MUNICIPIO...</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <!-- Localidad -->
+                  <div class="form-group row">
+                    <label class="col-md-3 col-form-label text-right"
+                      ><span class="text-danger">*</span>
+                      <strong>Localidad:</strong></label
+                    >
+                    <div class="col-md-9">
+                      <select class="form-control" id="select-localidad">
+                        <option value="">SELECCIONE LA LOCALIDAD...</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <!-- Nombre de Vialidad -->
+                  <div class="form-group row">
+                    <label class="col-md-3 col-form-label text-right"
+                      ><span class="text-danger">*</span>
+                      <strong>Nombre de Vialidad:</strong></label
+                    >
+                    <div class="col-md-9">
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="vialidad"
+                        placeholder="NOMBRE DE VIALIDAD"
+                      />
+                    </div>
+                  </div>
+
+                  <!-- Número Exterior e Interior -->
+                  <div class="form-group row">
+                    <label class="col-md-3 col-form-label text-right"
+                      ><span class="text-danger">*</span>
+                      <strong>Número Exterior:</strong></label
+                    >
+                    <div class="col-md-3">
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="num_ext"
+                        placeholder="NÚMERO EXTERIOR"
+                      />
+                    </div>
+                    <label class="col-md-2 col-form-label text-right"
+                      ><strong>Interior:</strong></label
+                    >
+                    <div class="col-md-4">
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="num_int"
+                        placeholder="NÚMERO INTERIOR"
+                      />
+                    </div>
+                  </div>
+
+                  <!-- Colonia -->
+                  <div class="form-group row">
+                    <label class="col-md-3 col-form-label text-right"
+                      ><span class="text-danger">*</span>
+                      <strong>Colonia:</strong></label
+                    >
+                    <div class="col-md-9">
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="colonia"
+                        placeholder="COLONIA"
+                      />
+                    </div>
+                  </div>
+
+                  <!-- Código Postal -->
+                  <div class="form-group row">
+                    <label class="col-md-3 col-form-label text-right"
+                      ><span class="text-danger">*</span>
+                      <strong>Código Postal:</strong></label
+                    >
+                    <div class="col-md-3">
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="cp"
+                        placeholder="CÓDIGO POSTAL"
+                      />
+                    </div>
+                  </div>
+
+                  <!-- Botones de Acción -->
+                  <div class="d-flex justify-content-center">
+                    <button
+                      type="button"
+                      class="btn-guardar-datos"
+                      id="BtnDomicilio"
+                      onclick="guardarDomicilio()"
+                    >
+                      <i class="fas fa-edit fa-lg mr-2"></i> Guardar Datos
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            <div id="Adicionales" class="tab-pane fade" role="tabpanel">
+              <div class="p-4">
+                <form id="form-adicionales">
+                  <!-- Teléfono -->
+                  <div class="form-group row">
+                    <label class="col-md-3 col-form-label text-right"
+                      ><span class="text-danger">*</span>
+                      <strong>Teléfono:</strong></label
+                    >
+                    <div class="col-md-9">
+                      <input
+                        type="tel"
+                        class="form-control"
+                        id="input-telefono"
+                        placeholder="Teléfono"
+                      />
+                      <small class="text-muted"
+                        >Debe coincidir con el de la constancia de situación
+                        fiscal y ser único por proveedor.</small
+                      >
+                    </div>
+                  </div>
+
+                  <!-- Capacidad Crediticia -->
+                  <div class="form-group row">
+                    <label class="col-md-3 col-form-label text-right"
+                      ><span class="text-danger">*</span>
+                      <strong>Capacidad Crediticia:</strong></label
+                    >
+                    <div class="col-md-9">
+                      <select class="form-control" id="select-capacidad">
+                        <option value="">
+                          Seleccione su Capacidad Crediticia...
+                        </option>
+                        <option value="5000">HASTA 5 MIL PESOS</option>
+                        <option value="20000">HASTA 20 MIL PESOS</option>
+                        <option value="50000">HASTA 50 MIL PESOS</option>
+                        <option value="100000">HASTA 100 MIL PESOS</option>
+                        <option value="200000">HASTA 200 MIL PESOS</option>
+                        <option value=">200000">MAYOR A 200 MIL PESOS</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <!-- Número de Empleados -->
+                  <div class="form-group row">
+                    <label class="col-md-3 col-form-label text-right"
+                      ><span class="text-danger">*</span>
+                      <strong>Número de Empleados:</strong></label
+                    >
+                    <div class="col-md-9">
+                      <select class="form-control" id="select-empleados">
+                        <option value="">
+                          Seleccione el Número de Empleados...
+                        </option>
+                        <option value="1-10">DE 1 A 10 EMPLEADOS</option>
+                        <option value="11-50">DE 11 A 50 EMPLEADOS</option>
+                        <option value="51-250">DE 51 A 250 EMPLEADOS</option>
+                        <option value=">251">251 O MÁS EMPLEADOS</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <!-- Año de Inicio (Dinámico desde Supabase) -->
+                  <div class="form-group row">
+                    <label class="col-md-3 col-form-label text-right"
+                      ><span class="text-danger">*</span>
+                      <strong>Año de Inicio de Actividades:</strong></label
+                    >
+                    <div class="col-md-9">
+                      <select class="form-control" id="select-anio">
+                        <option value="">Seleccione el Año...</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <!-- Botones -->
+                  <div class="d-flex justify-content-center">
+                    <button
+                      type="button"
+                      class="btn-guardar-datos"
+                      id="BtnAdicionales"
+                      onclick="guardarAdicionales()"
+                    >
+                      <i class="fas fa-edit fa-lg mr-2"></i> Guardar Datos
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            <div id="Finalizar" class="tab-pane fade" role="tabpanel">
+              <div class="p-4">
+                <div class="alert alert-light border">
+                  Le recomendamos subir un archivo a la vez para agilizar el
+                  proceso de carga del mismo; si se le presenta algún problema
+                  durante el registro de su información, en el apartado de
+                  <strong><i class="fas fa-address-book"></i> Contacto</strong>
+                  del menú principal encontrará los distintos medios para
+                  comunicarse con personal del Padrón de Proveedores.
+                </div>
+                <p class="text-muted small">
+                  <span class="text-danger">*</span> Datos Obligatorios
+                </p>
+
+                <!-- Constancia de Situación Fiscal -->
+                <div class="form-group row align-items-center mb-4">
+                  <label class="col-md-4 text-right font-weight-bold"
+                    ><span class="text-danger">*</span> Adjuntar Constancia de
+                    Situación Fiscal:</label
+                  >
+                  <div
+                    class="col-md-7 d-flex align-items-center bg-light p-2 rounded"
+                  >
+                    <button
+                      type="button"
+                      class="btn-adjuntar"
+                      onclick="document.getElementById('file-csf').click()"
+                    >
+                      <i class="fas fa-paperclip"></i> ADJUNTAR
+                    </button>
+                    <span id="status-csf" class="text-muted"
+                      >Ningún archivo seleccionado</span
+                    >
+                    <input
+                      type="file"
+                      id="file-csf"
+                      accept=".pdf"
+                      style="display: none"
+                      onchange="actualizarEstadoArchivo('csf')"
+                    />
+                  </div>
+                  <div class="col-md-1 text-center">
+                    <i class="fas fa-eye-slash text-muted"></i>
+                  </div>
+                  <div class="col-md-8 offset-md-4">
+                    <small class="text-muted"
+                      >Constancia actualizada y completa (que contenga la Cédula
+                      Fiscal, Domicilio Actual y Actividad Económica...).</small
+                    >
+                  </div>
+                </div>
+
+                <!-- Acta de Nacimiento / Constitutiva -->
+                <div class="form-group row align-items-center mb-4">
+                  <label class="col-md-4 text-right font-weight-bold"
+                    ><span class="text-danger">*</span> Adjuntar Acta de
+                    Nacimiento:</label
+                  >
+                  <div
+                    class="col-md-7 d-flex align-items-center bg-light p-2 rounded"
+                  >
+                    <button
+                      type="button"
+                      class="btn-adjuntar"
+                      onclick="document.getElementById('file-acta').click()"
+                    >
+                      <i class="fas fa-paperclip"></i> ADJUNTAR
+                    </button>
+                    <span id="status-acta" class="text-muted"
+                      >Ningún archivo seleccionado</span
+                    >
+                    <input
+                      type="file"
+                      id="file-acta"
+                      accept=".pdf"
+                      style="display: none"
+                      onchange="actualizarEstadoArchivo('acta')"
+                    />
+                  </div>
+                  <div class="col-md-1 text-center">
+                    <i class="fas fa-eye-slash text-muted"></i>
+                  </div>
+                </div>
+
+                <!-- Comprobante de Domicilio -->
+                <div class="form-group row align-items-center mb-4">
+                  <label class="col-md-4 text-right font-weight-bold"
+                    ><span class="text-danger">*</span> Adjuntar Comprobante de
+                    Domicilio:</label
+                  >
+                  <div
+                    class="col-md-7 d-flex align-items-center bg-light p-2 rounded"
+                  >
+                    <button
+                      type="button"
+                      class="btn-adjuntar"
+                      onclick="
+                        document.getElementById('file-domicilio').click()
+                      "
+                    >
+                      <i class="fas fa-paperclip"></i> ADJUNTAR
+                    </button>
+                    <span id="status-domicilio" class="text-muted"
+                      >Ningún archivo seleccionado</span
+                    >
+                    <input
+                      type="file"
+                      id="file-domicilio"
+                      accept=".pdf"
+                      style="display: none"
+                      onchange="actualizarEstadoArchivo('domicilio')"
+                    />
+                  </div>
+                  <div class="col-md-1 text-center">
+                    <i class="fas fa-eye-slash text-muted"></i>
+                  </div>
+                  <div class="col-md-8 offset-md-4">
+                    <small class="text-muted"
+                      >Comprobante de domicilio con una antigüedad no mayor a 3
+                      meses (CFE, Agua, Teléfono).</small
+                    >
+                  </div>
+                </div>
+
+                <!-- Identificación -->
+                <div class="form-group row align-items-center mb-4">
+                  <label class="col-md-4 text-right font-weight-bold"
+                    ><span class="text-danger">*</span> Adjuntar Credencial de
+                    Elector:</label
+                  >
+                  <div
+                    class="col-md-7 d-flex align-items-center bg-light p-2 rounded"
+                  >
+                    <button
+                      type="button"
+                      class="btn-adjuntar"
+                      onclick="document.getElementById('file-ine').click()"
+                    >
+                      <i class="fas fa-paperclip"></i> ADJUNTAR
+                    </button>
+                    <span id="status-ine" class="text-muted"
+                      >Ningún archivo seleccionado</span
+                    >
+                    <input
+                      type="file"
+                      id="file-ine"
+                      accept=".pdf"
+                      style="display: none"
+                      onchange="actualizarEstadoArchivo('ine')"
+                    />
+                  </div>
+                  <div class="col-md-1 text-center">
+                    <i class="fas fa-eye-slash text-muted"></i>
+                  </div>
+                </div>
+
+                <!-- Botones de Acción -->
+                <div class="d-flex justify-content-center">
+                  <button
+                    type="button"
+                    class="btn-solicitud-revision"
+                    id="BtnRevision"
+                    onclick="SolicitudRevisionn()"
+                  >
+                    <i class="fas fa-edit fa-lg mr-2"></i> Enviar Solicitud a
+                    Revisión
+                  </button>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </section>
+
+      <div id="Generales" class="tab-pane fade" role="tabpanel">...</div>
+      <div id="Domicilio" class="tab-pane fade" role="tabpanel">...</div>
+      <div id="Adicionales" class="tab-pane fade" role="tabpanel">...</div>
+      <div id="Finalizar" class="tab-pane fade" role="tabpanel">...</div>
 
       <section id="estado-perfil" class="contenido-seccion">
         <div class="titulo-seccion">ESTADO DE <span>PERFIL</span></div>
@@ -412,59 +888,6 @@
           </ul>
 
           <div class="tab-content">
-            <div id="Resumen" class="tab-pane active text-center">
-              <h4 style="color: #666" class="text-left">
-                Su perfil se encuentra actualmente en el estado:
-              </h4>
-              <h2 class="estado-titulo">EN CAPTURA</h2>
-              <p class="text-muted">
-                <i
-                  >(En este momento está capturando su información y estamos en
-                  espera de que nos envíe la información requerida para su
-                  revisión)</i
-                >
-              </p>
-
-              <hr />
-
-              <div class="contenedor-adjuntar">
-                <span style="color: #ab0a3d; font-weight: 700"
-                  >* Adjuntar Carta Compromiso:</span
-                >
-                <label class="btn btn-perfil-adjuntar">
-                  ADJUNTAR
-                  <input
-                    type="file"
-                    style="display: none"
-                    onchange="
-                      document.getElementById('nombre-archivo').value =
-                        this.files[0].name
-                    "
-                  />
-                </label>
-                <input
-                  type="text"
-                  id="nombre-archivo"
-                  class="input-archivo-texto"
-                  readonly
-                  placeholder="Ningún archivo seleccionado"
-                />
-              </div>
-
-              <div style="margin-top: 20px">
-                <button
-                  class="btn btn-perfil-secundario"
-                  onclick="enviarFormSeguro('FormaSesion')"
-                >
-                  DESCARGAR CARTA COMPROMISO
-                </button>
-                <button class="btn btn-perfil-secundario">SUBIR ARCHIVO</button>
-                <button class="btn btn-perfil-primario">
-                  ENVIAR A VERIFICACIÓN
-                </button>
-              </div>
-            </div>
-
             <div id="Observaciones" class="tab-pane">
               <div class="table-responsive">
                 <table class="table table-bordered tabla-estilo-atlixco">
@@ -499,19 +922,18 @@
           </div>
         </div>
       </section>
-
     </main>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.105.1/dist/umd/supabase.min.js"></script>
 
     <script src="/js/conexion-supabase.js"></script>
     <script src="/js/menuindex.js"></script>
     <script src="/js/gestion-sistema.js"></script>
+    <script src="/inicio/formularios.js"></script>
 
     <script>
       window.esUsuarioNuevo = true; // Esto debería venir de tu base de datos después
     </script>
-    
-    <div id="footer-placeholder"></div>
 
+    <div id="footer-placeholder"></div>
   </body>
 </html>

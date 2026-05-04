@@ -296,6 +296,8 @@ section {
 .icon-box:hover {
   border-color: var(--guinda);
   background-color: #fcfcfc;
+  transform: translateY(-10px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
 
 /* ------------------------------------------------------------
@@ -351,7 +353,7 @@ section {
 .icono-pequeno {
   width: 35px;
   height: 35px;
-  fill: #007bff;
+  fill: #ab0a3d;
   flex-shrink: 0;
 }
 
@@ -550,4 +552,113 @@ section {
   .custom-main-box {
     grid-template-columns: 1fr !important;
   }
+}
+
+/* ============================================================
+   9. TABS PERSONALIZADOS (ESTILO INTEGRADO)
+   ============================================================ */
+
+/* Contenedor de la lista de pestañas - Ajustado para Fila Única */
+.nav-tabs {
+  border-bottom: none !important;
+  margin-bottom: 0 !important;
+  gap: 5px;
+  display: flex !important;
+  flex-wrap: nowrap !important; /* Fuerza una sola fila */
+  overflow-x: auto; /* Scroll horizontal si no caben */
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Ocultar scrollbar pero mantener funcionalidad */
+.nav-tabs::-webkit-scrollbar {
+  height: 4px;
+}
+.nav-tabs::-webkit-scrollbar-thumb {
+  background: var(--dorado);
+  border-radius: 10px;
+}
+
+/* Estilo base de cada pestaña (Link) */
+.nav-tabs .nav-link {
+  border: 1px solid transparent !important;
+  background-color: rgba(179, 142, 93, 0.1);
+  color: var(--gris-oscuro) !important;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  padding: 12px 20px;
+  border-radius: 12px 12px 0 0 !important;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  white-space: nowrap; /* Evita que el texto se rompa en dos líneas */
+  flex: 1 0 auto;
+  justify-content: center;
+}
+
+/* Iconos dentro de las pestañas */
+.nav-tabs .nav-link i {
+  color: var(--guinda);
+  font-size: 1.1rem;
+  margin-right: 8px;
+}
+
+/* Efecto Hover */
+.nav-tabs .nav-link:hover:not(.active):not(.disabled-tab) {
+  background-color: var(--blanco);
+  border-color: #dee2e6 #dee2e6 transparent !important;
+  color: var(--guinda) !important;
+  transform: translateY(-2px);
+}
+
+/* Pestaña Activa */
+.nav-tabs .nav-link.active {
+  background-color: var(--blanco) !important;
+  border-color: #dee2e6 #dee2e6 var(--blanco) !important;
+  color: var(--guinda) !important;
+  position: relative;
+  z-index: 10;
+  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Contenedor del contenido (Cuadro Blanco) */
+.tab-content {
+  background-color: var(--blanco);
+  border: 1px solid #dee2e6;
+  border-radius: 0 12px 12px 12px;
+  padding: 40px;
+  margin-top: -1px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+  position: relative;
+  z-index: 5;
+}
+
+/* Estilos internos */
+.tab-content h5 {
+  color: var(--gris-oscuro);
+  font-weight: 800;
+  border-bottom: 2px solid var(--dorado);
+  display: inline-block;
+  padding-bottom: 5px;
+  margin-bottom: 20px;
+}
+
+.instrucciones-lista li {
+  margin-bottom: 15px;
+  color: var(--gris-oscuro);
+  line-height: 1.6;
+}
+
+.nav-link.disabled-tab {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: #eee !important;
+}
+
+/* Form labels para Datos Generales */
+.form-label-bold {
+  font-weight: 700;
+  color: var(--gris-oscuro);
+  text-align: right;
 }
