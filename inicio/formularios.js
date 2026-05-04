@@ -26,26 +26,23 @@ document.addEventListener("DOMContentLoaded", async () => {
 async function inicializarPagina() {
   console.log("🔄 Sincronizando expediente...");
   try {
-    // 1. OBTENER DATOS BASE DE 'USUARIOS'
+    // 1. Obtener datos base de 'usuarios'
     const { data: usuario, error: errU } = await window.clientSupa
       .from("usuarios")
       .select("rfc, tipo_persona, correo")
       .eq("id", PROVEEDOR_ID)
       .single();
 
-    if (errU || !usuario) {
-      console.error("❌ No se encontró el usuario base:", errU);
-      return;
-    }
+    if (errU || !usuario) return console.error("❌ No existe usuario base.");
 
-    // Mostrar datos en los SPAN informativos
+    // Mostrar datos en SPANs
     document.getElementById("info-rfc").innerText = usuario.rfc || "---";
     document.getElementById("info-correo").innerText = usuario.correo || "---";
     document.getElementById("info-tipo-persona").innerText =
       usuario.tipo_persona || "---";
     gestionarCamposTipoPersona(usuario.tipo_persona);
 
-    // 2. BUSCAR O CREAR REGISTRO EN 'PROVEEDORES'
+    // 2. Buscar o Crear en 'proveedores'
     let { data: prov, error: errP } = await window.clientSupa
       .from("proveedores")
       .select("*")
@@ -53,10 +50,7 @@ async function inicializarPagina() {
       .maybeSingle();
 
     if (!prov) {
-      console.log("🆕 Creando nuevo expediente en proveedores...");
-
-      // Enviamos los 3 campos que tu tabla marca como NO NULL (Obligatorios)
-      // 🚀 INSERT PROTEGIDO CONTRA CONSTRAINTS
+      console.log("🆕 Generando nuevo expediente...");
       const { data: nuevoProv, error: errCrear } = await window.clientSupa
         .from("proveedores")
         .insert([
@@ -64,32 +58,25 @@ async function inicializarPagina() {
             id: PROVEEDOR_ID,
             rfc: usuario.rfc,
             correo: usuario.correo,
-            // Normalizamos el valor para que coincida con lo que la base de datos suele esperar
-            tipo_persona: usuario.tipo_persona.toUpperCase(),
+            tipo_persona: usuario.tipo_persona,
           },
         ])
         .select()
         .single();
 
-      if (errCrear) {
-        console.error("❌ Error al crear proveedor:", errCrear.message);
-        alert("Error al generar folio: " + errCrear.message);
-        return;
-      }
+      if (errCrear) throw errCrear;
       prov = nuevoProv;
-      console.log("✅ Expediente creado con éxito.");
     }
 
-    // 3. RELLENAR LOS CAMPOS DEL FORMULARIO
+    // 3. Rellenar Interfaz
     if (prov) {
-      // Folio
       const folioSpan = document.getElementById("folio-expediente");
       if (folioSpan && prov.folio) {
         folioSpan.innerText = `EXP-${prov.folio}`;
-        folioSpan.classList.replace("text-danger", "text-success");
+        folioSpan.className = "badge badge-success p-2"; // Ponerlo en verde
       }
 
-      // Campos de texto (IDs del HTML)
+      // Autollenar todos los inputs del formulario
       const campos = [
         "num_acta",
         "poder_notarial",
@@ -98,42 +85,23 @@ async function inicializarPagina() {
         "rep_paterno",
         "rep_materno",
         "num_identificacion",
+        "vialidad",
+        "num_ext",
+        "num_int",
+        "colonia",
+        "cp",
+        "input-telefono",
       ];
+
       campos.forEach((id) => {
         const el = document.getElementById(id);
-        if (el) el.value = prov[id] || "";
+        if (el)
+          el.value = prov[id === "input-telefono" ? "telefono" : id] || "";
       });
-
-      // Selects y Domicilio
-      if (document.getElementById("tipo_representante"))
-        document.getElementById("tipo_representante").value =
-          prov.tipo_representante || "Representante Legal";
-
-      if (document.getElementById("select_tipo_doc")) {
-        document.getElementById("select_tipo_doc").value =
-          prov.tipo_identificacion || "ID";
-        ajustarLabelIdentificacion();
-      }
-
-      // Domicilio (Si existen los campos)
-      if (document.getElementById("vialidad")) {
-        document.getElementById("select-estado").value = prov.estado || "";
-        document.getElementById("vialidad").value = prov.vialidad || "";
-        document.getElementById("num_ext").value = prov.num_ext || "";
-        document.getElementById("num_int").value = prov.num_int || "";
-        document.getElementById("colonia").value = prov.colonia || "";
-        document.getElementById("cp").value = prov.cp || "";
-
-        // Activar municipios
-        document
-          .getElementById("select-estado")
-          .dispatchEvent(new Event("change"));
-        document.getElementById("select-municipio").value =
-          prov.municipio || "";
-      }
     }
   } catch (e) {
-    console.error("❌ Error crítico:", e);
+    console.error("❌ Error en sincronización:", e.message);
+    alert("Error de conexión: " + e.message);
   }
 }
 
