@@ -227,31 +227,64 @@ async function guardarAdicionales() {
   else alert("✅ Datos Adicionales guardados.");
 }
 
-// --- 4. CARGA DE DOCUMENTOS (STORAGE) ---
+// --- 4. CARGA DE DOCUMENTOS Y GENERACIÓN DE FOLIO ---
 
 async function SolicitudRevisionn() {
-  const archivos = [
-    { name: "csf", el: document.getElementById("file-csf") },
-    { name: "acta", el: document.getElementById("file-acta") },
-    { name: "domicilio", el: document.getElementById("file-domicilio") },
-    { name: "ine", el: document.getElementById("file-ine") },
-  ];
+  try {
+    const archivos = [
+      { name: "csf", el: document.getElementById("file-csf") },
+      { name: "acta", el: document.getElementById("file-acta") },
+      { name: "domicilio", el: document.getElementById("file-domicilio") },
+      { name: "ine", el: document.getElementById("file-ine") },
+    ];
 
-  for (const arc of archivos) {
-    if (arc.el && arc.el.files[0]) {
-      const file = arc.el.files[0];
-      const path = `${PROVEEDOR_ID}/${arc.name}.pdf`;
-      await window.clientSupa.storage
-        .from("expedientes")
-        .upload(path, file, { upsert: true });
+    // 1. Subida de archivos al Storage
+    for (const arc of archivos) {
+      if (arc.el && arc.el.files[0]) {
+        const file = arc.el.files[0];
+        const path = `${PROVEEDOR_ID}/${arc.name}.pdf`;
+
+        const { error: uploadError } = await window.clientSupa.storage
+          .from("expedientes")
+          .upload(path, file, {
+            upsert: true,
+            contentType: "application/pdf",
+          });
+
+        if (uploadError) {
+          console.error(`Error al subir ${arc.name}:`, uploadError.message);
+        }
+      }
     }
-  }
 
-  await window.clientSupa
-    .from("proveedores")
-    .update({ estatus: "EN REVISIÓN" })
-    .eq("id", PROVEEDOR_ID);
-  alert("🚀 Expediente enviado a revisión.");
+    // 2. Generación de Folio
+    // Creamos un folio con el formato PROV-AÑO-RANDOM
+    const anioActual = new Date().getFullYear();
+    const numeroRandom = Math.floor(1000 + Math.random() * 9000);
+    const nuevoFolio = `PROV-${anioActual}-${numeroRandom}`;
+
+    // 3. Actualizar base de datos con Estatus y Folio
+    const { error: updateError } = await window.clientSupa
+      .from("proveedores")
+      .update({
+        estatus: "EN REVISIÓN",
+        folio: nuevoFolio,
+        updated_at: new Date(),
+      })
+      .eq("id", PROVEEDOR_ID);
+
+    if (updateError) throw updateError;
+
+    alert(
+      `🚀 Expediente enviado a revisión con éxito.\nTu folio asignado es: ${nuevoFolio}`,
+    );
+
+    // Recargar para mostrar los cambios y el nuevo folio
+    location.reload();
+  } catch (error) {
+    console.error("❌ Error en SolicitudRevisionn:", error.message);
+    alert("No se pudo completar el envío: " + error.message);
+  }
 }
 
 // --- 5. EVENTOS ---
@@ -261,11 +294,15 @@ function configurarEscuchadores() {
   if (selectEstado) {
     selectEstado.addEventListener("change", async (e) => {
       const idEstado = e.target.value;
-      if (idEstado) await cargarMunicipios(idEstado);
-      else {
-        document.getElementById("select-municipio").innerHTML =
-          '<option value="">SELECCIONE EL MUNICIPIO...</option>';
-        document.getElementById("select-municipio").disabled = true;
+      if (idEstado) {
+        await cargarMunicipios(idEstado);
+      } else {
+        const selMun = document.getElementById("select-municipio");
+        if (selMun) {
+          selMun.innerHTML =
+            '<option value="">SELECCIONE EL MUNICIPIO...</option>';
+          selMun.disabled = true;
+        }
       }
     });
   }
