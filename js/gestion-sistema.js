@@ -380,26 +380,43 @@ document.addEventListener("submit", async (e) => {
 
   if (targetId === "FormaLogin") {
     try {
+      btn.disabled = true;
+      btn.innerText = "PROCESANDO...";
+
+      // Limpieza extrema de datos
+      const rfcLimpio = datos.rfc
+        .trim()
+        .toUpperCase()
+        .replace(/[^A-Z0-9]/g, "");
+      const correoLimpio = datos.correo.toLowerCase().trim();
+
       const { data, error } = await window.clientSupa.auth.signUp({
-        email: datos.correo.toLowerCase().trim(),
+        email: correoLimpio,
         password: datos.pwd,
-        options: { data: { rfc: rfcLimpio, tipo_persona: datos.tipo_persona } },
+        options: {
+          data: {
+            rfc: rfcLimpio,
+            tipo_persona: datos.tipo_persona,
+          },
+        },
       });
 
       if (error) {
-        // Si el correo ya existe, Supabase devuelve un error específico
-        if (error.message.includes("already registered")) {
-          alert("Este correo ya está registrado. Intenta iniciar sesión.");
-        } else {
-          throw error;
-        }
-        return;
+        console.error("DEBUG ERROR COMPLETO:", error); // Esto nos dirá el origen real
+        throw error;
       }
 
-      alert("¡Registro exitoso! Revisa tu correo de confirmación.");
+      alert("¡Registro exitoso! Revisa tu correo.");
       $("#ModalRegistro").modal("hide");
     } catch (err) {
-      alert("Error al registrar: " + err.message);
+      console.error("CAPTURA DE ERROR:", err);
+      alert(
+        "Error detallado: " +
+          (err.description || err.message || "Error desconocido"),
+      );
+    } finally {
+      btn.disabled = false;
+      btn.innerText = "CONTINUAR REGISTRO";
     }
   }
 });
