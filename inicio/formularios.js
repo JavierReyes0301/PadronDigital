@@ -135,17 +135,21 @@ function ajustarLabelIdentificacion() {
 // --- FUNCIONES DE GUARDADO ---
 
 async function guardarGenerales() {
-  // 1. Recuperar el RFC que ya está en pantalla (es obligatorio para la tabla)
+  // 1. Recuperar los datos obligatorios de la pantalla (Spans informativos)
   const rfcActual = document.getElementById("info-rfc").innerText;
+  const correoActual = document.getElementById("info-correo").innerText;
+  const tipoActual = document.getElementById("info-tipo-persona").innerText;
 
-  // 2. Validar que tengamos datos básicos
+  // 2. Validar campo mínimo
   const numActa = document.getElementById("num_acta").value.trim();
   if (!numActa) return alert("⚠️ El número de acta es obligatorio.");
 
-  // 3. Construir el payload con el RFC incluido
+  // 3. Construir el payload completo
   const payload = {
     id: PROVEEDOR_ID,
-    rfc: rfcActual, // ✨ Esto soluciona el error de la imagen
+    rfc: rfcActual, // ✨ Obligatorio
+    correo: correoActual, // ✨ Obligatorio
+    tipo_persona: tipoActual, // ✨ Obligatorio
     num_acta: numActa,
     poder_notarial: document.getElementById("poder_notarial").value,
     nombre_comercial: document.getElementById("nombre_comercial").value,
@@ -158,22 +162,16 @@ async function guardarGenerales() {
     updated_at: new Date(),
   };
 
-  console.log("Enviando datos...", payload);
-
   try {
     const { error } = await window.clientSupa
       .from("proveedores")
-      .upsert(payload); // Upsert actualizará el registro existente basado en el ID
+      .upsert(payload);
 
-    if (error) {
-      console.error("Error de Supabase:", error);
-      alert("Error al guardar: " + error.message);
-    } else {
-      alert("✅ Datos Generales guardados con éxito.");
-    }
+    if (error) throw error;
+    alert("✅ Datos Generales guardados con éxito.");
   } catch (e) {
-    console.error("Error técnico:", e);
-    alert("Fallo crítico al guardar.");
+    console.error("Error al guardar:", e);
+    alert("Error: " + e.message);
   }
 }
 
