@@ -230,28 +230,74 @@ async function guardarAdicionales() {
 // --- 4. CARGA DE DOCUMENTOS (STORAGE) ---
 
 async function SolicitudRevisionn() {
+  if (!PROVEEDOR_ID) return alert("Sesión no válida.");
+
   const archivos = [
-    { name: "csf", el: document.getElementById("file-csf") },
-    { name: "acta", el: document.getElementById("file-acta") },
-    { name: "domicilio", el: document.getElementById("file-domicilio") },
-    { name: "ine", el: document.getElementById("file-ine") },
+    { id: "csf", label: "Constancia de Situación Fiscal" },
+    { id: "acta", label: "Acta de Nacimiento" },
+    { id: "domicilio", label: "Comprobante de Domicilio" },
+    { id: "ine", label: "Identificación" },
   ];
 
-  for (const arc of archivos) {
-    if (arc.el && arc.el.files[0]) {
-      const file = arc.el.files[0];
-      const path = `${PROVEEDOR_ID}/${arc.name}.pdf`;
-      await window.clientSupa.storage
-        .from("expedientes")
-        .upload(path, file, { upsert: true });
-    }
-  }
+  // Mostrar un indicador de carga (opcional)
+  const btn = document.getElementById("BtnRevision");
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Subiendo archivos...';
 
-  await window.clientSupa
-    .from("proveedores")
-    .update({ estatus: "EN REVISIÓN" })
-    .eq("id", PROVEEDOR_ID);
-  alert("🚀 Expediente enviado a revisión.");
+  try {
+    for (const arc of archivos) {
+      const fileInput = document.getElementById(`file-${arc.id}`);
+      const file = fileInput.files[0];
+
+      if (file) {
+        // Ruta: carpeta_proveedor_id/nombre_archivo.pdf
+        const filePath = `${PROVEEDOR_ID}/${arc.id}.pdf`;
+
+        const { error: uploadError } = await window.clientSupa.storage
+          .from("expedientes")
+          .upload(filePath, file, {
+            upsert: true, // Si ya existe, lo reemplaza
+            contentType: "application/pdf",
+          });
+
+        if (uploadError) {
+          console.error(`Error subiendo ${arc.label}:`, uploadError.message);
+          throw new Error(`No se pudo subir ${arc.label}`);
+        }
+      } else {
+        // Validación: Si son obligatorios, lanzamos alerta
+        throw new Error(`El archivo ${arc.label} es obligatorio.`);
+      }
+    }
+
+    // Una vez subidos todos, actualizamos el estatus en la tabla 'proveedores'
+    const { error: updateError } = await window.clientSupa
+      .from("proveedores")
+      .update({
+        estatus: "EN REVISIÓN",
+        fecha_solicitud: new Date(),
+      })
+      .eq("id", PROVEEDOR_ID);
+
+    if (updateError) throw updateError;
+
+    alert(
+      "🚀 ¡Expediente enviado con éxito! Los documentos están en proceso de revisión.",
+    );
+    location.reload(); // Recargar para mostrar estatus actualizado
+  } catch (error) {
+    alert(error.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML =
+      '<i class="fas fa-edit fa-lg mr-2"></i> Enviar Solicitud a Revisión';
+  }
+}
+if (input.files[0].size > 2 * 1024 * 1024) {
+  // Límite de 2MB
+  alert("El archivo es demasiado pesado. El máximo es 2MB.");
+  input.value = ""; // Limpiar input
+  return;
 }
 
 // --- 5. EVENTOS ---
