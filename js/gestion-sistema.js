@@ -380,20 +380,26 @@ document.addEventListener("submit", async (e) => {
 
   if (targetId === "FormaLogin") {
     try {
-      btn.disabled = true;
-      btn.innerText = "ENTRANDO...";
-      const { error } = await window.clientSupa.auth.signInWithPassword({
-        email: datos.correo_login.toLowerCase().trim(),
-        password: datos.password_login,
+      const { data, error } = await window.clientSupa.auth.signUp({
+        email: datos.correo.toLowerCase().trim(),
+        password: datos.pwd,
+        options: { data: { rfc: rfcLimpio, tipo_persona: datos.tipo_persona } },
       });
-      if (error) throw error;
-      $("#ModalLogin").modal("hide");
-      window.location.href = "inicio/inicio.html";
+
+      if (error) {
+        // Si el correo ya existe, Supabase devuelve un error específico
+        if (error.message.includes("already registered")) {
+          alert("Este correo ya está registrado. Intenta iniciar sesión.");
+        } else {
+          throw error;
+        }
+        return;
+      }
+
+      alert("¡Registro exitoso! Revisa tu correo de confirmación.");
+      $("#ModalRegistro").modal("hide");
     } catch (err) {
-      alert("Error: " + err.message);
-    } finally {
-      btn.disabled = false;
-      btn.innerText = "INICIAR SESIÓN";
+      alert("Error al registrar: " + err.message);
     }
   }
 });
