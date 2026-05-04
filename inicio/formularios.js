@@ -178,6 +178,9 @@ async function guardarGenerales() {
 async function guardarDomicilio() {
   const payload = {
     id: PROVEEDOR_ID,
+    rfc: document.getElementById("info-rfc").innerText,
+    correo: document.getElementById("info-correo").innerText,
+    tipo_persona: document.getElementById("info-tipo-persona").innerText,
     estado: document.getElementById("select-estado").value,
     municipio: document.getElementById("select-municipio").value,
     vialidad: document.getElementById("vialidad").value,
