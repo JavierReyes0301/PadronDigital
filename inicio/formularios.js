@@ -1,33 +1,54 @@
 /**
  * LÓGICA DE REGISTRO DE PROVEEDORES
- * Versión Final: Selectores Dinámicos + Guardado por Secciones + Storage
+ * Sistema: Padrón de Proveedores
+ * Versión Final Unificada: Selectores Dinámicos + Storage + Guardado por Secciones
  */
+
 let PROVEEDOR_ID = null;
 
 document.addEventListener("DOMContentLoaded", async () => {
-  // 1. Validar sesión de Supabase
-  const { data: { session } } = await window.clientSupa.auth.getSession();
+  console.log("🚀 Iniciando sistema de formularios...");
 
-  if (session) {
+  // 1. Pequeño retraso de seguridad para asegurar que Supabase (clientSupa) esté inicializado
+  setTimeout(async () => {
+    if (!window.clientSupa) {
+      console.error(
+        "❌ Error: No se detectó la instancia de Supabase en 'window.clientSupa'.",
+      );
+      return;
+    }
+
+    const {
+      data: { session },
+      error: sessionError,
+    } = await window.clientSupa.auth.getSession();
+
+    if (sessionError || !session) {
+      console.error("🔴 Sin sesión activa.");
+      const infoRfc = document.getElementById("info-rfc");
+      if (infoRfc) infoRfc.innerText = "Error: Sin Sesión";
+      return;
+    }
+
     PROVEEDOR_ID = session.user.id;
-    console.log("🟢 Sesión activa:", PROVEEDOR_ID);
-    
-    // IMPORTANTE: Primero cargamos catálogos, luego configuramos eventos, 
-    // y al final cargamos los datos del usuario.
-    await cargarEstados(); 
-    configurarEscuchadores(); 
+    console.log("🟢 Sesión confirmada:", PROVEEDOR_ID);
+
+    // ORDEN DE EJECUCIÓN CRÍTICO:
+    // 1. Cargar el catálogo de estados (necesario para el paso 3)
+    await cargarEstados();
+    // 2. Activar los eventos (el listener del cambio de estado)
+    configurarEscuchadores();
+    // 3. Rellenar la página con los datos de la DB
     await inicializarPagina();
-  } else {
-    console.error("🔴 Sin sesión activa.");
-    const infoRfc = document.getElementById("info-rfc");
-    if (infoRfc) infoRfc.innerText = "Error: Sin Sesión";
-  }
+  }, 400);
 });
 
+// --- 1. SINCRONIZACIÓN Y CARGA DE DATOS ---
+
 async function inicializarPagina() {
-  console.log("🔄 Sincronizando expediente...");
+  console.log("🔄 Sincronizando expediente del proveedor...");
   try {
-    // 1. Obtener datos base del usuario (RFC, Tipo, Correo)
+    // A. Obtener datos base del usuario (usuarios)
     const { data: usuario, error: errU } = await window.clientSupa
       .from("usuarios")
       .select("rfc, tipo_persona, correo")
@@ -38,13 +59,14 @@ async function inicializarPagina() {
 
     document.getElementById("info-rfc").innerText = usuario.rfc || "---";
     document.getElementById("info-correo").innerText = usuario.correo || "---";
-    document.getElementById("info-tipo-persona").innerText = usuario.tipo_persona || "---";
+    document.getElementById("info-tipo-persona").innerText =
+      usuario.tipo_persona || "---";
 
     if (typeof gestionarCamposTipoPersona === "function") {
       gestionarCamposTipoPersona(usuario.tipo_persona);
     }
 
-    // 2. Buscar registro en tabla 'proveedores'
+    // B. Buscar o crear registro en tabla 'proveedores'
     let { data: prov } = await window.clientSupa
       .from("proveedores")
       .select("*")
@@ -54,43 +76,59 @@ async function inicializarPagina() {
     if (!prov) {
       const { data: nuevoProv } = await window.clientSupa
         .from("proveedores")
-        .insert([{
-          id: PROVEEDOR_ID,
-          rfc: usuario.rfc,
-          correo: usuario.correo,
-          tipo_persona: usuario.tipo_persona,
-        }])
-        .select().single();
+        .insert([
+          {
+            id: PROVEEDOR_ID,
+            rfc: usuario.rfc,
+            correo: usuario.correo,
+            tipo_persona: usuario.tipo_persona,
+          },
+        ])
+        .select()
+        .single();
       prov = nuevoProv;
     }
 
-    // 3. Rellenar el formulario
+    // C. Rellenar formulario con datos guardados
     if (prov) {
+      // Folio
       const folioSpan = document.getElementById("folio-expediente");
       if (folioSpan && prov.folio) {
         folioSpan.innerText = `EXP-${prov.folio}`;
         folioSpan.className = "badge badge-success p-2";
       }
 
+      // Mapeo masivo de inputs (Generales, Domicilio y Adicionales)
       const campos = [
-        "num_acta", "poder_notarial", "nombre_comercial",
-        "rep_nombre", "rep_paterno", "rep_materno",
-        "num_identificacion", "localidad", "vialidad",
-        "num_ext", "num_int", "colonia", "cp", "input-telefono",
+        "num_acta",
+        "poder_notarial",
+        "nombre_comercial",
+        "rep_nombre",
+        "rep_paterno",
+        "rep_materno",
+        "num_identificacion",
+        "localidad",
+        "vialidad",
+        "num_ext",
+        "num_int",
+        "colonia",
+        "cp",
+        "input-telefono",
       ];
 
       campos.forEach((id) => {
         const el = document.getElementById(id);
-        if (el) el.value = prov[id === "input-telefono" ? "telefono" : id] || "";
+        if (el)
+          el.value = prov[id === "input-telefono" ? "telefono" : id] || "";
       });
 
-      // --- CORRECCIÓN CRÍTICA EN DOMICILIO ---
+      // Rehidratar Selectores de Domicilio (PASO CLAVE)
       if (prov.estado) {
         const selectEstado = document.getElementById("select-estado");
-        selectEstado.value = prov.estado; // Establecer estado
+        selectEstado.value = prov.estado;
 
-        // Esperar a que los municipios carguen antes de asignar el valor del municipio
-        await cargarMunicipios(prov.estado); 
+        // Forzamos la carga de municipios del estado guardado
+        await cargarMunicipios(prov.estado);
 
         if (prov.municipio) {
           const selectMun = document.getElementById("select-municipio");
@@ -103,7 +141,7 @@ async function inicializarPagina() {
   }
 }
 
-// --- CARGA DINÁMICA DE CATÁLOGOS ---
+// --- 2. GESTIÓN DE CATÁLOGOS DINÁMICOS ---
 
 async function cargarEstados() {
   const { data, error } = await window.clientSupa
@@ -119,7 +157,7 @@ async function cargarEstados() {
   selectEstado.innerHTML = '<option value="">SELECCIONE EL ESTADO...</option>';
   data.forEach((est) => {
     const option = document.createElement("option");
-    option.value = est.id; 
+    option.value = est.id;
     option.text = est.nombre.toUpperCase();
     selectEstado.appendChild(option);
   });
@@ -142,13 +180,13 @@ async function cargarMunicipios(estadoId) {
 
   data.forEach((mun) => {
     const option = document.createElement("option");
-    option.value = mun.nombre; 
+    option.value = mun.nombre;
     option.text = mun.nombre.toUpperCase();
     selectMun.appendChild(option);
   });
 }
 
-// --- FUNCIONES DE GUARDADO (SIN CAMBIOS PARA NO ROMPER NADA) ---
+// --- 3. FUNCIONES DE GUARDADO (ACCIONADAS POR TUS BOTONES) ---
 
 async function guardarGenerales() {
   const payload = {
@@ -171,8 +209,8 @@ async function guardarGenerales() {
 async function guardarDomicilio() {
   const payload = {
     id: PROVEEDOR_ID,
-    estado: document.getElementById("select-estado").value, 
-    municipio: document.getElementById("select-municipio").value, 
+    estado: document.getElementById("select-estado").value,
+    municipio: document.getElementById("select-municipio").value,
     localidad: document.getElementById("localidad").value,
     vialidad: document.getElementById("vialidad").value,
     num_ext: document.getElementById("num_ext").value,
@@ -200,6 +238,8 @@ async function guardarAdcionales() {
   else alert("✅ Datos Adicionales guardados.");
 }
 
+// --- 4. STORAGE Y REVISIÓN ---
+
 async function SolicitudRevisionn() {
   const archivos = [
     { name: "csf", el: document.getElementById("file-csf") },
@@ -211,12 +251,19 @@ async function SolicitudRevisionn() {
     if (arc.el && arc.el.files[0]) {
       const file = arc.el.files[0];
       const path = `${PROVEEDOR_ID}/${arc.name}.pdf`;
-      await window.clientSupa.storage.from("expedientes").upload(path, file, { upsert: true });
+      await window.clientSupa.storage
+        .from("expedientes")
+        .upload(path, file, { upsert: true });
     }
   }
-  await window.clientSupa.from("proveedores").update({ estatus: "EN REVISIÓN" }).eq("id", PROVEEDOR_ID);
+  await window.clientSupa
+    .from("proveedores")
+    .update({ estatus: "EN REVISIÓN" })
+    .eq("id", PROVEEDOR_ID);
   alert("🚀 Expediente enviado a revisión.");
 }
+
+// --- 5. ESCUCHADORES DE EVENTOS ---
 
 function configurarEscuchadores() {
   const selectEstado = document.getElementById("select-estado");
@@ -227,7 +274,8 @@ function configurarEscuchadores() {
       if (idEstado) {
         await cargarMunicipios(idEstado);
       } else {
-        selectMun.innerHTML = '<option value="">SELECCIONE EL MUNICIPIO...</option>';
+        selectMun.innerHTML =
+          '<option value="">SELECCIONE EL MUNICIPIO...</option>';
         selectMun.disabled = true;
       }
     });
@@ -236,7 +284,8 @@ function configurarEscuchadores() {
   const selectDoc = document.getElementById("select_tipo_doc");
   if (selectDoc) {
     selectDoc.addEventListener("change", () => {
-      if (typeof ajustarLabelIdentificacion === "function") ajustarLabelIdentificacion();
+      if (typeof ajustarLabelIdentificacion === "function")
+        ajustarLabelIdentificacion();
     });
   }
 }
