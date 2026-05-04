@@ -64,7 +64,7 @@ async function inicializarPagina() {
             rfc: usuario.rfc,
             correo: usuario.correo,
             tipo_persona: usuario.tipo_persona,
-            // El folio se genera solo porque ya es IDENTITY
+            // ❌ NO pongas 'estatus' aquí, deja que la DB use su Default ('PENDIENTE')
           },
         ])
         .select()
