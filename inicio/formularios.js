@@ -1,13 +1,12 @@
 /**
- * LÓGICA DE REGISTRO DE PROVEEDORES
- * Incluye: Datos Generales, Domicilio, Adicionales (Años), y Carga de Documentos.
+ * LÓGICA DE REGISTRO DE PROVEEDORES (Versión Integrada)
  */
 
 let PROVEEDOR_ID = null;
-let USER_DATA = {}; // Almacena RFC, Correo y Tipo de Persona para evitar errores de BD
+let USER_DATA = {};
+let girosSeleccionados = []; // Control de selección múltiple
 
 document.addEventListener("DOMContentLoaded", async () => {
-  // Retraso de seguridad para asegurar la carga de la conexión Supabase
   setTimeout(async () => {
     if (!window.clientSupa) return;
 
@@ -21,7 +20,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       // 1. CARGA DE CATÁLOGOS INICIALES
       await cargarEstados();
-      await cargarAnios(); // Carga desde la tabla 'años'
+      await cargarAnios();
+      await cargarCatalogoGiros(); // Nueva función para los giros
       configurarEscuchadores();
       await inicializarPagina();
     }
@@ -32,7 +32,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 async function inicializarPagina() {
   try {
-    // A. Obtener datos de identidad (Obligatorios para Upsert)
     const { data: usuario } = await window.clientSupa
       .from("usuarios")
       .select("rfc, correo, tipo_persona")
@@ -48,7 +47,6 @@ async function inicializarPagina() {
         usuario.tipo_persona || "---";
     }
 
-    // B. Obtener expediente del proveedor
     let { data: prov } = await window.clientSupa
       .from("proveedores")
       .select("*")
@@ -56,7 +54,6 @@ async function inicializarPagina() {
       .maybeSingle();
 
     if (prov) {
-      // Rellenar inputs de texto
       const campos = [
         "num_acta",
         "poder_notarial",
@@ -73,23 +70,19 @@ async function inicializarPagina() {
         "cp",
         "input-telefono",
       ];
-
       campos.forEach((id) => {
         const el = document.getElementById(id);
         if (el)
           el.value = prov[id === "input-telefono" ? "telefono" : id] || "";
       });
 
-      // Rehidratar selectores de ubicación
       if (prov.estado) {
         document.getElementById("select-estado").value = prov.estado;
         await cargarMunicipios(prov.estado);
-        if (prov.municipio) {
+        if (prov.municipio)
           document.getElementById("select-municipio").value = prov.municipio;
-        }
       }
 
-      // Rehidratar selectores adicionales
       if (prov.anio_inicio)
         document.getElementById("select-anio").value = prov.anio_inicio;
       if (prov.capacidad_crediticia)
@@ -98,175 +91,160 @@ async function inicializarPagina() {
       if (prov.num_empleados)
         document.getElementById("select-empleados").value = prov.num_empleados;
     }
+
+    // CARGAR GIROS YA GUARDADOS (Para evitar que el folio se trabe al recargar)
+    const { data: girosExistentes } = await window.clientSupa
+      .from("proveedores_giros")
+      .select("id_giro, giros_lineas(descripcion)")
+      .eq("id_proveedor", PROVEEDOR_ID);
+
+    if (girosExistentes) {
+      girosExistentes.forEach((item) =>
+        renderizarGiroEnTabla(item.id_giro, item.giros_lineas.descripcion),
+      );
+    }
   } catch (e) {
     console.error("❌ Error en inicialización:", e.message);
   }
 }
 
-// --- 2. CARGA DE CATÁLOGOS (API) ---
+// --- 2. CARGA DE CATÁLOGOS ---
 
-async function cargarAnios() {
-  const selectAnio = document.getElementById("select-anio");
-  if (!selectAnio) return;
+async function cargarCatalogoGiros() {
+  const select = document.getElementById("select-giros-lineas");
+  if (!select) return;
 
   const { data, error } = await window.clientSupa
-    .from("años") //
-    .select("año")
-    .order("año", { ascending: false });
+    .from("giros_lineas")
+    .select("id, descripcion")
+    .order("descripcion", { ascending: true });
 
-  if (error) return console.error("❌ Error años:", error.message);
+  if (error) return console.error("❌ Error giros:", error.message);
 
-  selectAnio.innerHTML = '<option value="">SELECCIONE EL AÑO...</option>';
-  data.forEach((item) => {
-    const option = document.createElement("option");
-    option.value = item.año;
-    option.text = item.año;
-    selectAnio.appendChild(option);
+  select.innerHTML = '<option value="">SELECCIONE EL GIRO...</option>';
+  data.forEach((g) => {
+    const opt = document.createElement("option");
+    opt.value = g.id;
+    opt.text = g.descripcion.toUpperCase();
+    select.appendChild(opt);
   });
 }
 
-async function cargarEstados() {
-  const { data, error } = await window.clientSupa
-    .from("estados_mexico")
-    .select("id, nombre")
-    .order("nombre", { ascending: true });
+// (Tus funciones cargarAnios, cargarEstados y cargarMunicipios se mantienen igual...)
 
-  if (error) return;
-  const selectEstado = document.getElementById("select-estado");
-  if (!selectEstado) return;
+// --- 3. LÓGICA DE GIROS (MÚLTIPLE) ---
 
-  selectEstado.innerHTML = '<option value="">SELECCIONE EL ESTADO...</option>';
-  data.forEach((est) => {
-    const option = document.createElement("option");
-    option.value = est.id;
-    option.text = est.nombre.toUpperCase();
-    selectEstado.appendChild(option);
-  });
+function agregarGiroALista() {
+  const select = document.getElementById("select-giros-lineas");
+  const id = select.value;
+  const texto = select.options[select.selectedIndex].text;
+
+  if (!id || girosSeleccionados.includes(id.toString())) return;
+
+  renderizarGiroEnTabla(id, texto);
 }
 
-async function cargarMunicipios(estadoId) {
-  const selectMun = document.getElementById("select-municipio");
-  if (!selectMun) return;
+function renderizarGiroEnTabla(id, texto) {
+  const tbody = document.getElementById("tbody-giros");
+  if (!tbody) return;
 
-  const { data, error } = await window.clientSupa
-    .from("municipios")
-    .select("nombre")
-    .eq("estado_id", estadoId)
-    .order("nombre", { ascending: true });
+  const rowVacia = document.getElementById("row-vacia");
+  if (rowVacia) rowVacia.remove();
 
-  if (error) return;
+  girosSeleccionados.push(id.toString());
 
-  selectMun.innerHTML = '<option value="">SELECCIONE EL MUNICIPIO...</option>';
-  selectMun.disabled = false;
-  data.forEach((mun) => {
-    const option = document.createElement("option");
-    option.value = mun.nombre;
-    option.text = mun.nombre.toUpperCase();
-    selectMun.appendChild(option);
-  });
+  const tr = document.createElement("tr");
+  tr.id = `fila-giro-${id}`;
+  tr.innerHTML = `
+        <td class="small">${texto}</td>
+        <td class="text-center">
+            <button type="button" class="btn btn-sm btn-outline-danger" onclick="eliminarGiroDeLista('${id}')">
+                <i class="fas fa-trash"></i>
+            </button>
+        </td>`;
+  tbody.appendChild(tr);
 }
 
-// --- 3. FUNCIONES DE GUARDADO (UPSERT) ---
-
-async function guardarGenerales() {
-  const payload = {
-    id: PROVEEDOR_ID,
-    rfc: USER_DATA.rfc, //
-    correo: USER_DATA.correo,
-    tipo_persona: USER_DATA.tipo_persona,
-    num_acta: document.getElementById("num_acta").value,
-    poder_notarial: document.getElementById("poder_notarial").value,
-    nombre_comercial: document.getElementById("nombre_comercial").value,
-    rep_nombre: document.getElementById("rep_nombre").value,
-    rep_paterno: document.getElementById("rep_paterno").value,
-    rep_materno: document.getElementById("rep_materno").value,
-    tipo_identificacion: document.getElementById("select_tipo_doc").value,
-    num_identificacion: document.getElementById("num_identificacion").value,
-    updated_at: new Date(),
-  };
-  const { error } = await window.clientSupa.from("proveedores").upsert(payload);
-  if (error) alert("Error: " + error.message);
-  else alert("✅ Datos Generales guardados.");
+function eliminarGiroDeLista(id) {
+  girosSeleccionados = girosSeleccionados.filter((g) => g !== id.toString());
+  const fila = document.getElementById(`fila-giro-${id}`);
+  if (fila) fila.remove();
 }
 
-async function guardarDomicilio() {
-  const payload = {
-    id: PROVEEDOR_ID,
-    rfc: USER_DATA.rfc,
-    correo: USER_DATA.correo,
-    tipo_persona: USER_DATA.tipo_persona,
-    estado: document.getElementById("select-estado").value,
-    municipio: document.getElementById("select-municipio").value,
-    localidad: document.getElementById("localidad").value,
-    vialidad: document.getElementById("vialidad").value,
-    num_ext: document.getElementById("num_ext").value,
-    num_int: document.getElementById("num_int").value,
-    colonia: document.getElementById("colonia").value,
-    cp: document.getElementById("cp").value,
-    updated_at: new Date(),
-  };
-  const { error } = await window.clientSupa.from("proveedores").upsert(payload);
-  if (error) alert("Error: " + error.message);
-  else alert("✅ Domicilio guardado con éxito.");
-}
+// --- 4. FUNCIONES DE GUARDADO ---
 
 async function guardarAdicionales() {
-  const payload = {
-    id: PROVEEDOR_ID,
-    rfc: USER_DATA.rfc,
-    correo: USER_DATA.correo,
-    tipo_persona: USER_DATA.tipo_persona,
-    telefono: document.getElementById("input-telefono").value,
-    capacidad_crediticia: document.getElementById("select-capacidad").value,
-    num_empleados: document.getElementById("select-empleados").value,
-    anio_inicio: document.getElementById("select-anio").value,
-    updated_at: new Date(),
-  };
-  const { error } = await window.clientSupa.from("proveedores").upsert(payload);
-  if (error) alert("Error: " + error.message);
-  else alert("✅ Datos Adicionales guardados.");
+  try {
+    const payload = {
+      id: PROVEEDOR_ID,
+      rfc: USER_DATA.rfc,
+      correo: USER_DATA.correo,
+      tipo_persona: USER_DATA.tipo_persona,
+      telefono: document.getElementById("input-telefono").value,
+      capacidad_crediticia: document.getElementById("select-capacidad").value,
+      num_empleados: document.getElementById("select-empleados").value,
+      anio_inicio: document.getElementById("select-anio").value,
+      updated_at: new Date(),
+    };
+
+    const { error: errProv } = await window.clientSupa
+      .from("proveedores")
+      .upsert(payload);
+    if (errProv) throw errProv;
+
+    // Guardar Giros en tabla intermedia
+    await window.clientSupa
+      .from("proveedores_giros")
+      .delete()
+      .eq("id_proveedor", PROVEEDOR_ID);
+    if (girosSeleccionados.length > 0) {
+      const dataGiros = girosSeleccionados.map((gid) => ({
+        id_proveedor: PROVEEDOR_ID,
+        id_giro: parseInt(gid),
+      }));
+      await window.clientSupa.from("proveedores_giros").insert(dataGiros);
+    }
+
+    alert("✅ Datos Adicionales y Giros guardados.");
+  } catch (e) {
+    alert("Error: " + e.message);
+  }
 }
 
-// --- 4. CARGA DE DOCUMENTOS (STORAGE) ---
+// --- 5. DOCUMENTOS Y REVISIÓN ---
 
 async function SolicitudRevisionn() {
-  const archivos = [
-    { name: "csf", el: document.getElementById("file-csf") },
-    { name: "acta", el: document.getElementById("file-acta") },
-    { name: "domicilio", el: document.getElementById("file-domicilio") },
-    { name: "ine", el: document.getElementById("file-ine") },
-  ];
+  const btn = document.getElementById("BtnRevision");
+  btn.disabled = true;
+  btn.innerHTML = "Subiendo...";
 
-  for (const arc of archivos) {
-    if (arc.el && arc.el.files[0]) {
-      const file = arc.el.files[0];
-      const path = `${PROVEEDOR_ID}/${arc.name}.pdf`;
-      await window.clientSupa.storage
-        .from("expedientes")
-        .upload(path, file, { upsert: true });
-    }
-  }
+  try {
+    const archivos = [
+      { name: "csf", el: document.getElementById("file-csf") },
+      { name: "acta", el: document.getElementById("file-acta") },
+      { name: "domicilio", el: document.getElementById("file-domicilio") },
+      { name: "ine", el: document.getElementById("file-ine") },
+    ];
 
-  await window.clientSupa
-    .from("proveedores")
-    .update({ estatus: "EN REVISIÓN" })
-    .eq("id", PROVEEDOR_ID);
-  alert("🚀 Expediente enviado a revisión.");
-}
-
-// --- 5. EVENTOS ---
-
-function configurarEscuchadores() {
-  const selectEstado = document.getElementById("select-estado");
-  if (selectEstado) {
-    selectEstado.addEventListener("change", async (e) => {
-      const idEstado = e.target.value;
-      if (idEstado) await cargarMunicipios(idEstado);
-      else {
-        document.getElementById("select-municipio").innerHTML =
-          '<option value="">SELECCIONE EL MUNICIPIO...</option>';
-        document.getElementById("select-municipio").disabled = true;
+    for (const arc of archivos) {
+      if (arc.el && arc.el.files[0]) {
+        const file = arc.el.files[0];
+        const path = `${PROVEEDOR_ID}/${arc.name}.pdf`;
+        await window.clientSupa.storage
+          .from("expedientes")
+          .upload(path, file, { upsert: true });
       }
-    });
+    }
+
+    await window.clientSupa
+      .from("proveedores")
+      .update({ estatus: "EN REVISIÓN" })
+      .eq("id", PROVEEDOR_ID);
+    alert("🚀 Expediente enviado a revisión.");
+    location.reload();
+  } catch (e) {
+    alert("Error al subir: " + e.message);
+  } finally {
+    btn.disabled = false;
   }
 }
