@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 async function inicializarPagina() {
   console.log("🔄 Sincronizando datos...");
   try {
-    // 1. Obtener datos de la tabla 'usuarios'
+    // 1. OBTENER DATOS DE LA TABLA 'USUARIOS'
     const { data: usuario, error: errU } = await window.clientSupa
       .from("usuarios")
       .select("rfc, tipo_persona, correo")
@@ -40,19 +40,54 @@ async function inicializarPagina() {
       document.getElementById("info-tipo-persona").innerText =
         usuario.tipo_persona || "---";
       gestionarCamposTipoPersona(usuario.tipo_persona);
+    } else {
+      console.warn("⚠️ No se encontraron datos en la tabla usuarios.");
+      return; // Si no hay usuario base, no podemos continuar
     }
 
-    // 2. Obtener datos de la tabla 'proveedores'
-    const { data: prov, error: errP } = await window.clientSupa
+    // 2. INTENTAR OBTENER DATOS DE 'PROVEEDORES'
+    let { data: prov, error: errP } = await window.clientSupa
       .from("proveedores")
       .select("*")
       .eq("id", PROVEEDOR_ID)
-      .single();
+      .maybeSingle(); // maybeSingle no lanza error si no encuentra nada
 
+    // 🚀 SI NO EXISTE EN PROVEEDORES, LO CREAMOS EN ESTE MOMENTO
+    if (!prov) {
+      console.log("🆕 Creando registro automático en proveedores...");
+
+      const { data: nuevoProv, error: errCrear } = await window.clientSupa
+        .from("proveedores")
+        .insert([
+          {
+            id: PROVEEDOR_ID,
+            rfc: usuario.rfc,
+            correo: usuario.correo,
+            tipo_persona: usuario.tipo_persona,
+            estatus: "BORRADOR",
+          },
+        ])
+        .select()
+        .single();
+
+      if (errCrear) {
+        console.error("❌ Error al crear proveedor:", errCrear.message);
+        alert("Error al generar expediente. Contacte a soporte.");
+      } else {
+        prov = nuevoProv;
+        console.log("✅ Expediente creado con éxito.");
+      }
+    }
+
+    // 3. RELLENAR LA INTERFAZ CON LOS DATOS DE PROVEEDOR
     if (prov) {
       // Folio
       const folioSpan = document.getElementById("folio-expediente");
-      if (folioSpan && prov.folio) folioSpan.innerText = `EXP-${prov.folio}`;
+      if (folioSpan && prov.folio) {
+        folioSpan.innerText = `EXP-${prov.folio}`;
+        folioSpan.classList.remove("text-danger");
+        folioSpan.style.color = "#28a745"; // Color verde éxito
+      }
 
       // Llenar inputs Generales
       const campos = [
@@ -73,6 +108,7 @@ async function inicializarPagina() {
       if (document.getElementById("tipo_representante"))
         document.getElementById("tipo_representante").value =
           prov.tipo_representante || "Representante Legal";
+
       if (document.getElementById("select_tipo_doc")) {
         document.getElementById("select_tipo_doc").value =
           prov.tipo_identificacion || "ID";
@@ -88,9 +124,11 @@ async function inicializarPagina() {
         document.getElementById("colonia").value = prov.colonia || "";
         document.getElementById("cp").value = prov.cp || "";
 
-        // Desbloquear municipio
-        const event = new Event("change");
-        document.getElementById("select-estado").dispatchEvent(event);
+        // Disparar evento para habilitar municipios
+        document
+          .getElementById("select-estado")
+          .dispatchEvent(new Event("change"));
+        // Esperar un momento a que el DOM reaccione si es necesario o asignar directo:
         document.getElementById("select-municipio").value =
           prov.municipio || "";
       }
@@ -106,7 +144,7 @@ async function inicializarPagina() {
       }
     }
   } catch (e) {
-    console.error("❌ Error en carga inicial:", e);
+    console.error("❌ Error crítico en inicializarPagina:", e);
   }
 }
 
