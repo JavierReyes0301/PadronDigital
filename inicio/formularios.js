@@ -210,7 +210,7 @@ async function guardarDomicilio() {
   else alert("✅ Domicilio guardado con éxito.");
 }
 
-async function guardarAdcionales() {
+async function guardarAdicionales() {
   const payload = {
     id: PROVEEDOR_ID,
     rfc: USER_DATA.rfc,
