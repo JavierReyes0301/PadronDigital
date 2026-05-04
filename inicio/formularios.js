@@ -30,25 +30,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 // --- 1. INICIALIZACIÓN DE DATOS ---
 
+// --- MODIFICACIÓN EN INICIALIZACIÓN PARA MOSTRAR EL FOLIO ---
 async function inicializarPagina() {
   try {
-    // A. Obtener datos de identidad (Obligatorios para Upsert)
-    const { data: usuario } = await window.clientSupa
-      .from("usuarios")
-      .select("rfc, correo, tipo_persona")
-      .eq("id", PROVEEDOR_ID)
-      .single();
+    // ... (tu código anterior de obtener usuario)
 
-    if (usuario) {
-      USER_DATA = usuario;
-      document.getElementById("info-rfc").innerText = usuario.rfc || "---";
-      document.getElementById("info-correo").innerText =
-        usuario.correo || "---";
-      document.getElementById("info-tipo-persona").innerText =
-        usuario.tipo_persona || "---";
-    }
-
-    // B. Obtener expediente del proveedor
     let { data: prov } = await window.clientSupa
       .from("proveedores")
       .select("*")
@@ -56,50 +42,100 @@ async function inicializarPagina() {
       .maybeSingle();
 
     if (prov) {
-      // Rellenar inputs de texto
-      const campos = [
-        "num_acta",
-        "poder_notarial",
-        "nombre_comercial",
-        "rep_nombre",
-        "rep_paterno",
-        "rep_materno",
-        "num_identificacion",
-        "localidad",
-        "vialidad",
-        "num_ext",
-        "num_int",
-        "colonia",
-        "cp",
-        "input-telefono",
-      ];
+      // ... (tu código anterior de rellenar campos)
 
-      campos.forEach((id) => {
-        const el = document.getElementById(id);
-        if (el)
-          el.value = prov[id === "input-telefono" ? "telefono" : id] || "";
-      });
-
-      // Rehidratar selectores de ubicación
-      if (prov.estado) {
-        document.getElementById("select-estado").value = prov.estado;
-        await cargarMunicipios(prov.estado);
-        if (prov.municipio) {
-          document.getElementById("select-municipio").value = prov.municipio;
-        }
+      // ACTUALIZACIÓN: Mostrar el folio si ya existe, o mantener "Pendiente"
+      const elFolio =
+        document.querySelector(".folio-expediente") ||
+        document.getElementById("folio-display");
+      // Nota: Asegúrate de que el span donde dice "GENERANDO..." tenga el id="folio-display"
+      if (elFolio) {
+        elFolio.innerText = prov.folio ? prov.folio : "PENDIENTE DE ENVÍO";
       }
-
-      // Rehidratar selectores adicionales
-      if (prov.anio_inicio)
-        document.getElementById("select-anio").value = prov.anio_inicio;
-      if (prov.capacidad_crediticia)
-        document.getElementById("select-capacidad").value =
-          prov.capacidad_crediticia;
-      if (prov.num_empleados)
-        document.getElementById("select-empleados").value = prov.num_empleados;
     }
   } catch (e) {
-    console.error("❌ Error en inicialización:", e.message);
+    console.error("❌ Error:", e.message);
+  }
+}
+
+// --- FUNCIÓN DE CARGA Y FOLIO CORREGIDA ---
+async function SolicitudRevisionn() {
+  console.log("Iniciando proceso de envío...");
+  try {
+    // Verificar que el ID existe
+    if (!PROVEEDOR_ID) {
+      alert("Sesión no válida. Por favor recarga la página.");
+      return;
+    }
+
+    const archivos = [
+      { name: "csf", el: document.getElementById("file-csf") },
+      { name: "acta", el: document.getElementById("file-acta") },
+      { name: "domicilio", el: document.getElementById("file-domicilio") },
+      { name: "ine", el: document.getElementById("file-ine") },
+    ];
+
+    let subidas = 0;
+
+    // 1. Subida de archivos
+    for (const arc of archivos) {
+      if (arc.el && arc.el.files[0]) {
+        const file = arc.el.files[0];
+        const path = `${PROVEEDOR_ID}/${arc.name}.pdf`;
+
+        console.log(`Subiendo: ${arc.name}...`);
+        const { error: uploadError } = await window.clientSupa.storage
+          .from("expedientes")
+          .upload(path, file, {
+            upsert: true,
+            contentType: "application/pdf",
+          });
+
+        if (uploadError) {
+          console.error(`Error en ${arc.name}:`, uploadError.message);
+        } else {
+          subidas++;
+        }
+      }
+    }
+
+    if (subidas === 0) {
+      alert("Por favor selecciona al menos un archivo PDF para enviar.");
+      return;
+    }
+
+    // 2. Generación de Folio (Solo si no tiene uno)
+    const { data: checkProv } = await window.clientSupa
+      .from("proveedores")
+      .select("folio")
+      .eq("id", PROVEEDOR_ID)
+      .single();
+
+    let folioFinal = checkProv?.folio;
+
+    if (!folioFinal) {
+      const anioActual = new Date().getFullYear();
+      const numeroRandom = Math.floor(1000 + Math.random() * 9000);
+      folioFinal = `PROV-${anioActual}-${numeroRandom}`;
+    }
+
+    // 3. Actualizar base de datos
+    const { error: updateError } = await window.clientSupa
+      .from("proveedores")
+      .update({
+        estatus: "EN REVISIÓN",
+        folio: folioFinal,
+        updated_at: new Date(),
+      })
+      .eq("id", PROVEEDOR_ID);
+
+    if (updateError) throw updateError;
+
+    alert(`🚀 ¡Éxito! Tu folio es: ${folioFinal}`);
+    location.reload();
+  } catch (error) {
+    console.error("❌ Error crítico:", error.message);
+    alert("Error al enviar: " + error.message);
   }
 }
 
