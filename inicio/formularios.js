@@ -135,11 +135,17 @@ function ajustarLabelIdentificacion() {
 // --- FUNCIONES DE GUARDADO ---
 
 async function guardarGenerales() {
+  // 1. Recuperar el RFC que ya está en pantalla (es obligatorio para la tabla)
+  const rfcActual = document.getElementById("info-rfc").innerText;
+
+  // 2. Validar que tengamos datos básicos
   const numActa = document.getElementById("num_acta").value.trim();
   if (!numActa) return alert("⚠️ El número de acta es obligatorio.");
 
+  // 3. Construir el payload con el RFC incluido
   const payload = {
     id: PROVEEDOR_ID,
+    rfc: rfcActual, // ✨ Esto soluciona el error de la imagen
     num_acta: numActa,
     poder_notarial: document.getElementById("poder_notarial").value,
     nombre_comercial: document.getElementById("nombre_comercial").value,
@@ -152,9 +158,23 @@ async function guardarGenerales() {
     updated_at: new Date(),
   };
 
-  const { error } = await window.clientSupa.from("proveedores").upsert(payload);
-  if (error) alert("Error: " + error.message);
-  else alert("✅ Datos Generales guardados.");
+  console.log("Enviando datos...", payload);
+
+  try {
+    const { error } = await window.clientSupa
+      .from("proveedores")
+      .upsert(payload); // Upsert actualizará el registro existente basado en el ID
+
+    if (error) {
+      console.error("Error de Supabase:", error);
+      alert("Error al guardar: " + error.message);
+    } else {
+      alert("✅ Datos Generales guardados con éxito.");
+    }
+  } catch (e) {
+    console.error("Error técnico:", e);
+    alert("Fallo crítico al guardar.");
+  }
 }
 
 async function guardarDomicilio() {
