@@ -1,13 +1,10 @@
 /**
  * LÓGICA INTEGRAL PARA EL PADRÓN DE PROVEEDORES
- * Conexión optimizada con window.clientSupa
  */
+let PROVEEDOR_ID = null;
 
-let PROVEEDOR_ID = null; // Se obtendrá de la sesión activa
-
-// 1. INICIALIZACIÓN Y CARGA DE DATOS
+// 1. INICIALIZACIÓN
 document.addEventListener("DOMContentLoaded", async () => {
-  // Verificar sesión y obtener ID del usuario
   const {
     data: { session },
   } = await window.clientSupa.auth.getSession();
@@ -15,83 +12,108 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (session) {
     PROVEEDOR_ID = session.user.id;
     console.log("👤 Usuario autenticado:", PROVEEDOR_ID);
+
+    // Ejecutar carga de datos
     inicializarPagina();
   } else {
-    console.error("🔴 No se detectó sesión activa. Redirigiendo...");
-    // window.location.href = 'login.html';
+    console.error("🔴 No se detectó sesión activa.");
   }
 
   configurarEscuchadores();
 });
 
 async function inicializarPagina() {
-  // Cargar años dinámicamente
+  // A. Poblar select de años
   const selectAnio = document.getElementById("select-anio");
-  const anioActual = new Date().getFullYear();
-  for (let i = anioActual; i >= 1970; i--) {
-    selectAnio.add(new Option(i, i));
+  if (selectAnio) {
+    const actual = new Date().getFullYear();
+    for (let i = actual; i >= 1970; i--) {
+      selectAnio.add(new Option(i, i));
+    }
   }
 
-  // CARGA REAL: Obtener datos base de la tabla proveedores o perfil
-  const { data, error } = await window.clientSupa
-    .from("proveedores")
-    .select("rfc, correo, tipo_persona")
+  // B. CARGA DE DATOS DESDE LA TABLA 'usuarios' (Para la Imagen 1)
+  const { data: usuario, error: errUser } = await window.clientSupa
+    .from("usuarios")
+    .select("rfc, tipo_persona, correo")
     .eq("id", PROVEEDOR_ID)
     .single();
 
-  if (data) {
-    document.getElementById("info-rfc").innerText = data.rfc || "No registrado";
-    document.getElementById("info-correo").innerText =
-      data.correo || "No registrado";
+  if (usuario) {
+    document.getElementById("info-rfc").innerText = usuario.rfc || "S/D";
+    document.getElementById("info-correo").innerText = usuario.correo || "S/D";
     document.getElementById("info-tipo-persona").innerText =
-      data.tipo_persona || "PERSONA FÍSICA";
-    gestionarCamposTipoPersona(data.tipo_persona);
+      usuario.tipo_persona || "S/D";
+    gestionarCamposTipoPersona(usuario.tipo_persona);
+  }
+
+  // C. CARGA DE DATOS DESDE LA TABLA 'proveedores' (Para llenar el formulario)
+  const { data: prov } = await window.clientSupa
+    .from("proveedores")
+    .select("*")
+    .eq("id", PROVEEDOR_ID)
+    .single();
+
+  if (prov) {
+    // Llenar campos de texto automáticamente si ya existen
+    if (document.getElementById("num_acta"))
+      document.getElementById("num_acta").value = prov.num_acta || "";
+    if (document.getElementById("nombre_comercial"))
+      document.getElementById("nombre_comercial").value =
+        prov.nombre_comercial || "";
+    if (document.getElementById("rep_nombre"))
+      document.getElementById("rep_nombre").value = prov.rep_nombre || "";
+    // Agrega aquí los demás campos que quieras que se mantengan llenos al recargar
   }
 }
 
-// 2. LÓGICA DINÁMICA DE LA INTERFAZ (UI)
+// 2. LÓGICA DINÁMICA DE INTERFAZ
 function gestionarCamposTipoPersona(tipo) {
   const contenedorPoder = document.getElementById("contenedor-poder-notarial");
   const labelActa = document.getElementById("label-acta");
-  if (tipo === "PERSONA MORAL") {
-    contenedorPoder.style.display = "flex";
-    labelActa.innerHTML =
-      '<span class="text-danger">*</span> Acta Constitutiva:';
+  if (tipo === "Moral" || tipo === "PERSONA MORAL") {
+    if (contenedorPoder) contenedorPoder.style.display = "flex";
+    if (labelActa)
+      labelActa.innerHTML =
+        '<span class="text-danger">*</span> Acta Constitutiva:';
   } else {
-    contenedorPoder.style.display = "none";
-    labelActa.innerHTML =
-      '<span class="text-danger">*</span> Acta de Nacimiento:';
+    if (contenedorPoder) contenedorPoder.style.display = "none";
+    if (labelActa)
+      labelActa.innerHTML =
+        '<span class="text-danger">*</span> Acta de Nacimiento:';
   }
 }
 
 function ajustarLabelIdentificacion() {
   const tipo = document.getElementById("select_tipo_doc").value;
   const label = document.getElementById("label-identificacion");
-  const input = document.getElementById("num_identificacion");
   const etiquetas = {
     ID: "Clave de Elector:",
     PASAPORTE: "Número de Pasaporte:",
     CEDULA: "Cédula Profesional:",
   };
-  label.innerText = etiquetas[tipo] || "Dato de Identificación:";
+  if (label) label.innerText = etiquetas[tipo] || "Dato de Identificación:";
 }
 
 function actualizarEstadoArchivo(tipo) {
   const fileInput = document.getElementById(`file-${tipo}`);
   const statusSpan = document.getElementById(`status-${tipo}`);
-  if (fileInput.files.length > 0) {
+  if (fileInput && fileInput.files.length > 0) {
     statusSpan.innerText = fileInput.files[0].name;
-    statusSpan.classList.replace("text-muted", "text-success");
-    statusSpan.classList.add("font-weight-bold");
+    statusSpan.className = "text-success font-weight-bold";
   }
 }
 
-// 3. FUNCIONES DE GUARDADO (CONEXIÓN REAL A SUPABASE)
+// 3. FUNCIONES DE GUARDADO (VALIDACIÓN INCLUIDA)
 
 async function guardarGenerales() {
+  // Validación simple
+  const numActa = document.getElementById("num_acta").value.trim();
+  if (!numActa) return alert("⚠️ El número de acta es obligatorio.");
+
   const payload = {
     id: PROVEEDOR_ID,
-    num_acta: document.getElementById("num_acta").value,
+    num_acta: numActa,
     poder_notarial: document.getElementById("poder_notarial").value,
     nombre_comercial: document.getElementById("nombre_comercial").value,
     rep_nombre: document.getElementById("rep_nombre").value,
@@ -105,7 +127,7 @@ async function guardarGenerales() {
 
   const { error } = await window.clientSupa.from("proveedores").upsert(payload);
   if (error) alert("Error: " + error.message);
-  else alert("✅ Datos Generales sincronizados.");
+  else alert("✅ Datos Generales guardados correctamente.");
 }
 
 async function guardarDomicilio() {
@@ -113,7 +135,6 @@ async function guardarDomicilio() {
     id: PROVEEDOR_ID,
     estado: document.getElementById("select-estado").value,
     municipio: document.getElementById("select-municipio").value,
-    localidad: document.getElementById("select-localidad").value,
     vialidad: document.getElementById("vialidad").value,
     num_ext: document.getElementById("num_ext").value,
     num_int: document.getElementById("num_int").value,
@@ -127,7 +148,6 @@ async function guardarDomicilio() {
 }
 
 async function guardarAdcionales() {
-  // Nombre corregido para tu HTML
   const payload = {
     id: PROVEEDOR_ID,
     telefono: document.getElementById("input-telefono").value,
@@ -138,12 +158,15 @@ async function guardarAdcionales() {
 
   const { error } = await window.clientSupa.from("proveedores").upsert(payload);
   if (error) alert("Error: " + error.message);
-  else alert("✅ Información adicional guardada.");
+  else alert("✅ Datos adicionales guardados.");
 }
 
-// 4. ENVÍO FINAL Y CARGA DE ARCHIVOS
+// 4. ARCHIVOS Y REVISIÓN
 async function SolicitudRevisionn() {
   const rfc = document.getElementById("info-rfc").innerText;
+  if (rfc === "Cargando..." || rfc === "S/D")
+    return alert("Error: RFC no detectado.");
+
   const inputs = [
     { id: "csf", input: document.getElementById("file-csf") },
     { id: "acta", input: document.getElementById("file-acta") },
@@ -160,25 +183,24 @@ async function SolicitudRevisionn() {
         .from("expedientes")
         .upload(filePath, file, { upsert: true });
 
-      if (uploadError) {
-        alert(`Error en archivo ${item.id}: ` + uploadError.message);
-        return;
-      }
+      if (uploadError)
+        return alert(`Error en ${item.id}: ` + uploadError.message);
     }
   }
 
-  // Actualizar estatus a PENDIENTE
   await window.clientSupa
     .from("proveedores")
-    .update({ estatus: "PENDIENTE" })
+    .update({ estatus: "EN REVISIÓN" })
     .eq("id", PROVEEDOR_ID);
   alert("🚀 Expediente enviado a revisión con éxito.");
 }
 
 function configurarEscuchadores() {
   const selectEstado = document.getElementById("select-estado");
-  const selectMunicipio = document.getElementById("select-municipio");
-  selectEstado.addEventListener("change", () => {
-    selectMunicipio.disabled = selectEstado.value === "";
-  });
+  if (selectEstado) {
+    selectEstado.addEventListener("change", () => {
+      const mun = document.getElementById("select-municipio");
+      if (mun) mun.disabled = selectEstado.value === "";
+    });
+  }
 }
