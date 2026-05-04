@@ -24,38 +24,38 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 async function inicializarPagina() {
-  console.log("🔄 Sincronizando datos...");
+  console.log("🔄 Sincronizando expediente...");
   try {
-    // 1. OBTENER DATOS DE LA TABLA 'USUARIOS'
+    // 1. OBTENER DATOS BASE DE 'USUARIOS'
     const { data: usuario, error: errU } = await window.clientSupa
       .from("usuarios")
       .select("rfc, tipo_persona, correo")
       .eq("id", PROVEEDOR_ID)
       .single();
 
-    if (usuario) {
-      document.getElementById("info-rfc").innerText = usuario.rfc || "---";
-      document.getElementById("info-correo").innerText =
-        usuario.correo || "---";
-      document.getElementById("info-tipo-persona").innerText =
-        usuario.tipo_persona || "---";
-      gestionarCamposTipoPersona(usuario.tipo_persona);
-    } else {
-      console.warn("⚠️ No se encontraron datos en la tabla usuarios.");
-      return; // Si no hay usuario base, no podemos continuar
+    if (errU || !usuario) {
+      console.error("❌ No se encontró el usuario base:", errU);
+      return;
     }
 
-    // 2. INTENTAR OBTENER DATOS DE 'PROVEEDORES'
+    // Mostrar datos en los SPAN informativos
+    document.getElementById("info-rfc").innerText = usuario.rfc || "---";
+    document.getElementById("info-correo").innerText = usuario.correo || "---";
+    document.getElementById("info-tipo-persona").innerText =
+      usuario.tipo_persona || "---";
+    gestionarCamposTipoPersona(usuario.tipo_persona);
+
+    // 2. BUSCAR O CREAR REGISTRO EN 'PROVEEDORES'
     let { data: prov, error: errP } = await window.clientSupa
       .from("proveedores")
       .select("*")
       .eq("id", PROVEEDOR_ID)
-      .maybeSingle(); // maybeSingle no lanza error si no encuentra nada
+      .maybeSingle();
 
-    // 🚀 SI NO EXISTE EN PROVEEDORES, LO CREAMOS EN ESTE MOMENTO
     if (!prov) {
-      console.log("🆕 Creando registro automático en proveedores...");
+      console.log("🆕 Creando nuevo expediente en proveedores...");
 
+      // Enviamos los 3 campos que tu tabla marca como NO NULL (Obligatorios)
       const { data: nuevoProv, error: errCrear } = await window.clientSupa
         .from("proveedores")
         .insert([
@@ -64,7 +64,7 @@ async function inicializarPagina() {
             rfc: usuario.rfc,
             correo: usuario.correo,
             tipo_persona: usuario.tipo_persona,
-            estatus: "BORRADOR",
+            // El folio se genera solo porque ya es IDENTITY
           },
         ])
         .select()
@@ -72,24 +72,23 @@ async function inicializarPagina() {
 
       if (errCrear) {
         console.error("❌ Error al crear proveedor:", errCrear.message);
-        alert("Error al generar expediente. Contacte a soporte.");
-      } else {
-        prov = nuevoProv;
-        console.log("✅ Expediente creado con éxito.");
+        alert("Error al generar folio: " + errCrear.message);
+        return;
       }
+      prov = nuevoProv;
+      console.log("✅ Expediente creado con éxito.");
     }
 
-    // 3. RELLENAR LA INTERFAZ CON LOS DATOS DE PROVEEDOR
+    // 3. RELLENAR LOS CAMPOS DEL FORMULARIO
     if (prov) {
       // Folio
       const folioSpan = document.getElementById("folio-expediente");
       if (folioSpan && prov.folio) {
         folioSpan.innerText = `EXP-${prov.folio}`;
-        folioSpan.classList.remove("text-danger");
-        folioSpan.style.color = "#28a745"; // Color verde éxito
+        folioSpan.classList.replace("text-danger", "text-success");
       }
 
-      // Llenar inputs Generales
+      // Campos de texto (IDs del HTML)
       const campos = [
         "num_acta",
         "poder_notarial",
@@ -104,7 +103,7 @@ async function inicializarPagina() {
         if (el) el.value = prov[id] || "";
       });
 
-      // Selects
+      // Selects y Domicilio
       if (document.getElementById("tipo_representante"))
         document.getElementById("tipo_representante").value =
           prov.tipo_representante || "Representante Legal";
@@ -115,7 +114,7 @@ async function inicializarPagina() {
         ajustarLabelIdentificacion();
       }
 
-      // Llenar Domicilio
+      // Domicilio (Si existen los campos)
       if (document.getElementById("vialidad")) {
         document.getElementById("select-estado").value = prov.estado || "";
         document.getElementById("vialidad").value = prov.vialidad || "";
@@ -124,27 +123,16 @@ async function inicializarPagina() {
         document.getElementById("colonia").value = prov.colonia || "";
         document.getElementById("cp").value = prov.cp || "";
 
-        // Disparar evento para habilitar municipios
+        // Activar municipios
         document
           .getElementById("select-estado")
           .dispatchEvent(new Event("change"));
-        // Esperar un momento a que el DOM reaccione si es necesario o asignar directo:
         document.getElementById("select-municipio").value =
           prov.municipio || "";
       }
-
-      // Llenar Adicionales
-      if (document.getElementById("input-telefono")) {
-        document.getElementById("input-telefono").value = prov.telefono || "";
-        document.getElementById("select-capacidad").value =
-          prov.capacidad_crediticia || "";
-        document.getElementById("select-empleados").value =
-          prov.num_empleados || "";
-        document.getElementById("select-anio").value = prov.anio_inicio || "";
-      }
     }
   } catch (e) {
-    console.error("❌ Error crítico en inicializarPagina:", e);
+    console.error("❌ Error crítico:", e);
   }
 }
 
