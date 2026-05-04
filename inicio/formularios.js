@@ -56,6 +56,7 @@ async function inicializarPagina() {
       console.log("🆕 Creando nuevo expediente en proveedores...");
 
       // Enviamos los 3 campos que tu tabla marca como NO NULL (Obligatorios)
+      // 🚀 INSERT PROTEGIDO CONTRA CONSTRAINTS
       const { data: nuevoProv, error: errCrear } = await window.clientSupa
         .from("proveedores")
         .insert([
@@ -63,8 +64,8 @@ async function inicializarPagina() {
             id: PROVEEDOR_ID,
             rfc: usuario.rfc,
             correo: usuario.correo,
-            tipo_persona: usuario.tipo_persona,
-            // ❌ NO pongas 'estatus' aquí, deja que la DB use su Default ('PENDIENTE')
+            // Normalizamos el valor para que coincida con lo que la base de datos suele esperar
+            tipo_persona: usuario.tipo_persona.toUpperCase(),
           },
         ])
         .select()
