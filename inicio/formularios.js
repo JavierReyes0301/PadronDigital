@@ -1,12 +1,13 @@
 /**
- * LÓGICA DE REGISTRO DE PROVEEDORES - VERSIÓN TOTAL
- * Incluye: Selectores, Guardado por secciones (RFC/Correo/TipoPersona) y Storage
+ * LÓGICA DE REGISTRO DE PROVEEDORES
+ * Incluye: Datos Generales, Domicilio, Adicionales (Años), y Carga de Documentos.
  */
 
 let PROVEEDOR_ID = null;
-let USER_DATA = {}; // Almacena datos críticos para evitar errores de BD
+let USER_DATA = {}; // Almacena RFC, Correo y Tipo de Persona para evitar errores de BD
 
 document.addEventListener("DOMContentLoaded", async () => {
+  // Retraso de seguridad para asegurar la carga de la conexión Supabase
   setTimeout(async () => {
     if (!window.clientSupa) return;
 
@@ -18,17 +19,20 @@ document.addEventListener("DOMContentLoaded", async () => {
       PROVEEDOR_ID = session.user.id;
       console.log("🟢 Sesión confirmada:", PROVEEDOR_ID);
 
+      // 1. CARGA DE CATÁLOGOS INICIALES
       await cargarEstados();
+      await cargarAnios(); // Carga desde la tabla 'años'
       configurarEscuchadores();
       await inicializarPagina();
     }
   }, 400);
 });
 
-// --- 1. INICIALIZACIÓN ---
+// --- 1. INICIALIZACIÓN DE DATOS ---
 
 async function inicializarPagina() {
   try {
+    // A. Obtener datos de identidad (Obligatorios para Upsert)
     const { data: usuario } = await window.clientSupa
       .from("usuarios")
       .select("rfc, correo, tipo_persona")
@@ -36,7 +40,7 @@ async function inicializarPagina() {
       .single();
 
     if (usuario) {
-      USER_DATA = usuario; // Datos obligatorios capturados
+      USER_DATA = usuario;
       document.getElementById("info-rfc").innerText = usuario.rfc || "---";
       document.getElementById("info-correo").innerText =
         usuario.correo || "---";
@@ -44,6 +48,7 @@ async function inicializarPagina() {
         usuario.tipo_persona || "---";
     }
 
+    // B. Obtener expediente del proveedor
     let { data: prov } = await window.clientSupa
       .from("proveedores")
       .select("*")
@@ -51,6 +56,7 @@ async function inicializarPagina() {
       .maybeSingle();
 
     if (prov) {
+      // Rellenar inputs de texto
       const campos = [
         "num_acta",
         "poder_notarial",
@@ -74,6 +80,7 @@ async function inicializarPagina() {
           el.value = prov[id === "input-telefono" ? "telefono" : id] || "";
       });
 
+      // Rehidratar selectores de ubicación
       if (prov.estado) {
         document.getElementById("select-estado").value = prov.estado;
         await cargarMunicipios(prov.estado);
@@ -81,18 +88,90 @@ async function inicializarPagina() {
           document.getElementById("select-municipio").value = prov.municipio;
         }
       }
+
+      // Rehidratar selectores adicionales
+      if (prov.anio_inicio)
+        document.getElementById("select-anio").value = prov.anio_inicio;
+      if (prov.capacidad_crediticia)
+        document.getElementById("select-capacidad").value =
+          prov.capacidad_crediticia;
+      if (prov.num_empleados)
+        document.getElementById("select-empleados").value = prov.num_empleados;
     }
   } catch (e) {
     console.error("❌ Error en inicialización:", e.message);
   }
 }
 
-// --- 2. FUNCIONES DE GUARDADO (DATOS) ---
+// --- 2. CARGA DE CATÁLOGOS (API) ---
+
+async function cargarAnios() {
+  const selectAnio = document.getElementById("select-anio");
+  if (!selectAnio) return;
+
+  const { data, error } = await window.clientSupa
+    .from("años") //
+    .select("año")
+    .order("año", { ascending: false });
+
+  if (error) return console.error("❌ Error años:", error.message);
+
+  selectAnio.innerHTML = '<option value="">SELECCIONE EL AÑO...</option>';
+  data.forEach((item) => {
+    const option = document.createElement("option");
+    option.value = item.año;
+    option.text = item.año;
+    selectAnio.appendChild(option);
+  });
+}
+
+async function cargarEstados() {
+  const { data, error } = await window.clientSupa
+    .from("estados_mexico")
+    .select("id, nombre")
+    .order("nombre", { ascending: true });
+
+  if (error) return;
+  const selectEstado = document.getElementById("select-estado");
+  if (!selectEstado) return;
+
+  selectEstado.innerHTML = '<option value="">SELECCIONE EL ESTADO...</option>';
+  data.forEach((est) => {
+    const option = document.createElement("option");
+    option.value = est.id;
+    option.text = est.nombre.toUpperCase();
+    selectEstado.appendChild(option);
+  });
+}
+
+async function cargarMunicipios(estadoId) {
+  const selectMun = document.getElementById("select-municipio");
+  if (!selectMun) return;
+
+  const { data, error } = await window.clientSupa
+    .from("municipios")
+    .select("nombre")
+    .eq("estado_id", estadoId)
+    .order("nombre", { ascending: true });
+
+  if (error) return;
+
+  selectMun.innerHTML = '<option value="">SELECCIONE EL MUNICIPIO...</option>';
+  selectMun.disabled = false;
+  data.forEach((mun) => {
+    const option = document.createElement("option");
+    option.value = mun.nombre;
+    option.text = mun.nombre.toUpperCase();
+    selectMun.appendChild(option);
+  });
+}
+
+// --- 3. FUNCIONES DE GUARDADO (UPSERT) ---
 
 async function guardarGenerales() {
   const payload = {
     id: PROVEEDOR_ID,
-    rfc: USER_DATA.rfc,
+    rfc: USER_DATA.rfc, //
     correo: USER_DATA.correo,
     tipo_persona: USER_DATA.tipo_persona,
     num_acta: document.getElementById("num_acta").value,
@@ -148,7 +227,7 @@ async function guardarAdcionales() {
   else alert("✅ Datos Adicionales guardados.");
 }
 
-// --- 3. CARGA DE DOCUMENTOS (STORAGE) ---
+// --- 4. CARGA DE DOCUMENTOS (STORAGE) ---
 
 async function SolicitudRevisionn() {
   const archivos = [
@@ -158,69 +237,24 @@ async function SolicitudRevisionn() {
     { name: "ine", el: document.getElementById("file-ine") },
   ];
 
-  console.log("📤 Subiendo archivos al servidor...");
-
   for (const arc of archivos) {
     if (arc.el && arc.el.files[0]) {
       const file = arc.el.files[0];
       const path = `${PROVEEDOR_ID}/${arc.name}.pdf`;
-
-      const { error: uploadError } = await window.clientSupa.storage
+      await window.clientSupa.storage
         .from("expedientes")
         .upload(path, file, { upsert: true });
-
-      if (uploadError) {
-        console.error(`❌ Error subiendo ${arc.name}:`, uploadError.message);
-      }
     }
   }
 
-  // Actualizamos estatus para que el administrador lo revise
   await window.clientSupa
     .from("proveedores")
     .update({ estatus: "EN REVISIÓN" })
     .eq("id", PROVEEDOR_ID);
-
-  alert("🚀 Expediente y archivos enviados a revisión.");
+  alert("🚀 Expediente enviado a revisión.");
 }
 
-// --- 4. CATÁLOGOS Y EVENTOS ---
-
-async function cargarEstados() {
-  const { data, error } = await window.clientSupa
-    .from("estados_mexico")
-    .select("id, nombre")
-    .order("nombre", { ascending: true });
-  if (error) return;
-  const selectEstado = document.getElementById("select-estado");
-  if (!selectEstado) return;
-  selectEstado.innerHTML = '<option value="">SELECCIONE EL ESTADO...</option>';
-  data.forEach((est) => {
-    const option = document.createElement("option");
-    option.value = est.id;
-    option.text = est.nombre.toUpperCase();
-    selectEstado.appendChild(option);
-  });
-}
-
-async function cargarMunicipios(estadoId) {
-  const selectMun = document.getElementById("select-municipio");
-  if (!selectMun) return;
-  const { data, error } = await window.clientSupa
-    .from("municipios")
-    .select("nombre")
-    .eq("estado_id", estadoId)
-    .order("nombre", { ascending: true });
-  if (error) return;
-  selectMun.innerHTML = '<option value="">SELECCIONE EL MUNICIPIO...</option>';
-  selectMun.disabled = false;
-  data.forEach((mun) => {
-    const option = document.createElement("option");
-    option.value = mun.nombre;
-    option.text = mun.nombre.toUpperCase();
-    selectMun.appendChild(option);
-  });
-}
+// --- 5. EVENTOS ---
 
 function configurarEscuchadores() {
   const selectEstado = document.getElementById("select-estado");
