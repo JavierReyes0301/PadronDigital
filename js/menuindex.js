@@ -58,32 +58,6 @@ async function renderizarMenu() {
         </div>`;
     document.body.insertAdjacentHTML("beforeend", modalLoginHTML);
   }
-  document.addEventListener("submit", async (e) => {
-    if (e.target && e.target.id === "FormaLogin") {
-      e.preventDefault();
-      const correo = e.target.correo_login.value;
-      const password = e.target.password_login.value;
-
-      try {
-        const { data, error } = await window.clientSupa.auth.signInWithPassword(
-          {
-            email: correo,
-            password: password,
-          },
-        );
-
-        if (error) throw error;
-
-        // Si el login es exitoso, cerramos el modal (usando jQuery que ya tienes)
-        $("#ModalLogin").modal("hide");
-        alert("¡Bienvenido de nuevo!");
-
-        // El evento onAuthStateChange que ya tienes se encargará de redirigir
-      } catch (error) {
-        alert("Error al iniciar sesión: " + error.message);
-      }
-    }
-  });
 
   let itemUsuarioHTML = `<li><a href="#" data-toggle="modal" data-target="#ModalLogin" class="nav-link-item">${ICONOS.user} Acceder</a></li>`;
 
