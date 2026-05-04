@@ -134,22 +134,26 @@ function ajustarLabelIdentificacion() {
 
 // --- FUNCIONES DE GUARDADO ---
 
+// --- FUNCIONES DE GUARDADO DEFINITIVAS ---
+
+// 1. GUARDAR DATOS GENERALES
 async function guardarGenerales() {
-  // 1. Recuperar los datos obligatorios de la pantalla (Spans informativos)
+  console.log("💾 Guardando Datos Generales...");
+
+  // Recuperar datos obligatorios de los SPAN informativos
   const rfcActual = document.getElementById("info-rfc").innerText;
   const correoActual = document.getElementById("info-correo").innerText;
   const tipoActual = document.getElementById("info-tipo-persona").innerText;
 
-  // 2. Validar campo mínimo
+  // Validación mínima
   const numActa = document.getElementById("num_acta").value.trim();
   if (!numActa) return alert("⚠️ El número de acta es obligatorio.");
 
-  // 3. Construir el payload completo
   const payload = {
     id: PROVEEDOR_ID,
-    rfc: rfcActual, // ✨ Obligatorio
-    correo: correoActual, // ✨ Obligatorio
-    tipo_persona: tipoActual, // ✨ Obligatorio
+    rfc: rfcActual,
+    correo: correoActual,
+    tipo_persona: tipoActual,
     num_acta: numActa,
     poder_notarial: document.getElementById("poder_notarial").value,
     nombre_comercial: document.getElementById("nombre_comercial").value,
@@ -166,16 +170,17 @@ async function guardarGenerales() {
     const { error } = await window.clientSupa
       .from("proveedores")
       .upsert(payload);
-
     if (error) throw error;
     alert("✅ Datos Generales guardados con éxito.");
   } catch (e) {
-    console.error("Error al guardar:", e);
-    alert("Error: " + e.message);
+    alert("Error al guardar Generales: " + e.message);
   }
 }
 
+// 2. GUARDAR DOMICILIO FISCAL
 async function guardarDomicilio() {
+  console.log("💾 Guardando Domicilio...");
+
   const payload = {
     id: PROVEEDOR_ID,
     rfc: document.getElementById("info-rfc").innerText,
@@ -191,9 +196,42 @@ async function guardarDomicilio() {
     updated_at: new Date(),
   };
 
-  const { error } = await window.clientSupa.from("proveedores").upsert(payload);
-  if (error) alert("Error: " + error.message);
-  else alert("✅ Domicilio guardado.");
+  try {
+    const { error } = await window.clientSupa
+      .from("proveedores")
+      .upsert(payload);
+    if (error) throw error;
+    alert("✅ Domicilio guardado con éxito.");
+  } catch (e) {
+    alert("Error al guardar Domicilio: " + e.message);
+  }
+}
+
+// 3. GUARDAR DATOS ADICIONALES
+async function guardarAdcionales() {
+  console.log("💾 Guardando Datos Adicionales...");
+
+  const payload = {
+    id: PROVEEDOR_ID,
+    rfc: document.getElementById("info-rfc").innerText,
+    correo: document.getElementById("info-correo").innerText,
+    tipo_persona: document.getElementById("info-tipo-persona").innerText,
+    telefono: document.getElementById("input-telefono").value,
+    capacidad_crediticia: document.getElementById("select-capacidad").value,
+    num_empleados: document.getElementById("select-empleados").value,
+    anio_inicio: document.getElementById("select-anio").value,
+    updated_at: new Date(),
+  };
+
+  try {
+    const { error } = await window.clientSupa
+      .from("proveedores")
+      .upsert(payload);
+    if (error) throw error;
+    alert("✅ Datos Adicionales guardados.");
+  } catch (e) {
+    alert("Error al guardar Adicionales: " + e.message);
+  }
 }
 
 async function SolicitudRevisionn() {
