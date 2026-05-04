@@ -1,98 +1,142 @@
 /**
- * LÓGICA INTEGRAL PARA EL PADRÓN DE PROVEEDORES
- * Conexión optimizada con window.clientSupa
+ * LÓGICA DE REGISTRO DE PROVEEDORES
+ * Basada estrictamente en los IDs de tu HTML
  */
-
 let PROVEEDOR_ID = null;
 
-// 1. INICIALIZACIÓN AL CARGAR EL DOCUMENTO
 document.addEventListener("DOMContentLoaded", async () => {
-  // Verificar sesión activa
-  const {
-    data: { session },
-  } = await window.clientSupa.auth.getSession();
-
-  if (session) {
-    PROVEEDOR_ID = session.user.id;
-    console.log("👤 Usuario autenticado:", PROVEEDOR_ID);
-
-    // Ejecutar la carga masiva de datos
-    inicializarPagina();
-  } else {
-    console.error("🔴 No se detectó sesión activa.");
-    // Opcional: window.location.href = 'login.html';
-  }
-
-  configurarEscuchadores();
+    // 1. Forzar espera de la sesión
+    const { data: { session }, error: authError } = await window.clientSupa.auth.getSession();
+    
+    if (session) {
+        PROVEEDOR_ID = session.user.id;
+        console.log("🟢 Sesión activa:", PROVEEDOR_ID);
+        
+        // Ejecutar carga completa
+        await inicializarPagina();
+    } else {
+        console.error("🔴 No hay sesión activa. Los datos no se cargarán.");
+        document.getElementById("info-rfc").innerText = "Error: Sin Sesión";
+    }
+    
+    configurarEscuchadores();
 });
 
-// --- FUNCIÓN DE CARGA PRINCIPAL (SUSTITUIDA Y MEJORADA) ---
 async function inicializarPagina() {
-  console.log("🔄 Iniciando sincronización de datos...");
+    console.log("🔄 Sincronizando datos del usuario...");
 
-  // A. Poblar selector de años (si existe)
-  const selectAnio = document.getElementById("select-anio");
-  if (selectAnio && selectAnio.options.length <= 1) {
-    const actual = new Date().getFullYear();
-    for (let i = actual; i >= 1970; i--) {
-      selectAnio.add(new Option(i, i));
+    try {
+        // 1. CARGAMOS PRIMERO DE 'usuarios' (La tabla de tu registro inicial)
+        const { data: usuario, error: errU } = await window.clientSupa
+            .from("usuarios")
+            .select("rfc, tipo_persona, correo")
+            .eq("id", PROVEEDOR_ID)
+            .single();
+
+        if (usuario) {
+            // Inyectamos los datos en los SPAN del HTML (Imagen 1)
+            const rfcSpan = document.getElementById("info-rfc");
+            const correoSpan = document.getElementById("info-correo");
+            const tipoSpan = document.getElementById("info-tipo-persona");
+
+            if (rfcSpan) rfcSpan.innerText = usuario.rfc || "No disponible";
+            if (correoSpan) correoSpan.innerText = usuario.correo || "No disponible";
+            if (tipoSpan) tipoSpan.innerText = usuario.tipo_persona || "No disponible";
+            
+            gestionarCamposTipoPersona(usuario.tipo_persona);
+        }
+
+        // 2. CARGAMOS DE 'proveedores' (Los datos que el usuario ya guardó antes)
+        const { data: prov, error: errP } = await window.clientSupa
+            .from("proveedores")
+            .select("*")
+            .eq("id", PROVEEDOR_ID)
+            .single();
+
+        if (prov) {
+            // Rellenamos el folio y los inputs del formulario
+            const folioSpan = document.getElementById("folio-expediente");
+            if (folioSpan && prov.folio) folioSpan.innerText = `EXP-${prov.folio}`;
+
+            // Rellenar inputs (IDs exactos de tu HTML)
+            const campos = ['num_acta', 'poder_notarial', 'nombre_comercial', 'rep_nombre', 'rep_paterno', 'rep_materno', 'num_identificacion'];
+            campos.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = prov[id] || "";
+            });
+
+            // Ajustamos selects
+            if (document.getElementById("tipo_representante")) document.getElementById("tipo_representante").value = prov.tipo_representante || "Representante Legal";
+            if (document.getElementById("select_tipo_doc")) {
+                document.getElementById("select_tipo_doc").value = prov.tipo_identificacion || "ID";
+                ajustarLabelIdentificacion(); // Para cambiar "Clave de Elector" a "Pasaporte", etc.
+            }
+        }
+    } catch (e) {
+        console.error("Error en la carga inicial:", e);
     }
-  }
+}
 
-  try {
-    // B. CARGA DESDE LA TABLA 'usuarios' (Datos de Registro/Perfil)
-    const { data: usuario, error: errUser } = await window.clientSupa
-      .from("usuarios")
-      .select("rfc, tipo_persona, correo")
-      .eq("id", PROVEEDOR_ID)
-      .single();
+// --- FUNCIONES AUXILIARES ---
 
-    if (usuario) {
-      document.getElementById("info-rfc").innerText =
-        usuario.rfc || "No registrado";
-      document.getElementById("info-correo").innerText =
-        usuario.correo || "No registrado";
-      document.getElementById("info-tipo-persona").innerText =
-        usuario.tipo_persona || "No registrado";
+function gestionarCamposTipoPersona(tipo) {
+    const contenedorPoder = document.getElementById("contenedor-poder-notarial");
+    const labelActa = document.getElementById("label-acta");
+    
+    // Normalizamos el tipo de persona para evitar errores de mayúsculas/minúsculas
+    const tipoNormalizado = tipo ? tipo.toUpperCase() : "";
 
-      // Ajustar interfaz según tipo de persona
-      gestionarCamposTipoPersona(usuario.tipo_persona);
+    if (tipoNormalizado.includes("MORAL")) {
+        if (contenedorPoder) contenedorPoder.style.display = "flex";
+        if (labelActa) labelActa.innerHTML = '<span class="text-danger">*</span> Acta Constitutiva:';
+    } else {
+        if (contenedorPoder) contenedorPoder.style.display = "none";
+        if (labelActa) labelActa.innerHTML = '<span class="text-danger">*</span> Acta de Nacimiento:';
+    }
+}
+
+function ajustarLabelIdentificacion() {
+    const tipo = document.getElementById("select_tipo_doc").value;
+    const label = document.getElementById("label-identificacion");
+    const etiquetas = { 
+        ID: "Clave de Elector:", 
+        PASAPORTE: "Número de Pasaporte:", 
+        CEDULA: "Cédula Profesional:" 
+    };
+    if (label) label.innerText = etiquetas[tipo] || "Dato de Identificación:";
+}
+
+async function guardarGenerales() {
+    // Validamos campo obligatorio antes de guardar
+    const numActa = document.getElementById("num_acta").value.trim();
+    if (!numActa) {
+        alert("⚠️ El número de acta es obligatorio.");
+        return;
     }
 
-    // C. CARGA DESDE LA TABLA 'proveedores' (Datos guardados en el formulario)
-    const { data: prov, error: errProv } = await window.clientSupa
-      .from("proveedores")
-      .select("*")
-      .eq("id", PROVEEDOR_ID)
-      .single();
+    const payload = {
+        id: PROVEEDOR_ID,
+        num_acta: numActa,
+        poder_notarial: document.getElementById("poder_notarial").value,
+        nombre_comercial: document.getElementById("nombre_comercial").value,
+        rep_nombre: document.getElementById("rep_nombre").value,
+        rep_paterno: document.getElementById("rep_paterno").value,
+        rep_materno: document.getElementById("rep_materno").value,
+        tipo_representante: document.getElementById("tipo_representante").value,
+        tipo_identificacion: document.getElementById("select_tipo_doc").value,
+        num_identificacion: document.getElementById("num_identificacion").value,
+        updated_at: new Date()
+    };
 
-    if (prov) {
-      console.log("📦 Datos de formulario encontrados:", prov);
+    const { error } = await window.clientSupa.from("proveedores").upsert(payload);
+    
+    if (error) alert("Error al guardar: " + error.message);
+    else alert("✅ Datos guardados con éxito.");
+}
 
-      // Actualizar Folio si existe
-      if (prov.folio) {
-        document.getElementById("folio-expediente").innerText =
-          `EXP-${prov.folio}`;
-      }
-
-      // --- LLENAR PESTAÑA GENERALES ---
-      document.getElementById("num_acta").value = prov.num_acta || "";
-      document.getElementById("poder_notarial").value =
-        prov.poder_notarial || "";
-      document.getElementById("nombre_comercial").value =
-        prov.nombre_comercial || "";
-      document.getElementById("rep_nombre").value = prov.rep_nombre || "";
-      document.getElementById("rep_paterno").value = prov.rep_paterno || "";
-      document.getElementById("rep_materno").value = prov.rep_materno || "";
-      document.getElementById("tipo_representante").value =
-        prov.tipo_representante || "Representante Legal";
-      document.getElementById("select_tipo_doc").value =
-        prov.tipo_identificacion || "ID";
-      document.getElementById("num_identificacion").value =
-        prov.num_identificacion || "";
-
-      // Actualizar el label dinámico de identificación
-      ajustarLabelIdentificacion();
+function configurarEscuchadores() {
+    // Aquí puedes agregar más lógica de UI si es necesario
+}
 
       // --- LLENAR PESTAÑA DOMICILIO ---
       if (document.getElementById("vialidad")) {
