@@ -230,56 +230,6 @@ async function guardarAdicionales() {
   else alert("✅ Datos Adicionales guardados.");
 }
 
-// --- 4. CARGA DE DOCUMENTOS Y GENERACIÓN DE FOLIO ---
-
-async function SolicitudRevisionn() {
-  try {
-    const archivos = [
-      { name: "csf", el: document.getElementById("file-csf") },
-      { name: "acta", el: document.getElementById("file-acta") },
-      { name: "domicilio", el: document.getElementById("file-domicilio") },
-      { name: "ine", el: document.getElementById("file-ine") },
-    ];
-
-    // 1. Subida de archivos al Storage
-    for (const arc of archivos) {
-      if (arc.el && arc.el.files[0]) {
-        const file = arc.el.files[0];
-        const path = `${PROVEEDOR_ID}/${arc.name}.pdf`;
-
-        const { error: uploadError } = await window.clientSupa.storage
-          .from("expedientes")
-          .upload(path, file, { upsert: true, contentType: "application/pdf" });
-
-        if (uploadError)
-          console.error(`Error en ${arc.name}:`, uploadError.message);
-      }
-    }
-
-    // 2. Generación de Folio
-    const anioActual = new Date().getFullYear();
-    const numeroRandom = Math.floor(1000 + Math.random() * 9000);
-    const nuevoFolio = `PROV-${anioActual}-${numeroRandom}`;
-
-    // 3. Actualizar base de datos
-    const { error: updateError } = await window.clientSupa
-      .from("proveedores")
-      .update({
-        estatus: "EN REVISIÓN",
-        folio: nuevoFolio,
-        updated_at: new Date(),
-      })
-      .eq("id", PROVEEDOR_ID);
-
-    if (updateError) throw updateError;
-
-    alert(`🚀 Expediente enviado con éxito. Folio: ${nuevoFolio}`);
-    location.reload();
-  } catch (error) {
-    alert("No se pudo completar el envío: " + error.message);
-  }
-}
-
 // --- 5. EVENTOS ---
 
 function configurarEscuchadores() {
