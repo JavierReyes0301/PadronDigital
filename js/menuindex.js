@@ -197,7 +197,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   const footerPlaceholder = document.getElementById("footer-placeholder");
   if (footerPlaceholder) {
-    footerPlaceholder.innerHTML = `<footer class="mi-footer">© 2026 H. Ayuntamiento de Atlixco. Todos los derechos reservados.</footer>`;
+    footerPlaceholder.innerHTML = `<footer class="mi-footer">© 2026 H. Ayuntamiento. Todos los derechos reservados.</footer>`;
   }
 });
 
