@@ -108,7 +108,7 @@ async function renderizarMenu() {
 
   navPlaceholder.innerHTML = navbarHTML;
 
-  // --- CONFIGURACIÓN DE EVENTOS DE LOGIN (CORRECCIÓN CRÍTICA) ---
+  // --- CONFIGURACIÓN DE EVENTOS DE LOGIN (DIRECCIÓN EXACTA A BIENVENIDA) ---
   const formaLogin = document.getElementById("FormaLogin");
   if (formaLogin) {
     formaLogin.onsubmit = async (e) => {
@@ -128,9 +128,10 @@ async function renderizarMenu() {
         if (error) throw error;
 
         $("#ModalLogin").modal("hide");
-        // Redirigir a inicio.html si el login fue exitoso
-        const destino = enSubcarpeta ? "inicio.html" : "inicio/inicio.html";
-        window.location.href = `${destino}?sec=seccion-bienvenida`;
+
+        // --- AQUÍ SE ASIGNA LA REDIRECCIÓN CON PARÁMETRO ---
+        const baseDestino = enSubcarpeta ? "inicio.html" : "inicio/inicio.html";
+        window.location.href = `${baseDestino}?sec=seccion-bienvenida`;
       } catch (err) {
         alert("Error de acceso: " + err.message);
       } finally {
@@ -196,7 +197,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   const footerPlaceholder = document.getElementById("footer-placeholder");
   if (footerPlaceholder) {
-    footerPlaceholder.innerHTML = `<footer class="mi-footer">© 2026 H. Ayuntamiento. Todos los derechos reservados.</footer>`;
+    footerPlaceholder.innerHTML = `<footer class="mi-footer">© 2026 H. Ayuntamiento de Atlixco. Todos los derechos reservados.</footer>`;
   }
 });
 

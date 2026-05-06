@@ -7,6 +7,15 @@ let PROVEEDOR_ID = null;
 let USER_DATA = {};
 
 document.addEventListener("DOMContentLoaded", async () => {
+  // --- MEJORA DE NAVEGACIÓN FORZADA ---
+  // Leemos la sección de la URL o forzamos bienvenida por defecto
+  const urlParams = new URLSearchParams(window.location.search);
+  const seccionInicial = urlParams.get("sec") || "seccion-bienvenida";
+
+  if (typeof window.gestionarVisibilidadSeccion === "function") {
+    window.gestionarVisibilidadSeccion(seccionInicial, false);
+  }
+
   // Retraso de seguridad para asegurar la carga de la conexión Supabase
   setTimeout(async () => {
     if (!window.clientSupa) return;
