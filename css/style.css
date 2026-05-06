@@ -218,7 +218,6 @@ section {
 }
 
 #inicio .logo-container a::after {
-  content: "Mi ciudad, tu casa";
   font-style: italic;
   font-weight: 600;
   color: #b68400;
