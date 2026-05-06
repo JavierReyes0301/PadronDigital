@@ -663,3 +663,31 @@ section {
   color: var(--gris-oscuro);
   text-align: right;
 }
+
+/* Para que el candado y el input respiren */
+.candado-editar {
+  transition: all 0.3s ease;
+  min-width: 20px;
+  text-align: center;
+}
+
+.candado-editar:hover {
+  transform: scale(1.2); /* Efecto visual al pasar el mouse */
+}
+
+/* Color verde para cuando la pestaña esté completada */
+.text-success {
+  color: #28a745 !important;
+}
+
+/* Color rojo para el candado cerrado */
+.text-danger {
+  color: #dc3545 !important;
+}
+
+/* Asegura que el contenedor no rompa el diseño de Bootstrap */
+.col-md-9,
+.col-md-3 {
+  display: flex;
+  align-items: center;
+}

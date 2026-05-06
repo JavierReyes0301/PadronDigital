@@ -16,6 +16,28 @@ document.addEventListener("DOMContentLoaded", async () => {
     window.gestionarVisibilidadSeccion(seccionInicial, false);
   }
 
+  // --- NUEVO: DELEGACIÓN DE EVENTOS PARA LOS CANDADOS ---
+  // Escucha clics en todo el documento, pero solo actúa si el clic fue en un candado
+  document.addEventListener("click", function (event) {
+    if (event.target.classList.contains("candado-editar")) {
+      const inputAsociado = event.target.previousElementSibling;
+
+      if (inputAsociado && inputAsociado.disabled) {
+        // Desbloquear
+        inputAsociado.disabled = false;
+        inputAsociado.focus();
+        event.target.className =
+          "fas fa-lock-open candado-editar ml-2 text-success";
+        event.target.title = "Campo editable";
+      } else if (inputAsociado) {
+        // Volver a bloquear
+        inputAsociado.disabled = true;
+        event.target.className = "fas fa-lock candado-editar ml-2 text-danger";
+        event.target.title = "Clic para editar";
+      }
+    }
+  });
+
   // Retraso de seguridad para asegurar la carga de la conexión Supabase
   setTimeout(async () => {
     if (!window.clientSupa) return;
@@ -197,8 +219,26 @@ async function guardarGenerales() {
     updated_at: new Date(),
   };
   const { error } = await window.clientSupa.from("proveedores").upsert(payload);
-  if (error) alert("Error: " + error.message);
-  else alert("✅ Datos Generales guardados.");
+
+  if (error) {
+    alert("Error: " + error.message);
+  } else {
+    alert("✅ Datos Generales guardados.");
+    // Bloquear campos y marcar pestaña de Datos Generales
+    bloquearSeccionYPestaña(
+      [
+        "num_acta",
+        "poder_notarial",
+        "nombre_comercial",
+        "rep_nombre",
+        "rep_paterno",
+        "rep_materno",
+        "select_tipo_doc",
+        "num_identificacion",
+      ],
+      "#Generales",
+    );
+  }
 }
 
 async function guardarDomicilio() {
@@ -218,8 +258,26 @@ async function guardarDomicilio() {
     updated_at: new Date(),
   };
   const { error } = await window.clientSupa.from("proveedores").upsert(payload);
-  if (error) alert("Error: " + error.message);
-  else alert("✅ Domicilio guardado con éxito.");
+
+  if (error) {
+    alert("Error: " + error.message);
+  } else {
+    alert("✅ Domicilio guardado con éxito.");
+    // Bloquear campos y marcar pestaña de Domicilio Fiscal
+    bloquearSeccionYPestaña(
+      [
+        "select-estado",
+        "select-municipio",
+        "localidad",
+        "vialidad",
+        "num_ext",
+        "num_int",
+        "colonia",
+        "cp",
+      ],
+      "#Domicilio",
+    );
+  }
 }
 
 async function guardarAdicionales() {
@@ -235,8 +293,17 @@ async function guardarAdicionales() {
     updated_at: new Date(),
   };
   const { error } = await window.clientSupa.from("proveedores").upsert(payload);
-  if (error) alert("Error: " + error.message);
-  else alert("✅ Datos Adicionales guardados.");
+
+  if (error) {
+    alert("Error: " + error.message);
+  } else {
+    alert("✅ Datos Adicionales guardados.");
+    // Bloquear campos y marcar pestaña de Datos Adicionales
+    bloquearSeccionYPestaña(
+      ["input-telefono", "select-capacidad", "select-empleados", "select-anio"],
+      "#Adicionales",
+    );
+  }
 }
 
 // --- 5. EVENTOS ---
@@ -257,4 +324,43 @@ function configurarEscuchadores() {
       }
     });
   }
+}
+
+// --- 6. UTILIDADES DE INTERFAZ (NUEVA) ---
+
+function bloquearSeccionYPestaña(camposIds, idTab) {
+  // 1. Cambiar icono de la pestaña a palomita verde
+  const iconoPestaña =
+    document.querySelector(`a[href="${idTab}"] i.fa-circle`) ||
+    document.querySelector(`a[href="${idTab}"] i.fa-check-circle`);
+
+  if (iconoPestaña) {
+    iconoPestaña.className = "fas fa-check-circle mr-1 text-success";
+  }
+
+  // 2. Bloquear campos e inyectar candados
+  camposIds.forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.disabled = true;
+
+      // Evitar duplicar candados si el usuario presiona "Guardar" múltiples veces
+      if (
+        !el.nextElementSibling ||
+        !el.nextElementSibling.classList.contains("candado-editar")
+      ) {
+        const candado = document.createElement("i");
+        candado.className = "fas fa-lock candado-editar ml-2 text-danger";
+        candado.style.cursor = "pointer";
+        candado.title = "Clic para editar";
+
+        if (el.parentElement) {
+          // Ajustar el contenedor para alinear el input y el candado
+          el.parentElement.style.display = "flex";
+          el.parentElement.style.alignItems = "center";
+          el.parentElement.appendChild(candado);
+        }
+      }
+    }
+  });
 }
