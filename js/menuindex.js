@@ -129,9 +129,8 @@ async function renderizarMenu() {
 
         $("#ModalLogin").modal("hide");
         // Redirigir a inicio.html si el login fue exitoso
-        window.location.href = enSubcarpeta
-          ? "inicio.html"
-          : "inicio/inicio.html";
+        const destino = enSubcarpeta ? "inicio.html" : "inicio/inicio.html";
+        window.location.href = `${destino}?sec=seccion-bienvenida`;
       } catch (err) {
         alert("Error de acceso: " + err.message);
       } finally {
