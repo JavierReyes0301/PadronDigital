@@ -160,34 +160,64 @@ async function inicializarPagina() {
 
 // --- 2. CONTROL DINÁMICO DE INTERFAZ DE DOCUMENTOS ---
 
-function actualizarInterfazDocumentos() {
-  // Detectar Tipo de Persona desde USER_DATA (cargado en inicializarPagina)
-  const tipoPersona = USER_DATA.tipo_persona;
+// --- 2. CONTROL DINÁMICO DE INTERFAZ DE DOCUMENTOS ---
 
-  // Detectar Tipo de Identificación seleccionado en Datos Generales
+function actualizarInterfazDocumentos() {
+  const tipoPersona = USER_DATA.tipo_persona;
+  console.log("🔄 Actualizando interfaz para:", tipoPersona);
+
+  // 1. Obtener el nombre del documento de identificación
   const selectDoc = document.getElementById("select_tipo_doc");
   const nombreDoc =
     selectDoc && selectDoc.value !== ""
       ? selectDoc.options[selectDoc.selectedIndex].text
-      : "Credencial de Elector";
+      : "Identificación Oficial";
 
-  // Elementos de la pestaña Finalizar (IDs que agregaste al HTML)
-  const labelActa = document.getElementById("label-acta-texto");
-  const seccionPoder = document.getElementById("seccion-poder-notarial");
-  const labelIne = document.getElementById("label-identificacion-texto");
+  // 2. Referencias de la sección DATOS GENERALES (Mapeado a tu HTML real)
+  const labelActaGen = document.getElementById("label-acta");
+  const seccionPoderGen = document.getElementById("contenedor-poder-notarial");
+  const labelNumIdentificacion = document.getElementById(
+    "label-identificacion",
+  );
 
-  // Lógica para Persona Moral vs Física
+  // 3. Referencias de la sección FINALIZAR CAPTURA (Mapeado a tu HTML real)
+  const labelActaFin = document.getElementById("label-acta-texto");
+  const seccionPoderFin = document.getElementById("seccion-poder-notarial");
+  const labelIneFin = document.getElementById("label-identificacion-texto");
+
+  // --- LÓGICA PARA PERSONA MORAL ---
   if (tipoPersona === "MORAL") {
-    if (labelActa) labelActa.innerText = "Adjuntar Acta Constitutiva:";
-    if (seccionPoder) seccionPoder.style.display = "flex";
-  } else {
-    if (labelActa) labelActa.innerText = "Adjuntar Acta de Nacimiento:";
-    if (seccionPoder) seccionPoder.style.display = "none";
+    // Cambiar textos a "Acta Constitutiva" respetando el asterisco rojo de obligatorio
+    if (labelActaGen)
+      labelActaGen.innerHTML =
+        '<span class="text-danger">*</span> Acta Constitutiva:';
+    if (labelActaFin) labelActaFin.innerText = "Adjuntar Acta Constitutiva:";
+
+    // Mostrar campos de Poder Notarial
+    if (seccionPoderGen) seccionPoderGen.style.display = "flex";
+    if (seccionPoderFin) seccionPoderFin.style.display = "flex";
+  }
+  // --- LÓGICA PARA PERSONA FÍSICA ---
+  else {
+    // Cambiar textos a "Acta de Nacimiento" respetando el asterisco rojo
+    if (labelActaGen)
+      labelActaGen.innerHTML =
+        '<span class="text-danger">*</span> Acta de Nacimiento:';
+    if (labelActaFin) labelActaFin.innerText = "Adjuntar Acta de Nacimiento:";
+
+    // Ocultar campos de Poder Notarial
+    if (seccionPoderGen) seccionPoderGen.style.display = "none";
+    if (seccionPoderFin) seccionPoderFin.style.display = "none";
   }
 
-  // Lógica para el nombre de la Identificación
-  if (labelIne) {
-    labelIne.innerText = `Adjuntar ${nombreDoc}:`;
+  // --- LÓGICA PARA NOMBRES DE IDENTIFICACIÓN ---
+  // Actualiza "Número de Documento" en la pestaña 1
+  if (labelNumIdentificacion) {
+    labelNumIdentificacion.innerText = `Número de ${nombreDoc}:`;
+  }
+  // Actualiza "Adjuntar Identificación Oficial" en la pestaña final
+  if (labelIneFin) {
+    labelIneFin.innerText = `Adjuntar ${nombreDoc}:`;
   }
 }
 
