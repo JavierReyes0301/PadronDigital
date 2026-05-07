@@ -79,6 +79,11 @@ async function inicializarPagina() {
 
     if (usuario) {
       USER_DATA = usuario;
+      console.log(
+        "Datos de usuario cargados, aplicando interfaz para:",
+        USER_DATA.tipo_persona,
+      );
+      actualizarInterfazDocumentos();
       document.getElementById("info-rfc").innerText = usuario.rfc || "---";
       document.getElementById("info-correo").innerText =
         usuario.correo || "---";
@@ -174,47 +179,52 @@ async function inicializarPagina() {
 // --- 2. CONTROL DINÁMICO DE INTERFAZ ---
 
 function actualizarInterfazDocumentos() {
-  const tipoPersona = USER_DATA.tipo_persona;
+  const tipoPersona = USER_DATA.tipo_persona; // Asegúrate que sea 'FISICA' o 'MORAL'
 
-  const selectDoc = document.getElementById("select_tipo_doc");
-  const nombreDoc =
-    selectDoc && selectDoc.value !== ""
-      ? selectDoc.options[selectDoc.selectedIndex].text
-      : "Identificación Oficial";
-
-  // Elementos de la Pestaña 1 (Generales)
+  // --- SECCIÓN: DATOS GENERALES ---
   const labelActaGen = document.getElementById("label-acta");
-  const seccionPoderGen = document.getElementById("contenedor-poder-notarial");
-  const labelNumIdentificacion = document.getElementById(
-    "label-identificacion",
+  const contenedorPoderGen = document.getElementById(
+    "contenedor-poder-notarial",
   );
 
-  // Elementos de la Pestaña Final (Documentos)
-  const labelActaFin = document.getElementById("label-acta-texto");
-  const seccionPoderFin = document.getElementById("seccion-poder-notarial");
-  const labelIneFin = document.getElementById("label-identificacion-texto");
-
-  // Lógica por tipo de persona
   if (tipoPersona === "MORAL") {
     if (labelActaGen)
       labelActaGen.innerHTML =
         '<span class="text-danger">*</span> Acta Constitutiva:';
-    if (labelActaFin) labelActaFin.innerText = "Adjuntar Acta Constitutiva:";
-    if (seccionPoderGen) seccionPoderGen.style.display = "flex";
-    if (seccionPoderFin) seccionPoderFin.style.display = "flex";
+    if (contenedorPoderGen)
+      contenedorPoderGen.setAttribute("style", "display: flex !important");
   } else {
     if (labelActaGen)
       labelActaGen.innerHTML =
         '<span class="text-danger">*</span> Acta de Nacimiento:';
-    if (labelActaFin) labelActaFin.innerText = "Adjuntar Acta de Nacimiento:";
-    if (seccionPoderGen) seccionPoderGen.style.display = "none";
-    if (seccionPoderFin) seccionPoderFin.style.display = "none";
+    if (contenedorPoderGen)
+      contenedorPoderGen.setAttribute("style", "display: none !important");
   }
 
-  // Actualizar nombres según el select de identificación
-  if (labelNumIdentificacion)
-    labelNumIdentificacion.innerText = `Número de ${nombreDoc}:`;
-  if (labelIneFin) labelIneFin.innerText = `Adjuntar ${nombreDoc}:`;
+  // --- SECCIÓN: FINALIZAR (ADJUNTAR ARCHIVOS) ---
+  const labelActaFin = document.getElementById("label-acta-texto");
+  const seccionPoderFin = document.getElementById("seccion-poder-notarial");
+
+  if (tipoPersona === "MORAL") {
+    if (labelActaFin) labelActaFin.innerText = "Adjuntar Acta Constitutiva:";
+    if (seccionPoderFin)
+      seccionPoderFin.setAttribute("style", "display: flex !important");
+  } else {
+    if (labelActaFin) labelActaFin.innerText = "Adjuntar Acta de Nacimiento:";
+    if (seccionPoderFin)
+      seccionPoderFin.setAttribute("style", "display: none !important");
+  }
+
+  // --- ACTUALIZAR TEXTO DE IDENTIFICACIÓN ---
+  const selectDoc = document.getElementById("select_tipo_doc");
+  const labelNumId = document.getElementById("label-identificacion");
+  const labelIneFin = document.getElementById("label-identificacion-texto");
+
+  if (selectDoc && selectDoc.selectedIndex !== -1) {
+    const textoDoc = selectDoc.options[selectDoc.selectedIndex].text;
+    if (labelNumId) labelNumId.innerText = `Número de ${textoDoc}:`;
+    if (labelIneFin) labelIneFin.innerText = `Adjuntar ${textoDoc}:`;
+  }
 }
 
 // --- 3. CATÁLOGOS ---
