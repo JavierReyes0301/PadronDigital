@@ -218,7 +218,7 @@ section {
 }
 
 #inicio .logo-container a::after {
-  content: "Tu Eslogan Politico o Lema de Campaña";
+  content: "Tu Eslogan Político o Lema de Campaña";
   font-style: italic;
   font-weight: 600;
   color: #b68400;
