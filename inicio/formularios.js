@@ -8,7 +8,6 @@ let USER_DATA = {};
 
 document.addEventListener("DOMContentLoaded", async () => {
   // --- MEJORA DE NAVEGACIÓN FORZADA ---
-  // Leemos la sección de la URL o forzamos bienvenida por defecto
   const urlParams = new URLSearchParams(window.location.search);
   const seccionInicial = urlParams.get("sec") || "seccion-bienvenida";
 
@@ -16,21 +15,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     window.gestionarVisibilidadSeccion(seccionInicial, false);
   }
 
-  // --- NUEVO: DELEGACIÓN DE EVENTOS PARA LOS CANDADOS ---
-  // Escucha clics en todo el documento, pero solo actúa si el clic fue en un candado
+  // --- DELEGACIÓN DE EVENTOS PARA LOS CANDADOS ---
   document.addEventListener("click", function (event) {
     if (event.target.classList.contains("candado-editar")) {
       const inputAsociado = event.target.previousElementSibling;
 
       if (inputAsociado && inputAsociado.disabled) {
-        // Desbloquear
         inputAsociado.disabled = false;
         inputAsociado.focus();
         event.target.className =
           "fas fa-lock-open candado-editar ml-2 text-success";
         event.target.title = "Campo editable";
       } else if (inputAsociado) {
-        // Volver a bloquear
         inputAsociado.disabled = true;
         event.target.className = "fas fa-lock candado-editar ml-2 text-danger";
         event.target.title = "Clic para editar";
@@ -38,7 +34,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  // Retraso de seguridad para asegurar la carga de la conexión Supabase
   setTimeout(async () => {
     if (!window.clientSupa) return;
 
@@ -50,7 +45,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       PROVEEDOR_ID = session.user.id;
       console.log("🟢 Sesión confirmada:", PROVEEDOR_ID);
 
-      // 1. CARGA DE CATÁLOGOS INICIALES
       await cargarEstados();
       await cargarAnios();
       configurarEscuchadores();
@@ -63,7 +57,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 async function inicializarPagina() {
   try {
-    // A. Obtener datos de identidad
     const { data: usuario } = await window.clientSupa
       .from("usuarios")
       .select("rfc, correo, tipo_persona")
@@ -79,7 +72,6 @@ async function inicializarPagina() {
         usuario.tipo_persona || "---";
     }
 
-    // B. Obtener expediente del proveedor
     let { data: prov } = await window.clientSupa
       .from("proveedores")
       .select("*")
@@ -87,7 +79,6 @@ async function inicializarPagina() {
       .maybeSingle();
 
     if (prov) {
-      // --- CORRECCIÓN DEL FOLIO ---
       const elFolio = document.getElementById("folio-expediente");
       if (elFolio) {
         if (prov.folio) {
@@ -98,7 +89,6 @@ async function inicializarPagina() {
         }
       }
 
-      // Rellenar inputs de texto
       const campos = [
         "num_acta",
         "poder_notarial",
@@ -122,7 +112,11 @@ async function inicializarPagina() {
           el.value = prov[id === "input-telefono" ? "telefono" : id] || "";
       });
 
-      // Rehidratar selectores de ubicación
+      if (prov.tipo_identificacion) {
+        const selDoc = document.getElementById("select_tipo_doc");
+        if (selDoc) selDoc.value = prov.tipo_identificacion;
+      }
+
       if (prov.estado) {
         document.getElementById("select-estado").value = prov.estado;
         await cargarMunicipios(prov.estado);
@@ -131,7 +125,6 @@ async function inicializarPagina() {
         }
       }
 
-      // Rehidratar selectores adicionales
       if (prov.anio_inicio)
         document.getElementById("select-anio").value = prov.anio_inicio;
       if (prov.capacidad_crediticia)
@@ -139,13 +132,49 @@ async function inicializarPagina() {
           prov.capacidad_crediticia;
       if (prov.num_empleados)
         document.getElementById("select-empleados").value = prov.num_empleados;
+
+      // Ajustar la pestaña de documentos según los datos cargados
+      actualizarInterfazDocumentos();
     }
   } catch (e) {
     console.error("❌ Error en inicialización:", e.message);
   }
 }
 
-// --- 2. CARGA DE CATÁLOGOS ---
+// --- 2. CONTROL DINÁMICO DE INTERFAZ DE DOCUMENTOS ---
+
+function actualizarInterfazDocumentos() {
+  // Detectar Tipo de Persona desde USER_DATA (cargado en inicializarPagina)
+  const tipoPersona = USER_DATA.tipo_persona;
+
+  // Detectar Tipo de Identificación seleccionado en Datos Generales
+  const selectDoc = document.getElementById("select_tipo_doc");
+  const nombreDoc =
+    selectDoc && selectDoc.value !== ""
+      ? selectDoc.options[selectDoc.selectedIndex].text
+      : "Credencial de Elector";
+
+  // Elementos de la pestaña Finalizar (IDs que agregaste al HTML)
+  const labelActa = document.getElementById("label-acta-texto");
+  const seccionPoder = document.getElementById("seccion-poder-notarial");
+  const labelIne = document.getElementById("label-identificacion-texto");
+
+  // Lógica para Persona Moral vs Física
+  if (tipoPersona === "MORAL") {
+    if (labelActa) labelActa.innerText = "Adjuntar Acta Constitutiva:";
+    if (seccionPoder) seccionPoder.style.display = "flex";
+  } else {
+    if (labelActa) labelActa.innerText = "Adjuntar Acta de Nacimiento:";
+    if (seccionPoder) seccionPoder.style.display = "none";
+  }
+
+  // Lógica para el nombre de la Identificación
+  if (labelIne) {
+    labelIne.innerText = `Adjuntar ${nombreDoc}:`;
+  }
+}
+
+// --- 3. CARGA DE CATÁLOGOS ---
 
 async function cargarAnios() {
   const selectAnio = document.getElementById("select-anio");
@@ -155,7 +184,7 @@ async function cargarAnios() {
     .select("año")
     .order("año", { ascending: false });
   if (error) return;
-  selectAnio.innerHTML = '<option value="">SELECCIONE EL AÑO...</option>';
+  selectAnio.innerHTML = '<option value="">Seleccione el Año...</option>';
   data.forEach((item) => {
     const option = document.createElement("option");
     option.value = item.año;
@@ -172,11 +201,11 @@ async function cargarEstados() {
   if (error) return;
   const selectEstado = document.getElementById("select-estado");
   if (!selectEstado) return;
-  selectEstado.innerHTML = '<option value="">SELECCIONE EL ESTADO...</option>';
+  selectEstado.innerHTML = '<option value="">Seleccione el Estado...</option>';
   data.forEach((est) => {
     const option = document.createElement("option");
     option.value = est.id;
-    option.text = est.nombre.toUpperCase();
+    option.text = est.nombre;
     selectEstado.appendChild(option);
   });
 }
@@ -190,17 +219,17 @@ async function cargarMunicipios(estadoId) {
     .eq("estado_id", estadoId)
     .order("nombre", { ascending: true });
   if (error) return;
-  selectMun.innerHTML = '<option value="">SELECCIONE EL MUNICIPIO...</option>';
+  selectMun.innerHTML = '<option value="">Seleccione el Municipio...</option>';
   selectMun.disabled = false;
   data.forEach((mun) => {
     const option = document.createElement("option");
     option.value = mun.nombre;
-    option.text = mun.nombre.toUpperCase();
+    option.text = mun.nombre;
     selectMun.appendChild(option);
   });
 }
 
-// --- 3. FUNCIONES DE GUARDADO ---
+// --- 4. FUNCIONES DE GUARDADO ---
 
 async function guardarGenerales() {
   const payload = {
@@ -224,7 +253,8 @@ async function guardarGenerales() {
     alert("Error: " + error.message);
   } else {
     alert("✅ Datos Generales guardados.");
-    // Bloquear campos y marcar pestaña de Datos Generales
+    // Al guardar, refrescamos la interfaz de documentos por si cambió el select
+    actualizarInterfazDocumentos();
     bloquearSeccionYPestaña(
       [
         "num_acta",
@@ -263,7 +293,6 @@ async function guardarDomicilio() {
     alert("Error: " + error.message);
   } else {
     alert("✅ Domicilio guardado con éxito.");
-    // Bloquear campos y marcar pestaña de Domicilio Fiscal
     bloquearSeccionYPestaña(
       [
         "select-estado",
@@ -298,7 +327,6 @@ async function guardarAdicionales() {
     alert("Error: " + error.message);
   } else {
     alert("✅ Datos Adicionales guardados.");
-    // Bloquear campos y marcar pestaña de Datos Adicionales
     bloquearSeccionYPestaña(
       ["input-telefono", "select-capacidad", "select-empleados", "select-anio"],
       "#Adicionales",
@@ -318,18 +346,23 @@ function configurarEscuchadores() {
         const selMun = document.getElementById("select-municipio");
         if (selMun) {
           selMun.innerHTML =
-            '<option value="">SELECCIONE EL MUNICIPIO...</option>';
+            '<option value="">Seleccione el Municipio...</option>';
           selMun.disabled = true;
         }
       }
     });
   }
+
+  // Escuchar cambios en el select de tipo de documento para actualizar la pestaña Finalizar en tiempo real
+  const selectDoc = document.getElementById("select_tipo_doc");
+  if (selectDoc) {
+    selectDoc.addEventListener("change", actualizarInterfazDocumentos);
+  }
 }
 
-// --- 6. UTILIDADES DE INTERFAZ (NUEVA) ---
+// --- 6. UTILIDADES DE INTERFAZ ---
 
 function bloquearSeccionYPestaña(camposIds, idTab) {
-  // 1. Cambiar icono de la pestaña a palomita verde
   const iconoPestaña =
     document.querySelector(`a[href="${idTab}"] i.fa-circle`) ||
     document.querySelector(`a[href="${idTab}"] i.fa-check-circle`);
@@ -338,13 +371,10 @@ function bloquearSeccionYPestaña(camposIds, idTab) {
     iconoPestaña.className = "fas fa-check-circle mr-1 text-success";
   }
 
-  // 2. Bloquear campos e inyectar candados
   camposIds.forEach((id) => {
     const el = document.getElementById(id);
     if (el) {
       el.disabled = true;
-
-      // Evitar duplicar candados si el usuario presiona "Guardar" múltiples veces
       if (
         !el.nextElementSibling ||
         !el.nextElementSibling.classList.contains("candado-editar")
@@ -355,7 +385,6 @@ function bloquearSeccionYPestaña(camposIds, idTab) {
         candado.title = "Clic para editar";
 
         if (el.parentElement) {
-          // Ajustar el contenedor para alinear el input y el candado
           el.parentElement.style.display = "flex";
           el.parentElement.style.alignItems = "center";
           el.parentElement.appendChild(candado);
