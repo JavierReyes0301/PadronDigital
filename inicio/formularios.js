@@ -56,29 +56,42 @@ document.addEventListener("DOMContentLoaded", async () => {
 // --- 1. INICIALIZACIÓN DE DATOS ---
 
 async function inicializarPagina() {
+  console.log("🚀 Iniciando carga de datos...");
   try {
-    const { data: usuario } = await window.clientSupa
+    // 1. Obtener datos de identidad de la tabla usuarios
+    const { data: usuario, error: errorUsuario } = await window.clientSupa
       .from("usuarios")
       .select("rfc, correo, tipo_persona")
       .eq("id", PROVEEDOR_ID)
       .single();
 
+    if (errorUsuario) throw errorUsuario;
+
     if (usuario) {
       USER_DATA = usuario;
+      console.log("👤 Datos de usuario obtenidos:", USER_DATA.tipo_persona);
+
       document.getElementById("info-rfc").innerText = usuario.rfc || "---";
       document.getElementById("info-correo").innerText =
         usuario.correo || "---";
       document.getElementById("info-tipo-persona").innerText =
         usuario.tipo_persona || "---";
+
+      // EJECUCIÓN INMEDIATA: Cambiamos la interfaz en cuanto sabemos el tipo de persona
+      actualizarInterfazDocumentos();
     }
 
-    let { data: prov } = await window.clientSupa
+    // 2. Obtener expediente de la tabla proveedores
+    let { data: prov, error: errorProv } = await window.clientSupa
       .from("proveedores")
       .select("*")
       .eq("id", PROVEEDOR_ID)
       .maybeSingle();
 
     if (prov) {
+      console.log("📄 Expediente encontrado, rellenando campos...");
+
+      // Lógica del Folio
       const elFolio = document.getElementById("folio-expediente");
       if (elFolio) {
         if (prov.folio) {
@@ -89,6 +102,7 @@ async function inicializarPagina() {
         }
       }
 
+      // Rellenar inputs de texto
       const campos = [
         "num_acta",
         "poder_notarial",
@@ -117,6 +131,10 @@ async function inicializarPagina() {
         if (selDoc) selDoc.value = prov.tipo_identificacion;
       }
 
+      // Segunda llamada para asegurar que el nombre de la identificación sea el correcto
+      actualizarInterfazDocumentos();
+
+      // Cargar ubicación
       if (prov.estado) {
         document.getElementById("select-estado").value = prov.estado;
         await cargarMunicipios(prov.estado);
@@ -132,12 +150,11 @@ async function inicializarPagina() {
           prov.capacidad_crediticia;
       if (prov.num_empleados)
         document.getElementById("select-empleados").value = prov.num_empleados;
-
-      // Ajustar la pestaña de documentos según los datos cargados
-      actualizarInterfazDocumentos();
     }
+
+    console.log("✅ Inicialización completada con éxito.");
   } catch (e) {
-    console.error("❌ Error en inicialización:", e.message);
+    console.error("❌ Error crítico en inicializarPagina:", e.message);
   }
 }
 
