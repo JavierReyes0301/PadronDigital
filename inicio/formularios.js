@@ -7,7 +7,7 @@ let PROVEEDOR_ID = null;
 let USER_DATA = {};
 
 document.addEventListener("DOMContentLoaded", async () => {
-  // --- MEJORA DE NAVEGACIÓN FORZADA ---
+  // --- 1. CONFIGURACIÓN DE NAVEGACIÓN Y UI ---
   const urlParams = new URLSearchParams(window.location.search);
   const seccionInicial = urlParams.get("sec") || "seccion-bienvenida";
 
@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     window.gestionarVisibilidadSeccion(seccionInicial, false);
   }
 
-  // --- DELEGACIÓN DE EVENTOS PARA LOS CANDADOS ---
+  // --- 2. DELEGACIÓN DE EVENTOS (CANDADOS DE EDICIÓN) ---
   document.addEventListener("click", function (event) {
     if (event.target.classList.contains("candado-editar")) {
       const inputAsociado = event.target.previousElementSibling;
@@ -34,8 +34,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
+  // --- 3. VERIFICACIÓN DE SESIÓN E INICIO ---
   setTimeout(async () => {
-    if (!window.clientSupa) return;
+    if (!window.clientSupa) {
+      console.error("❌ Supabase client no encontrado.");
+      return;
+    }
 
     const {
       data: { session },
@@ -45,10 +49,16 @@ document.addEventListener("DOMContentLoaded", async () => {
       PROVEEDOR_ID = session.user.id;
       console.log("🟢 Sesión confirmada:", PROVEEDOR_ID);
 
-      await cargarEstados();
-      await cargarAnios();
+      // Cargar catálogos primero
+      await Promise.all([cargarEstados(), cargarAnios()]);
+
+      // Configurar listeners de cambios
       configurarEscuchadores();
+
+      // Cargar datos del usuario y expediente
       await inicializarPagina();
+    } else {
+      console.warn("⚠️ No hay sesión activa.");
     }
   }, 400);
 });
@@ -58,7 +68,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 async function inicializarPagina() {
   console.log("🚀 Iniciando carga de datos...");
   try {
-    // 1. Obtener datos de identidad de la tabla usuarios
+    // A. Datos de la tabla 'usuarios' (Identidad)
     const { data: usuario, error: errorUsuario } = await window.clientSupa
       .from("usuarios")
       .select("rfc, correo, tipo_persona")
@@ -69,19 +79,17 @@ async function inicializarPagina() {
 
     if (usuario) {
       USER_DATA = usuario;
-      console.log("👤 Datos de usuario obtenidos:", USER_DATA.tipo_persona);
-
       document.getElementById("info-rfc").innerText = usuario.rfc || "---";
       document.getElementById("info-correo").innerText =
         usuario.correo || "---";
       document.getElementById("info-tipo-persona").innerText =
         usuario.tipo_persona || "---";
 
-      // EJECUCIÓN INMEDIATA: Cambiamos la interfaz en cuanto sabemos el tipo de persona
+      // Ajustar interfaz según Persona Física/Moral inmediatamente
       actualizarInterfazDocumentos();
     }
 
-    // 2. Obtener expediente de la tabla proveedores
+    // B. Datos de la tabla 'proveedores' (Expediente)
     let { data: prov, error: errorProv } = await window.clientSupa
       .from("proveedores")
       .select("*")
@@ -102,7 +110,7 @@ async function inicializarPagina() {
         }
       }
 
-      // Rellenar inputs de texto
+      // Rellenar inputs de texto (Mapeo masivo)
       const campos = [
         "num_acta",
         "poder_notarial",
@@ -122,19 +130,23 @@ async function inicializarPagina() {
 
       campos.forEach((id) => {
         const el = document.getElementById(id);
-        if (el)
-          el.value = prov[id === "input-telefono" ? "telefono" : id] || "";
+        if (el) {
+          const valorBase = id === "input-telefono" ? prov.telefono : prov[id];
+          el.value = valorBase || "";
+        }
       });
 
+      // Sincronizar select de identificación
       if (prov.tipo_identificacion) {
         const selDoc = document.getElementById("select_tipo_doc");
-        if (selDoc) selDoc.value = prov.tipo_identificacion;
+        if (selDoc) {
+          selDoc.value = prov.tipo_identificacion;
+          // Refrescar nombres de etiquetas
+          actualizarInterfazDocumentos();
+        }
       }
 
-      // Segunda llamada para asegurar que el nombre de la identificación sea el correcto
-      actualizarInterfazDocumentos();
-
-      // Cargar ubicación
+      // Cargar ubicación (Estado y Municipio)
       if (prov.estado) {
         document.getElementById("select-estado").value = prov.estado;
         await cargarMunicipios(prov.estado);
@@ -143,6 +155,7 @@ async function inicializarPagina() {
         }
       }
 
+      // Otros selectores
       if (prov.anio_inicio)
         document.getElementById("select-anio").value = prov.anio_inicio;
       if (prov.capacidad_crediticia)
@@ -152,76 +165,59 @@ async function inicializarPagina() {
         document.getElementById("select-empleados").value = prov.num_empleados;
     }
 
-    console.log("✅ Inicialización completada con éxito.");
+    console.log("✅ Inicialización completada.");
   } catch (e) {
-    console.error("❌ Error crítico en inicializarPagina:", e.message);
+    console.error("❌ Error en inicializarPagina:", e.message);
   }
 }
 
-// --- 2. CONTROL DINÁMICO DE INTERFAZ DE DOCUMENTOS ---
-
-// --- 2. CONTROL DINÁMICO DE INTERFAZ DE DOCUMENTOS ---
+// --- 2. CONTROL DINÁMICO DE INTERFAZ ---
 
 function actualizarInterfazDocumentos() {
   const tipoPersona = USER_DATA.tipo_persona;
-  console.log("🔄 Actualizando interfaz para:", tipoPersona);
 
-  // 1. Obtener el nombre del documento de identificación
   const selectDoc = document.getElementById("select_tipo_doc");
   const nombreDoc =
     selectDoc && selectDoc.value !== ""
       ? selectDoc.options[selectDoc.selectedIndex].text
       : "Identificación Oficial";
 
-  // 2. Referencias de la sección DATOS GENERALES (Mapeado a tu HTML real)
+  // Elementos de la Pestaña 1 (Generales)
   const labelActaGen = document.getElementById("label-acta");
   const seccionPoderGen = document.getElementById("contenedor-poder-notarial");
   const labelNumIdentificacion = document.getElementById(
     "label-identificacion",
   );
 
-  // 3. Referencias de la sección FINALIZAR CAPTURA (Mapeado a tu HTML real)
+  // Elementos de la Pestaña Final (Documentos)
   const labelActaFin = document.getElementById("label-acta-texto");
   const seccionPoderFin = document.getElementById("seccion-poder-notarial");
   const labelIneFin = document.getElementById("label-identificacion-texto");
 
-  // --- LÓGICA PARA PERSONA MORAL ---
+  // Lógica por tipo de persona
   if (tipoPersona === "MORAL") {
-    // Cambiar textos a "Acta Constitutiva" respetando el asterisco rojo de obligatorio
     if (labelActaGen)
       labelActaGen.innerHTML =
         '<span class="text-danger">*</span> Acta Constitutiva:';
     if (labelActaFin) labelActaFin.innerText = "Adjuntar Acta Constitutiva:";
-
-    // Mostrar campos de Poder Notarial
     if (seccionPoderGen) seccionPoderGen.style.display = "flex";
     if (seccionPoderFin) seccionPoderFin.style.display = "flex";
-  }
-  // --- LÓGICA PARA PERSONA FÍSICA ---
-  else {
-    // Cambiar textos a "Acta de Nacimiento" respetando el asterisco rojo
+  } else {
     if (labelActaGen)
       labelActaGen.innerHTML =
         '<span class="text-danger">*</span> Acta de Nacimiento:';
     if (labelActaFin) labelActaFin.innerText = "Adjuntar Acta de Nacimiento:";
-
-    // Ocultar campos de Poder Notarial
     if (seccionPoderGen) seccionPoderGen.style.display = "none";
     if (seccionPoderFin) seccionPoderFin.style.display = "none";
   }
 
-  // --- LÓGICA PARA NOMBRES DE IDENTIFICACIÓN ---
-  // Actualiza "Número de Documento" en la pestaña 1
-  if (labelNumIdentificacion) {
+  // Actualizar nombres según el select de identificación
+  if (labelNumIdentificacion)
     labelNumIdentificacion.innerText = `Número de ${nombreDoc}:`;
-  }
-  // Actualiza "Adjuntar Identificación Oficial" en la pestaña final
-  if (labelIneFin) {
-    labelIneFin.innerText = `Adjuntar ${nombreDoc}:`;
-  }
+  if (labelIneFin) labelIneFin.innerText = `Adjuntar ${nombreDoc}:`;
 }
 
-// --- 3. CARGA DE CATÁLOGOS ---
+// --- 3. CATÁLOGOS ---
 
 async function cargarAnios() {
   const selectAnio = document.getElementById("select-anio");
@@ -230,13 +226,12 @@ async function cargarAnios() {
     .from("años")
     .select("año")
     .order("año", { ascending: false });
+
   if (error) return;
   selectAnio.innerHTML = '<option value="">Seleccione el Año...</option>';
   data.forEach((item) => {
-    const option = document.createElement("option");
-    option.value = item.año;
-    option.text = item.año;
-    selectAnio.appendChild(option);
+    let opt = new Option(item.año, item.año);
+    selectAnio.add(opt);
   });
 }
 
@@ -245,15 +240,14 @@ async function cargarEstados() {
     .from("estados_mexico")
     .select("id, nombre")
     .order("nombre", { ascending: true });
+
   if (error) return;
   const selectEstado = document.getElementById("select-estado");
   if (!selectEstado) return;
   selectEstado.innerHTML = '<option value="">Seleccione el Estado...</option>';
   data.forEach((est) => {
-    const option = document.createElement("option");
-    option.value = est.id;
-    option.text = est.nombre;
-    selectEstado.appendChild(option);
+    let opt = new Option(est.nombre, est.id);
+    selectEstado.add(opt);
   });
 }
 
@@ -265,18 +259,17 @@ async function cargarMunicipios(estadoId) {
     .select("nombre")
     .eq("estado_id", estadoId)
     .order("nombre", { ascending: true });
+
   if (error) return;
   selectMun.innerHTML = '<option value="">Seleccione el Municipio...</option>';
   selectMun.disabled = false;
   data.forEach((mun) => {
-    const option = document.createElement("option");
-    option.value = mun.nombre;
-    option.text = mun.nombre;
-    selectMun.appendChild(option);
+    let opt = new Option(mun.nombre, mun.nombre);
+    selectMun.add(opt);
   });
 }
 
-// --- 4. FUNCIONES DE GUARDADO ---
+// --- 4. FUNCIONES DE PERSISTENCIA (GUARDADO) ---
 
 async function guardarGenerales() {
   const payload = {
@@ -294,13 +287,13 @@ async function guardarGenerales() {
     num_identificacion: document.getElementById("num_identificacion").value,
     updated_at: new Date(),
   };
+
   const { error } = await window.clientSupa.from("proveedores").upsert(payload);
 
   if (error) {
     alert("Error: " + error.message);
   } else {
     alert("✅ Datos Generales guardados.");
-    // Al guardar, refrescamos la interfaz de documentos por si cambió el select
     actualizarInterfazDocumentos();
     bloquearSeccionYPestaña(
       [
@@ -334,6 +327,7 @@ async function guardarDomicilio() {
     cp: document.getElementById("cp").value,
     updated_at: new Date(),
   };
+
   const { error } = await window.clientSupa.from("proveedores").upsert(payload);
 
   if (error) {
@@ -368,6 +362,7 @@ async function guardarAdicionales() {
     anio_inicio: document.getElementById("select-anio").value,
     updated_at: new Date(),
   };
+
   const { error } = await window.clientSupa.from("proveedores").upsert(payload);
 
   if (error) {
@@ -384,12 +379,14 @@ async function guardarAdicionales() {
 // --- 5. EVENTOS ---
 
 function configurarEscuchadores() {
+  // Cambio de estado -> Cargar municipios
   const selectEstado = document.getElementById("select-estado");
   if (selectEstado) {
     selectEstado.addEventListener("change", async (e) => {
       const idEstado = e.target.value;
-      if (idEstado) await cargarMunicipios(idEstado);
-      else {
+      if (idEstado) {
+        await cargarMunicipios(idEstado);
+      } else {
         const selMun = document.getElementById("select-municipio");
         if (selMun) {
           selMun.innerHTML =
@@ -400,7 +397,7 @@ function configurarEscuchadores() {
     });
   }
 
-  // Escuchar cambios en el select de tipo de documento para actualizar la pestaña Finalizar en tiempo real
+  // Cambio de tipo de identificación -> Refrescar etiquetas
   const selectDoc = document.getElementById("select_tipo_doc");
   if (selectDoc) {
     selectDoc.addEventListener("change", actualizarInterfazDocumentos);
@@ -410,6 +407,7 @@ function configurarEscuchadores() {
 // --- 6. UTILIDADES DE INTERFAZ ---
 
 function bloquearSeccionYPestaña(camposIds, idTab) {
+  // 1. Marcar pestaña como completada (Icono)
   const iconoPestaña =
     document.querySelector(`a[href="${idTab}"] i.fa-circle`) ||
     document.querySelector(`a[href="${idTab}"] i.fa-check-circle`);
@@ -418,10 +416,12 @@ function bloquearSeccionYPestaña(camposIds, idTab) {
     iconoPestaña.className = "fas fa-check-circle mr-1 text-success";
   }
 
+  // 2. Deshabilitar campos y agregar candado
   camposIds.forEach((id) => {
     const el = document.getElementById(id);
     if (el) {
       el.disabled = true;
+      // Evitar duplicar candados
       if (
         !el.nextElementSibling ||
         !el.nextElementSibling.classList.contains("candado-editar")
