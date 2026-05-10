@@ -1,0 +1,115 @@
+/* ============================================================
+   PANEL DE ADMINISTRACIÓN - CÓDIGO CON VALORES DIRECTOS
+   ============================================================ */
+
+body {
+  margin: 0;
+  font-family: "Montserrat", sans-serif;
+  background-color: #f4f4f4;
+  color: #323232;
+  min-height: 100vh;
+}
+
+/* ============================================================
+   TITULOS Y CABECERA
+   ============================================================ */
+.titulo-admin {
+  font-weight: 800;
+  color: #ab0a3d;
+  text-transform: uppercase;
+  font-size: 1.8rem;
+  letter-spacing: -1px;
+}
+
+.hr-dorada-admin {
+  border: none;
+  height: 4px;
+  background-color: #b38e5d;
+  width: 80px;
+  margin: 10px 0 30px 0;
+  border-radius: 10px;
+}
+
+/* ============================================================
+   TARJETAS DE MÉTRICAS (Dashboard)
+   ============================================================ */
+.card-metric {
+  background-color: #ffffff !important;
+  border: 1px solid #e1e1e1 !important;
+  border-radius: 12px !important;
+  padding: 20px !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
+  transition: all 0.3s ease;
+  border-left: 6px solid #ab0a3d !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.card-metric:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px #ab0a3d !important;
+  border-color: #ab0a3d !important;
+}
+
+.card-metric h5 {
+  color: #323232 !important;
+  font-size: 0.75rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  opacity: 0.8;
+}
+
+.card-metric h2 {
+  color: #ab0a3d !important;
+  font-size: 2.8rem !important;
+  font-weight: 900 !important;
+}
+
+/* ============================================================
+   TABLAS Y BUSCADOR
+   ============================================================ */
+.card-tabla-container {
+  background-color: #ffffff;
+  border-radius: 15px;
+  padding: 25px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+#busqueda-admin {
+  border-radius: 8px;
+  border: 2px solid #e1e8f5;
+  background-color: #f0f5ff;
+  padding: 10px 15px;
+}
+
+#busqueda-admin:focus {
+  border-color: #ab0a3d;
+  background-color: #ffffff;
+  outline: none;
+}
+
+.table thead th {
+  background-color: #ab0a3d !important;
+  color: #ffffff !important;
+  text-transform: uppercase;
+  font-weight: 700;
+  padding: 15px;
+}
+
+/* ============================================================
+   BOTONES
+   ============================================================ */
+.btn-logout {
+  background-color: transparent;
+  color: #ab0a3d;
+  border: 1px solid #ab0a3d;
+  border-radius: 8px;
+  padding: 8px 15px;
+  font-weight: 600;
+}
+
+.btn-logout:hover {
+  background-color: #ab0a3d;
+  color: #ffffff;
+}
