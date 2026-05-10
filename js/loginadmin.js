@@ -1,66 +1,90 @@
 /**
- * LOGINADMIN.JS - Gestión de acceso oculto para administradores
- * Diseño integrado con identidad institucional (Guinda)
+ * LOGINADMIN.JS - Versión con diseño institucional idéntico al proveedor
  */
 
 (function () {
-  // INYECCIÓN DE ESTILOS PERSONALIZADOS
-  const inyectarEstilos = () => {
-    if (document.getElementById("estilos-admin-login")) return;
+  const inyectarEstilosInstitucionales = () => {
+    if (document.getElementById("estilos-admin-custom")) return;
     const style = document.createElement("style");
-    style.id = "estilos-admin-login";
+    style.id = "estilos-admin-custom";
     style.innerHTML = `
-            .admin-modal-popup {
-                border-radius: 15px !important;
-                border-top: 5px solid #ab0a3d !important;
-            }
-            .admin-modal-title {
-                color: #ab0a3d !important;
-                font-family: 'Montserrat', sans-serif;
-                font-weight: bold;
-                text-transform: uppercase;
-            }
-            .admin-btn-confirm {
-                background-color: #ab0a3d !important;
-                color: white !important;
-                padding: 10px 30px !important;
-                border-radius: 8px !important;
-                font-weight: bold;
-                border: none;
-                margin: 5px;
-            }
-            .admin-btn-cancel {
-                background-color: #6c757d !important;
-                color: white !important;
-                padding: 10px 30px !important;
-                border-radius: 8px !important;
-                border: none;
-                margin: 5px;
-            }
-            .swal2-input:focus {
-                border-color: #ab0a3d !important;
-                box-shadow: 0 0 5px rgba(171, 10, 61, 0.3) !important;
-            }
-        `;
+      /* Contenedor principal del modal */
+      .modal-caja-login-admin {
+        border-radius: 25px !important;
+        overflow: hidden !important;
+        border: none !important;
+        padding: 0 !important;
+      }
+
+      /* Cabecera Guinda */
+      .modal-header-login-admin {
+        background: #ab0a3d !important; /* El guinda de tu imagen */
+        color: white !important;
+        padding: 20px !important;
+        text-align: center !important;
+        position: relative;
+      }
+
+      .modal-header-login-admin h2 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+
+      /* Inputs con fondo azulado claro */
+      .input-institucional-admin {
+        width: 100%;
+        padding: 12px 15px;
+        margin-top: 8px;
+        border: 1px solid #d1d9e6;
+        border-radius: 10px;
+        background-color: #f0f5ff !important; /* El color azulado de la imagen */
+        font-size: 1rem;
+        box-sizing: border-box;
+      }
+
+      /* Etiquetas */
+      .label-admin {
+        display: block;
+        font-weight: 700;
+        color: #333;
+        margin-top: 15px;
+        text-align: left;
+      }
+
+      /* Botón Iniciar Sesión */
+      .btn-admin-submit {
+        background-color: #ab0a3d !important;
+        color: white !important;
+        width: 100%;
+        padding: 12px;
+        border-radius: 10px;
+        border: none;
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-top: 25px;
+        cursor: pointer;
+        text-transform: uppercase;
+      }
+
+      .swal2-actions { margin-top: 0 !important; }
+      .swal2-html-container { margin: 0 !important; padding: 0 !important; }
+    `;
     document.head.appendChild(style);
   };
 
-  // 1. VINCULACIÓN DE EVENTOS
   const vincularAccesoAdmin = () => {
     const brandLink = document.getElementById("link-admin-secret");
     if (brandLink && !brandLink.dataset.adminViculado) {
       brandLink.dataset.adminViculado = "true";
-      inyectarEstilos();
-
+      inyectarEstilosInstitucionales();
       brandLink.addEventListener("dblclick", (e) => {
         e.preventDefault();
         abrirLoginAdmin();
       });
-
       brandLink.addEventListener("click", (e) => {
-        if (e.detail === 1) {
-          window.location.hash = "inicio";
-        }
+        if (e.detail === 1) window.location.hash = "inicio";
       });
     }
   };
@@ -70,100 +94,84 @@
   document.addEventListener("DOMContentLoaded", vincularAccesoAdmin);
 })();
 
-// --- LÓGICA DE LOGIN ---
-
 async function abrirLoginAdmin() {
-  if (typeof Swal === "undefined") {
-    alert("Error: SweetAlert2 no está disponible.");
+  const { value: formValues } = await Swal.fire({
+    showConfirmButton: false, // Ocultamos botones por defecto de Swal para usar el nuestro
+    showCloseButton: true,
+    customClass: {
+      popup: "modal-caja-login-admin",
+      closeButton: "boton-cerrar-custom",
+    },
+    html: `
+      <div class="modal-header-login-admin">
+          <h2>Inicio de Sesión</h2>
+      </div>
+      <div style="padding: 30px;">
+          <form id="FormaLoginAdmin">
+              <div style="text-align: left;">
+                  <label class="label-admin">Correo Electrónico:</label>
+                  <input type="email" id="admin-user" class="input-institucional-admin" placeholder="ejemplo@correo.com">
+                  
+                  <label class="label-admin">Contraseña:</label>
+                  <input type="password" id="admin-pass" class="input-institucional-admin" placeholder="********">
+              </div>
+              <button type="button" onclick="confirmarLoginAdmin()" class="btn-admin-submit">INICIAR SESIÓN</button>
+          </form>
+          <div style="text-align:center; margin-top:20px;">
+              <a href="#" style="font-size:0.9rem; color:#ab0a3d; font-weight:700; text-decoration:none;">¿Olvidó su contraseña?</a>
+          </div>
+      </div>
+    `,
+  });
+}
+
+// Función auxiliar para capturar los datos del formulario HTML personalizado
+function confirmarLoginAdmin() {
+  const user = document.getElementById("admin-user").value;
+  const pass = document.getElementById("admin-pass").value;
+
+  if (!user || !pass) {
+    Swal.showValidationMessage("Por favor llene todos los campos");
     return;
   }
 
-  const { value: formValues } = await Swal.fire({
-    title: "Acceso Administrativo",
-    icon: "lock",
-    iconColor: "#ab0a3d",
-    customClass: {
-      popup: "admin-modal-popup",
-      title: "admin-modal-title",
-      confirmButton: "admin-btn-confirm",
-      cancelButton: "admin-btn-cancel",
-    },
-    buttonsStyling: false,
-    html: `
-            <div style="text-align: left; padding: 10px;">
-                <label style="color: #555; font-size: 14px;"><b>Correo Electrónico:</b></label>
-                <input type="email" id="admin-user" class="swal2-input" placeholder="ejemplo@correo.com" style="margin-top: 5px;">
-                <br><br>
-                <label style="color: #555; font-size: 14px;"><b>Contraseña:</b></label>
-                <input type="password" id="admin-pass" class="swal2-input" placeholder="••••••••" style="margin-top: 5px;">
-            </div>
-        `,
-    showCancelButton: true,
-    confirmButtonText: '<i class="fas fa-sign-in-alt"></i> Entrar',
-    cancelButtonText: "Cancelar",
-    focusConfirm: false,
-    preConfirm: () => {
-      const user = document.getElementById("admin-user").value;
-      const pass = document.getElementById("admin-pass").value;
-      if (!user || !pass) {
-        Swal.showValidationMessage("Por favor, ingrese sus credenciales");
-        return false;
-      }
-      return { user, pass };
-    },
-  });
-
-  if (formValues) {
-    ejecutarAuthAdmin(formValues.user, formValues.pass);
-  }
+  // Cerramos el modal de diseño y ejecutamos la autenticación
+  Swal.close();
+  ejecutarAuthAdmin(user, pass);
 }
 
 async function ejecutarAuthAdmin(email, password) {
   try {
     Swal.fire({
-      title: "Verificando identidad...",
+      title: "Verificando...",
+      didOpen: () => Swal.showLoading(),
       allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
-      },
     });
 
-    // 1. Autenticación Supabase
     const { data, error } = await window.clientSupa.auth.signInWithPassword({
-      email: email,
-      password: password,
+      email,
+      password,
     });
+    if (error) throw new Error("Credenciales inválidas");
 
-    if (error) throw new Error("Credenciales inválidas o inexistentes");
-
-    // 2. Validación de Rol
-    const { data: perfil, error: errorPerfil } = await window.clientSupa
+    const { data: perfil } = await window.clientSupa
       .from("usuarios")
       .select("rol")
       .eq("id", data.user.id)
       .single();
 
-    if (errorPerfil || !perfil || perfil.rol !== "ADMIN") {
+    if (!perfil || perfil.rol !== "ADMIN") {
       await window.clientSupa.auth.signOut();
-      throw new Error("Su cuenta no tiene privilegios de administrador");
+      throw new Error("No tienes permisos de administrador");
     }
 
-    // 3. Éxito
     Swal.fire({
-      title: "Acceso Concedido",
-      text: "Cargando panel de administración...",
+      title: "¡Bienvenido!",
       icon: "success",
-      timer: 2000,
+      timer: 1500,
       showConfirmButton: false,
-    }).then(() => {
-      window.location.href = "admin_panel.html";
-    });
+    }).then(() => (window.location.href = "admin_panel.html"));
   } catch (err) {
-    Swal.fire({
-      title: "Error de Acceso",
-      text: err.message,
-      icon: "error",
-      confirmButtonColor: "#ab0a3d",
-    });
+    Swal.fire("Acceso Denegado", err.message, "error");
   }
 }
