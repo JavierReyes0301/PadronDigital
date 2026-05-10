@@ -104,11 +104,11 @@ async function abrirLoginAdmin() {
     },
     html: `
       <div class="modal-header-login-admin">
-          <h2>Inicio de Sesión</h2>
+          <h2>Acceso al Panel de Administración</h2>
       </div>
       <div style="padding: 30px;">
           <form id="FormaLoginAdmin">
-              <div style="text-align: left;">
+              <div style="text-align: center;">
                   <label class="label-admin">Correo Electrónico:</label>
                   <input type="email" id="admin-user" class="input-institucional-admin" placeholder="ejemplo@correo.com">
                   
@@ -117,9 +117,7 @@ async function abrirLoginAdmin() {
               </div>
               <button type="button" onclick="confirmarLoginAdmin()" class="btn-admin-submit">INICIAR SESIÓN</button>
           </form>
-          <div style="text-align:center; margin-top:20px;">
-              <a href="#" style="font-size:0.9rem; color:#ab0a3d; font-weight:700; text-decoration:none;">¿Olvidó su contraseña?</a>
-          </div>
+          
       </div>
     `,
   });
