@@ -1,28 +1,63 @@
 /**
  * LOGINADMIN.JS - Gestión de acceso oculto para administradores
- * Versión optimizada para Menús Dinámicos (SPA)
+ * Diseño integrado con identidad institucional (Guinda)
  */
 
 (function () {
-  // 1. FUNCIÓN PARA VINCULAR EVENTOS AL ENLACE
+  // INYECCIÓN DE ESTILOS PERSONALIZADOS
+  const inyectarEstilos = () => {
+    if (document.getElementById("estilos-admin-login")) return;
+    const style = document.createElement("style");
+    style.id = "estilos-admin-login";
+    style.innerHTML = `
+            .admin-modal-popup {
+                border-radius: 15px !important;
+                border-top: 5px solid #ab0a3d !important;
+            }
+            .admin-modal-title {
+                color: #ab0a3d !important;
+                font-family: 'Montserrat', sans-serif;
+                font-weight: bold;
+                text-transform: uppercase;
+            }
+            .admin-btn-confirm {
+                background-color: #ab0a3d !important;
+                color: white !important;
+                padding: 10px 30px !important;
+                border-radius: 8px !important;
+                font-weight: bold;
+                border: none;
+                margin: 5px;
+            }
+            .admin-btn-cancel {
+                background-color: #6c757d !important;
+                color: white !important;
+                padding: 10px 30px !important;
+                border-radius: 8px !important;
+                border: none;
+                margin: 5px;
+            }
+            .swal2-input:focus {
+                border-color: #ab0a3d !important;
+                box-shadow: 0 0 5px rgba(171, 10, 61, 0.3) !important;
+            }
+        `;
+    document.head.appendChild(style);
+  };
+
+  // 1. VINCULACIÓN DE EVENTOS
   const vincularAccesoAdmin = () => {
     const brandLink = document.getElementById("link-admin-secret");
-
     if (brandLink && !brandLink.dataset.adminViculado) {
-      console.log("✅ Acceso administrativo vinculado correctamente.");
-
-      // Marcamos como vinculado para no repetir el proceso
       brandLink.dataset.adminViculado = "true";
+      inyectarEstilos();
 
-      // DOBLE CLIC para el Admin
       brandLink.addEventListener("dblclick", (e) => {
         e.preventDefault();
         abrirLoginAdmin();
       });
 
-      // CLIC NORMAL para usuario común (Navegación estándar)
       brandLink.addEventListener("click", (e) => {
-        // Solo actúa si es un clic simple (detail === 1)
         if (e.detail === 1) {
           window.location.hash = "inicio";
         }
@@ -30,51 +65,48 @@
     }
   };
 
-  // 2. OBSERVADOR: Vigila si el menú se crea dinámicamente
-  const observer = new MutationObserver((mutations) => {
-    vincularAccesoAdmin();
-  });
-
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true,
-  });
-
-  // Ejecución inicial por si ya existe
+  const observer = new MutationObserver(() => vincularAccesoAdmin());
+  observer.observe(document.body, { childList: true, subtree: true });
   document.addEventListener("DOMContentLoaded", vincularAccesoAdmin);
 })();
 
 // --- LÓGICA DE LOGIN ---
 
 async function abrirLoginAdmin() {
-  // Verificamos si SweetAlert está disponible
   if (typeof Swal === "undefined") {
-    console.error("SweetAlert2 no cargado.");
-    alert("Error: No se pudo cargar el módulo de inicio de sesión.");
+    alert("Error: SweetAlert2 no está disponible.");
     return;
   }
 
   const { value: formValues } = await Swal.fire({
     title: "Acceso Administrativo",
     icon: "lock",
+    iconColor: "#ab0a3d",
+    customClass: {
+      popup: "admin-modal-popup",
+      title: "admin-modal-title",
+      confirmButton: "admin-btn-confirm",
+      cancelButton: "admin-btn-cancel",
+    },
+    buttonsStyling: false,
     html: `
-            <div class="text-left" style="text-align: left;">
-                <label><b>Correo Electrónico:</b></label>
-                <input type="email" id="admin-user" class="swal2-input" placeholder="admin@ejemplo.com">
-                <label class="mt-2"><b>Contraseña:</b></label>
-                <input type="password" id="admin-pass" class="swal2-input" placeholder="••••••••">
+            <div style="text-align: left; padding: 10px;">
+                <label style="color: #555; font-size: 14px;"><b>Correo Electrónico:</b></label>
+                <input type="email" id="admin-user" class="swal2-input" placeholder="ejemplo@correo.com" style="margin-top: 5px;">
+                <br><br>
+                <label style="color: #555; font-size: 14px;"><b>Contraseña:</b></label>
+                <input type="password" id="admin-pass" class="swal2-input" placeholder="••••••••" style="margin-top: 5px;">
             </div>
         `,
     showCancelButton: true,
-    confirmButtonText: "Iniciar Sesión",
+    confirmButtonText: '<i class="fas fa-sign-in-alt"></i> Entrar',
     cancelButtonText: "Cancelar",
-    confirmButtonColor: "#2c3e50",
     focusConfirm: false,
     preConfirm: () => {
       const user = document.getElementById("admin-user").value;
       const pass = document.getElementById("admin-pass").value;
       if (!user || !pass) {
-        Swal.showValidationMessage("Por favor llene todos los campos");
+        Swal.showValidationMessage("Por favor, ingrese sus credenciales");
         return false;
       }
       return { user, pass };
@@ -89,22 +121,22 @@ async function abrirLoginAdmin() {
 async function ejecutarAuthAdmin(email, password) {
   try {
     Swal.fire({
-      title: "Verificando...",
+      title: "Verificando identidad...",
       allowOutsideClick: false,
       didOpen: () => {
         Swal.showLoading();
       },
     });
 
-    // 1. Intentar Login en Supabase
+    // 1. Autenticación Supabase
     const { data, error } = await window.clientSupa.auth.signInWithPassword({
       email: email,
       password: password,
     });
 
-    if (error) throw new Error("Credenciales inválidas");
+    if (error) throw new Error("Credenciales inválidas o inexistentes");
 
-    // 2. Verificar el rol en la tabla 'usuarios'
+    // 2. Validación de Rol
     const { data: perfil, error: errorPerfil } = await window.clientSupa
       .from("usuarios")
       .select("rol")
@@ -113,20 +145,25 @@ async function ejecutarAuthAdmin(email, password) {
 
     if (errorPerfil || !perfil || perfil.rol !== "ADMIN") {
       await window.clientSupa.auth.signOut();
-      throw new Error("No tienes permisos de administrador");
+      throw new Error("Su cuenta no tiene privilegios de administrador");
     }
 
-    // 3. Redirigir si es Admin
+    // 3. Éxito
     Swal.fire({
-      title: "¡Bienvenido!",
-      text: "Accediendo al panel de control...",
+      title: "Acceso Concedido",
+      text: "Cargando panel de administración...",
       icon: "success",
-      timer: 1500,
+      timer: 2000,
       showConfirmButton: false,
     }).then(() => {
       window.location.href = "admin_panel.html";
     });
   } catch (err) {
-    Swal.fire("Acceso Denegado", err.message, "error");
+    Swal.fire({
+      title: "Error de Acceso",
+      text: err.message,
+      icon: "error",
+      confirmButtonColor: "#ab0a3d",
+    });
   }
 }

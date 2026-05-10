@@ -93,7 +93,7 @@ async function renderizarMenu() {
   const navbarHTML = `
     <nav class="mi-navbar">
         <div class="mi-container">
-            <a href="javascript:void(0)" id="link-admin-secret" class="mi-brand">Padrón de Proveedores</a>
+            <a href="javascript:void(0)" id="link-admin-secret" class="mi-brand">PADRÓN DE PROVEEDORES</a></a>
             <button class="menu-toggle" id="btn-toggle"><span class="bar"></span><span class="bar"></span><span class="bar"></span></button>
             <ul class="mi-menu" id="nav-menu">
                 <li><a href="${baseRaiz}#inicio" class="nav-link-item">${ICONOS.inicio}Inicio</a></li>
