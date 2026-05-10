@@ -108,6 +108,8 @@ async function renderizarMenu() {
 
   navPlaceholder.innerHTML = navbarHTML;
 
+  document.dispatchEvent(new CustomEvent("navbarCargada"));
+
   // --- CONFIGURACIÓN DE EVENTOS DE LOGIN (DIRECCIÓN EXACTA A BIENVENIDA) ---
   const formaLogin = document.getElementById("FormaLogin");
   if (formaLogin) {
