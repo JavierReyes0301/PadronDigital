@@ -1,5 +1,6 @@
 /**
- * LOGINADMIN.JS - Versión con diseño institucional idéntico al proveedor
+ * LOGINADMIN.JS - Versión Final Institucional
+ * Control de acceso y anuncios con identidad visual unificada.
  */
 
 (function () {
@@ -8,43 +9,42 @@
     const style = document.createElement("style");
     style.id = "estilos-admin-custom";
     style.innerHTML = `
-      /* Contenedor principal del modal */
-      .modal-caja-login-admin {
+      /* --- MODALES Y ALERTAS --- */
+      .modal-institucional-admin {
         border-radius: 25px !important;
         overflow: hidden !important;
         border: none !important;
         padding: 0 !important;
+        font-family: 'Montserrat', sans-serif, Arial;
       }
 
       /* Cabecera Guinda */
-      .modal-header-login-admin {
-        background: #ab0a3d !important; /* El guinda de tu imagen */
+      .modal-header-admin {
+        background: #ab0a3d !important;
         color: white !important;
         padding: 20px !important;
         text-align: center !important;
-        position: relative;
       }
 
-      .modal-header-login-admin h2 {
+      .modal-header-admin h2 {
         margin: 0;
-        font-size: 1.5rem;
+        font-size: 1.4rem;
         font-weight: 700;
         text-transform: uppercase;
       }
 
-      /* Inputs con fondo azulado claro */
+      /* --- ELEMENTOS DE FORMULARIO --- */
       .input-institucional-admin {
         width: 100%;
         padding: 12px 15px;
         margin-top: 8px;
         border: 1px solid #d1d9e6;
         border-radius: 10px;
-        background-color: #f0f5ff !important; /* El color azulado de la imagen */
+        background-color: #f0f5ff !important;
         font-size: 1rem;
         box-sizing: border-box;
       }
 
-      /* Etiquetas */
       .label-admin {
         display: block;
         font-weight: 700;
@@ -53,7 +53,7 @@
         text-align: left;
       }
 
-      /* Botón Iniciar Sesión */
+      /* Botón Estilo Institucional */
       .btn-admin-submit {
         background-color: #ab0a3d !important;
         color: white !important;
@@ -66,10 +66,28 @@
         margin-top: 25px;
         cursor: pointer;
         text-transform: uppercase;
+        transition: background 0.3s;
       }
 
-      .swal2-actions { margin-top: 0 !important; }
-      .swal2-html-container { margin: 0 !important; padding: 0 !important; }
+      .btn-admin-submit:hover { background-color: #8a0831 !important; }
+
+      /* --- AJUSTES GLOBALES DE SWEETALERT (ICONOS Y CARGA) --- */
+      .swal2-styled.swal2-confirm {
+        background-color: #ab0a3d !important;
+        border-radius: 10px !important;
+        padding: 10px 30px !important;
+      }
+
+      /* Color Guinda para Iconos de Éxito y Error */
+      .swal2-icon.swal2-success { border-color: #ab0a3d !important; color: #ab0a3d !important; }
+      .swal2-icon.swal2-success [class^='swal2-success-line'] { background-color: #ab0a3d !important; }
+      .swal2-icon.swal2-success .swal2-success-ring { border: 4px solid rgba(171, 10, 61, 0.3) !important; }
+      
+      .swal2-icon.swal2-error { border-color: #ab0a3d !important; color: #ab0a3d !important; }
+      .swal2-icon.swal2-error [class^='swal2-x-mark-line'] { background-color: #ab0a3d !important; }
+
+      /* Ajuste de carga (Spinner) */
+      .swal2-loader { border-color: #ab0a3d transparent #ab0a3d transparent !important; }
     `;
     document.head.appendChild(style);
   };
@@ -94,16 +112,27 @@
   document.addEventListener("DOMContentLoaded", vincularAccesoAdmin);
 })();
 
+/**
+ * Función para lanzar alertas con el diseño unificado
+ */
+function AlertaAdmin(titulo, mensaje, icono = "info") {
+  return Swal.fire({
+    title: titulo.toUpperCase(),
+    text: mensaje,
+    icon: icono,
+    customClass: { popup: "modal-institucional-admin" },
+    confirmButtonText: "ACEPTAR",
+    buttonsStyling: true,
+  });
+}
+
 async function abrirLoginAdmin() {
   const { value: formValues } = await Swal.fire({
-    showConfirmButton: false, // Ocultamos botones por defecto de Swal para usar el nuestro
+    showConfirmButton: false,
     showCloseButton: true,
-    customClass: {
-      popup: "modal-caja-login-admin",
-      closeButton: "boton-cerrar-custom",
-    },
+    customClass: { popup: "modal-institucional-admin" },
     html: `
-      <div class="modal-header-login-admin">
+      <div class="modal-header-admin">
           <h2>Acceso al Panel de Administración</h2>
       </div>
       <div style="padding: 30px;">
@@ -117,23 +146,19 @@ async function abrirLoginAdmin() {
               </div>
               <button type="button" onclick="confirmarLoginAdmin()" class="btn-admin-submit">INICIAR SESIÓN</button>
           </form>
-          
       </div>
     `,
   });
 }
 
-// Función auxiliar para capturar los datos del formulario HTML personalizado
 function confirmarLoginAdmin() {
   const user = document.getElementById("admin-user").value;
   const pass = document.getElementById("admin-pass").value;
 
   if (!user || !pass) {
-    Swal.showValidationMessage("Por favor llene todos los campos");
+    AlertaAdmin("Atención", "Por favor llene todos los campos", "warning");
     return;
   }
-
-  // Cerramos el modal de diseño y ejecutamos la autenticación
   Swal.close();
   ejecutarAuthAdmin(user, pass);
 }
@@ -141,7 +166,8 @@ function confirmarLoginAdmin() {
 async function ejecutarAuthAdmin(email, password) {
   try {
     Swal.fire({
-      title: "Verificando...",
+      title: "VERIFICANDO",
+      customClass: { popup: "modal-institucional-admin" },
       didOpen: () => Swal.showLoading(),
       allowOutsideClick: false,
     });
@@ -163,13 +189,13 @@ async function ejecutarAuthAdmin(email, password) {
       throw new Error("No tienes permisos de administrador");
     }
 
-    Swal.fire({
-      title: "¡Bienvenido!",
-      icon: "success",
-      timer: 1500,
-      showConfirmButton: false,
-    }).then(() => (window.location.href = "admin_panel.html"));
+    // Éxito con estilo guinda
+    AlertaAdmin(
+      "¡Bienvenido!",
+      "Accediendo al panel de administración...",
+      "success",
+    ).then(() => (window.location.href = "admin/admin_panel.html"));
   } catch (err) {
-    Swal.fire("Acceso Denegado", err.message, "error");
+    AlertaAdmin("Acceso Denegado", err.message, "error");
   }
 }
