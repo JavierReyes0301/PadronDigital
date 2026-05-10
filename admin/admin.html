@@ -66,52 +66,66 @@
   </head>
   <body>
     <main>
-      <div class="container-fluid mt-4">
-        <h2 class="mb-4">
-          <i class="fas fa-user-shield"></i> Panel de Administración - Padron de
-          Proveedores
-        </h2>
+      <section id="seccion-admin-dashboard" class="container-fluid mt-4">
+        <h2>Panel de Control - Administración de Proveedores</h2>
+        <hr />
 
-        <div class="card shadow mb-4">
-          <div
-            class="card-header py-3 d-flex justify-content-between align-items-center"
-          >
-            <h6 class="m-0 font-weight-bold text-primary">
-              Listado de Registros Pendientes y Validados
-            </h6>
-            <button
-              class="btn btn-sm btn-outline-secondary"
-              onclick="consultarProveedores()"
-            >
-              <i class="fas fa-sync"></i> Actualizar
-            </button>
+        <div class="row mb-4">
+          <div class="col-md-3">
+            <div class="card bg-primary text-white p-3">
+              <h5>Total Proveedores</h5>
+              <h2 id="count-total">0</h2>
+            </div>
           </div>
-          <div class="card-body">
-            <div class="table-responsive">
-              <table
-                class="table table-bordered table-hover"
-                id="tablaProveedores"
-                width="100%"
-                cellspacing="0"
-              >
-                <thead class="thead-light">
-                  <tr>
-                    <th>Folio</th>
-                    <th>RFC</th>
-                    <th>Razón Social / Nombre</th>
-                    <th>Tipo Persona</th>
-                    <th>Teléfono</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody id="lista-proveedores-body">
-                  <!-- Los datos se insertarán aquí dinámicamente -->
-                </tbody>
-              </table>
+          <div class="col-md-3">
+            <div class="card bg-warning text-dark p-3">
+              <h5>Pendientes Revisión</h5>
+              <h2 id="count-pendientes">0</h2>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card bg-success text-white p-3">
+              <h5>Validados</h5>
+              <h2 id="count-validados">0</h2>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card bg-danger text-white p-3">
+              <h5>Rechazados</h5>
+              <h2 id="count-rechazados">0</h2>
             </div>
           </div>
         </div>
-      </div>
+
+        <div class="card shadow">
+          <div
+            class="card-header d-flex justify-content-between align-items-center"
+          >
+            <span>Listado de Expedientes</span>
+            <input
+              type="text"
+              id="busqueda-admin"
+              class="form-control w-25"
+              placeholder="Buscar por RFC o Nombre..."
+            />
+          </div>
+          <div class="card-body">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>RFC</th>
+                  <th>Nombre / Razón Social</th>
+                  <th>Tipo</th>
+                  <th>Folio</th>
+                  <th>Estatus</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="tabla-proveedores-admin"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
 
       <!-- MODAL DE DETALLES DEL PROVEEDOR -->
       <div

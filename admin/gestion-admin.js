@@ -1,165 +1,128 @@
-/* ============================================================
-   LÓGICA DEL ADMINISTRADOR
-   ============================================================ */
+/**
+ * LÓGICA DEL PANEL DE ADMINISTRACIÓN
+ */
 
-async function consultarProveedores() {
-  const { data, error } = await supabase
-    .from("expedientes_proveedores") // Nombre de tu tabla principal
-    .select("*")
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    console.error("Error al obtener proveedores:", error.message);
-    return;
+document.addEventListener("DOMContentLoaded", async () => {
+  if (window.clientSupa) {
+    await cargarDashboardAdmin();
+    configurarFiltrosAdmin();
   }
+});
 
-  const tbody = document.getElementById("lista-proveedores-body");
+// --- 1. CARGA DE DATOS MAESTRA ---
+async function cargarDashboardAdmin() {
+  try {
+    console.log("📊 Cargando datos de administración...");
+
+    // Traemos todos los proveedores con sus datos básicos
+    const { data: proveedores, error } = await window.clientSupa
+      .from("proveedores")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    renderizarMetricas(proveedores);
+    renderizarTablaProveedores(proveedores);
+  } catch (e) {
+    console.error("Error Admin:", e.message);
+  }
+}
+
+// --- 2. RENDERIZADO DE MÉTRICAS ---
+function renderizarMetricas(provs) {
+  document.getElementById("count-total").innerText = provs.length;
+  document.getElementById("count-pendientes").innerText = provs.filter(
+    (p) => p.estatus === "PENDIENTE" || !p.estatus,
+  ).length;
+  document.getElementById("count-validados").innerText = provs.filter(
+    (p) => p.estatus === "VALIDADO",
+  ).length;
+  document.getElementById("count-rechazados").innerText = provs.filter(
+    (p) => p.estatus === "RECHAZADO",
+  ).length;
+}
+
+// --- 3. RENDERIZADO DE TABLA ---
+function renderizarTablaProveedores(provs) {
+  const tbody = document.getElementById("tabla-proveedores-admin");
   tbody.innerHTML = "";
 
-  data.forEach((p) => {
-    const nombreMostrar =
-      p.tipo_persona === "MORAL"
-        ? p.razon_social
-        : `${p.nombre} ${p.apellido_p}`;
+  provs.forEach((p) => {
+    const tr = document.createElement("tr");
 
-    tbody.innerHTML += `
-            <tr>
-                <td><span class="badge badge-info">${p.folio}</span></td>
-                <td>${p.rfc}</td>
-                <td>${nombreMostrar}</td>
-                <td>${p.tipo_persona}</td>
-                <td>${p.telefono || "N/A"}</td>
-                <td class="text-center">
-                    <button class="btn btn-sm btn-primary" onclick='verDetalleProveedor(${JSON.stringify(p)})'>
-                        <i class="fas fa-eye"></i> Ver Detalle
-                    </button>
-                </td>
-            </tr>
+    // Determinar color de badge por estatus
+    let badgeClass = "badge-secondary";
+    if (p.estatus === "VALIDADO") badgeClass = "badge-success";
+    if (p.estatus === "RECHAZADO") badgeClass = "badge-danger";
+    if (p.estatus === "PENDIENTE") badgeClass = "badge-warning";
+
+    tr.innerHTML = `
+            <td><b>${p.rfc || "S/N"}</b></td>
+            <td>${p.nombre_comercial || "Sin Nombre"}</td>
+            <td>${p.tipo_persona || "---"}</td>
+            <td><span class="text-primary">${p.folio || "N/A"}</span></td>
+            <td><span class="badge ${badgeClass}">${p.estatus || "PENDIENTE"}</span></td>
+            <td>
+                <button class="btn btn-sm btn-info" onclick="verExpedienteAdmin('${p.id}')">
+                    <i class="fas fa-eye"></i> Revisar
+                </button>
+                <button class="btn btn-sm btn-success" onclick="cambiarEstatusProv('${p.id}', 'VALIDADO')">
+                    <i class="fas fa-check"></i>
+                </button>
+                <button class="btn btn-sm btn-danger" onclick="cambiarEstatusProv('${p.id}', 'RECHAZADO')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </td>
         `;
+    tbody.appendChild(tr);
   });
 }
 
-async function verDetalleProveedor(p) {
-  const modalBody = document.getElementById("detalle-proveedor-content");
+// --- 4. ACCIONES DE ADMINISTRADOR ---
 
-  // Generar enlaces a documentos en el Storage de Supabase
-  // Nota: El bucket debe llamarse 'expedientes'
-  const docs = ["csf", "acta", "domicilio", "ine"];
-  let htmlDocs = "";
+// Cambiar estatus rápidamente (Aprobar/Rechazar)
+async function cambiarEstatusProv(id, nuevoEstatus) {
+  const confirmacion = confirm(
+    `¿Estás seguro de cambiar el estatus a ${nuevoEstatus}?`,
+  );
+  if (!confirmacion) return;
 
-  for (const doc of docs) {
-    // Obtenemos la URL pública o firmada
-    const { data } = supabase.storage
-      .from("expedientes")
-      .getPublicUrl(`${p.rfc}/${doc}.pdf`);
+  try {
+    const { error } = await window.clientSupa
+      .from("proveedores")
+      .update({
+        estatus: nuevoEstatus,
+        revisado_por: "ADMIN_ACTUAL", // Aquí podrías poner el ID del admin logueado
+        fecha_revision: new Date(),
+      })
+      .eq("id", id);
 
-    htmlDocs += `
-            <div class="col-md-3 mb-3">
-                <div class="card p-2 text-center border-secondary">
-                    <i class="fas fa-file-pdf fa-2x text-danger mb-2"></i>
-                    <small class="d-block font-weight-bold text-uppercase">${doc.replace("_", " ")}</small>
-                    <a href="${data.publicUrl}" target="_blank" class="btn btn-xs btn-outline-primary mt-2">Abrir</a>
-                    <a href="${data.publicUrl}" download class="btn btn-xs btn-outline-success mt-1">Descargar</a>
-                </div>
-            </div>`;
-  }
+    if (error) throw error;
 
-  modalBody.innerHTML = `
-        <div class="row">
-            <div class="col-md-6">
-                <h6><strong>Datos Generales</strong></h6>
-                <p><b>Folio:</b> ${p.folio}<br><b>RFC:</b> ${p.rfc}<br><b>Tipo:</b> ${p.tipo_persona}</p>
-            </div>
-            <div class="col-md-6">
-                <h6><strong>Datos de Contacto</strong></h6>
-                <p><b>Email:</b> ${p.email}<br><b>Teléfono:</b> ${p.telefono}</p>
-            </div>
-            <hr class="w-100">
-            <div class="col-md-12 mb-3">
-                <h6><strong>Documentación Adjunta</strong></h6>
-                <div class="row">${htmlDocs}</div>
-            </div>
-        </div>
-    `;
-
-  $("#modalDetalle").modal("show");
-}
-
-// Inicializar al cargar
-document.addEventListener("DOMContentLoaded", consultarProveedores);
-
-// Variable global para mantener el ID del proveedor seleccionado en el modal
-let proveedorSeleccionadoId = null;
-
-async function verDetalleProveedor(p) {
-  proveedorSeleccionadoId = p.id; // Guardamos el ID para usarlo al enviar observaciones
-  const modalBody = document.getElementById("detalle-proveedor-content");
-
-  // ... (Tu lógica anterior para generar el HTML de datos y documentos) ...
-
-  // Al abrir el modal, cargamos las observaciones actuales si existen
-  document.getElementById("txt-observaciones-admin").value =
-    p.observaciones || "";
-
-  $("#modalDetalle").modal("show");
-}
-
-async function enviarObservaciones() {
-  const obs = document.getElementById("txt-observaciones-admin").value;
-
-  if (!obs.trim()) {
-    alert("Por favor redacte una observación antes de enviar.");
-    return;
-  }
-
-  const { data, error } = await supabase
-    .from("expedientes_proveedores")
-    .update({
-      observaciones: obs,
-      estatus: "CON_OBSERVACIONES", // Cambiamos el estado para alertar al usuario
-    })
-    .eq("id", proveedorSeleccionadoId);
-
-  if (error) {
-    alert("Error al enviar observaciones: " + error.message);
-  } else {
-    alert("Observaciones enviadas correctamente al usuario.");
-    $("#modalDetalle").modal("hide");
-    consultarProveedores(); // Refrescar tabla principal
+    alert(`✅ Proveedor actualizado a ${nuevoEstatus}`);
+    await cargarDashboardAdmin(); // Recargar datos
+  } catch (e) {
+    alert("Error al actualizar estatus: " + e.message);
   }
 }
-async function cargarEstadoPerfil() {
-  const userRfc = userData.rfc; // Tomado de tu sesión o contexto actual
 
-  const { data, error } = await supabase
-    .from("expedientes_proveedores")
-    .select("observaciones, estatus")
-    .eq("rfc", userRfc)
-    .single();
+// Función para abrir la vista detallada (puedes redirigir o abrir un modal)
+function verExpedienteAdmin(id) {
+  // Ejemplo: Redirigir a una página de revisión detallada
+  window.location.href = `revisar_proveedor.html?id=${id}`;
+}
 
-  const contenedorObs = document.getElementById("Observaciones");
+// --- 5. FILTROS ---
+function configurarFiltrosAdmin() {
+  const inputBusqueda = document.getElementById("busqueda-admin");
+  inputBusqueda.addEventListener("keyup", (e) => {
+    const texto = e.target.value.toLowerCase();
+    const filas = document.querySelectorAll("#tabla-proveedores-admin tr");
 
-  if (data && data.observaciones) {
-    contenedorObs.innerHTML = `
-            <div class="alert alert-warning border-left-warning shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Notas de Revisión (Administración)
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                ${data.observaciones}
-                            </div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-exclamation-triangle fa-2x text-warning"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-  } else {
-    contenedorObs.innerHTML = `<p class="text-muted">Sin observaciones pendientes por el momento.</p>`;
-  }
+    filas.forEach((fila) => {
+      const contenido = fila.innerText.toLowerCase();
+      fila.style.display = contenido.includes(texto) ? "" : "none";
+    });
+  });
 }
