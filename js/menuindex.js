@@ -1,9 +1,11 @@
 /**
- * LÓGICA DE NAVEGACIÓN Y AUTENTICACIÓN GLOBAL
- * Versión Optimizada con Control de Estado Antimultirenderizado
+ * ============================================================================
+ * ARCHIVO: LOGIC_GLOBAL_NAV.JS
+ * NÚCLEO DE NAVEGACIÓN Y AUTENTICACIÓN - ARCHIVO PROTEGIDO (NO MODIFICAR)
+ * ============================================================================
  */
 
-// --- 1. ICONOS SVG ---
+// --- 1. ICONOS SVG COMPACTOS ---
 const ICONOS = {
   inicio:
     '<svg viewBox="0 0 576 512"><path d="M280.37 148.26L96 300.11V464a16 16 0 0 0 16 16l112.06-.29a16 16 0 0 0 15.92-16V368a16 16 0 0 1 16-16h64a16 16 0 0 1 16 16v95.64a16 16 0 0 0 16 16.05L464 480a16 16 0 0 0 16-16V300L295.67 148.26a12.19 12.19 0 0 0-15.3 0zM571.6 251.47L488 182.56V44.05a12 12 0 0 0-12-12h-56a12 12 0 0 0-12 12v72.61L318.47 43a48 48 0 0 0-61 0L4.34 251.47a12 12 0 0 0-1.6 16.9l25.5 31A12 12 0 0 0 45.15 301l235.22-193.74a12.19 12.19 0 0 1 15.3 0L530.9 301a12 12 0 0 0 16.9-1.6l25.5-31a12 12 0 0 0-1.7-16.93z"></path></svg>',
@@ -18,61 +20,108 @@ const ICONOS = {
   user: '<svg viewBox="0 0 448 512"><path d="M224 256c70.7 0 128-57.3 128-128S294.7 0 224 0 96 57.3 96 128s57.3 128 128 128zm89.6 32h-16.7c-22.2 10.2-46.9 16-72.9 16s-50.6-5.8-72.9-16h-16.7C60.2 288 0 348.2 0 422.4V464c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48v-41.6c0-74.2-60.2-134.4-134.4-134.4z"></path></svg>',
 };
 
-// --- CONTROL DE ESTADOS GLOBALES ---
-let estadoSesionActual = null; // Guardará el último estado conocido ('CON_SESION' o 'SIN_SESION')
-let estaRenderizando = false; // Candado de control asíncrono
+// Flags de control de estado estricto
+let estadoSesionActual = null;
+let estaRenderizandoMenu = false;
 
-// --- 2. FUNCIÓN DE RENDERIZADO ---
+// --- 2. INYECCIÓN DEL MODAL (Aislado completamente del Menú) ---
+function asegurarModalLoginEnBody() {
+  if (document.getElementById("ModalLogin")) return;
+
+  const pathActual = window.location.pathname;
+  const enSubcarpeta =
+    pathActual.includes("/inicio/") || pathActual.includes("/paginas/");
+  const rutaRestaurar = enSubcarpeta ? "../restaurar.html" : "restaurar.html";
+
+  const modalLoginHTML = `
+    <div class="modal fade" id="ModalLogin" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content modal-caja-login">
+                <div class="modal-header-login">
+                    <h2>Inicio de Sesión</h2>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body" style="padding: 30px;">
+                    <form id="FormaLogin">
+                        <div class="form-group-custom">
+                            <label>Correo Electrónico:</label>
+                            <input type="email" name="correo_login" class="input-institucional" placeholder="ejemplo@correo.com" required />
+                        </div>
+                        <div class="form-group-custom">
+                            <label>Contraseña:</label>
+                            <input type="password" name="password_login" class="input-institucional" placeholder="********" required />
+                        </div>
+                        <button type="submit" id="btn-submit-login" class="btn-registro-continuar" style="width:100%; margin-top:10px;">INICIAR SESIÓN</button>
+                    </form>
+                    <div style="text-align:center; margin-top:20px;">
+                        <a href="${rutaRestaurar}" style="font-size:0.9rem; color:#ab0a3d; font-weight:700; text-decoration:none;">¿Olvidó su contraseña?</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>`;
+
+  document.body.insertAdjacentHTML("beforeend", modalLoginHTML);
+  configurarEventoSubmitLogin();
+}
+
+// Escuchador del formulario de login (Se vincula una sola vez de forma segura)
+function configurarEventoSubmitLogin() {
+  const formaLogin = document.getElementById("FormaLogin");
+  if (!formaLogin) return;
+
+  formaLogin.onsubmit = async (e) => {
+    e.preventDefault();
+    const btnSubmit = document.getElementById("btn-submit-login");
+    const email = formaLogin.correo_login.value;
+    const password = formaLogin.password_login.value;
+
+    try {
+      if (btnSubmit) {
+        btnSubmit.disabled = true;
+        btnSubmit.innerText = "VERIFICANDO...";
+      }
+
+      const { error } = await window.clientSupa.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (error) throw error;
+
+      // Cerrar modal limpiamente usando jQuery nativo de Bootstrap antes de redirigir
+      if (window.jQuery && $("#ModalLogin").length) {
+        $("#ModalLogin").modal("hide");
+      }
+
+      const enSubcarpeta =
+        window.location.pathname.includes("/inicio/") ||
+        window.location.pathname.includes("/paginas/");
+      const baseDestino = enSubcarpeta ? "inicio.html" : "inicio/inicio.html";
+      window.location.href = `${baseDestino}?sec=seccion-bienvenida`;
+    } catch (err) {
+      alert("Error de acceso: " + err.message);
+      if (btnSubmit) {
+        btnSubmit.disabled = false;
+        btnSubmit.innerText = "INICIAR SESIÓN";
+      }
+    }
+  };
+}
+
+// --- 3. RENDERIZADO DEL MENÚ NAVBAR ---
 async function renderizarMenu() {
-  if (estaRenderizando) return; // Si hay un renderizado en proceso, bloquea solicitudes duplicadas
-  estaRenderizando = true;
+  if (estaRenderizandoMenu) return;
+  estaRenderizandoMenu = true;
 
   const navPlaceholder = document.getElementById("nav-placeholder");
   if (!navPlaceholder) {
-    estaRenderizando = false;
+    estaRenderizandoMenu = false;
     return;
   }
 
   const pathActual = window.location.pathname;
   const esPaginaInicio = pathActual.includes("/inicio/inicio.html");
-  const enSubcarpeta =
-    pathActual.includes("/inicio/") || pathActual.includes("/paginas/");
-
   const baseRaiz = esPaginaInicio ? "../index.html" : "index.html";
-  const baseInicio = esPaginaInicio ? "inicio.html" : "inicio/inicio.html";
-  const rutaRestaurar = enSubcarpeta ? "../restaurar.html" : "restaurar.html";
-
-  // INTEGRACIÓN COMPACTA DEL MODAL DE LOGIN (Se mantiene en body de forma segura)
-  if (!document.getElementById("ModalLogin")) {
-    const modalLoginHTML = `
-        <div class="modal fade" id="ModalLogin" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content modal-caja-login">
-                    <div class="modal-header-login">
-                        <h2>Inicio de Sesión</h2>
-                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    </div>
-                    <div class="modal-body" style="padding: 30px;">
-                        <form id="FormaLogin">
-                            <div class="form-group-custom">
-                                <label>Correo Electrónico:</label>
-                                <input type="email" name="correo_login" class="input-institucional" placeholder="ejemplo@correo.com" required />
-                            </div>
-                            <div class="form-group-custom">
-                                <label>Contraseña:</label>
-                                <input type="password" name="password_login" class="input-institucional" placeholder="********" required />
-                            </div>
-                            <button type="submit" id="btn-submit-login" class="btn-registro-continuar" style="width:100%; margin-top:10px;">INICIAR SESIÓN</button>
-                        </form>
-                        <div style="text-align:center; margin-top:20px;">
-                            <a href="${rutaRestaurar}" style="font-size:0.9rem; color:#ab0a3d; font-weight:700; text-decoration:none;">¿Olvidó su contraseña?</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>`;
-    document.body.insertAdjacentHTML("beforeend", modalLoginHTML);
-  }
 
   let itemUsuarioHTML = `<li><a href="#" data-toggle="modal" data-target="#ModalLogin" class="nav-link-item">${ICONOS.user} Acceder</a></li>`;
   let tieneSesion = false;
@@ -86,10 +135,10 @@ async function renderizarMenu() {
         tieneSesion = true;
         itemUsuarioHTML = `
             <li class="nav-item dropdown">
-                <a class="nav-link-item dropdown-toggle" href="javascript:void(0);" id="navbarDropdown" role="button" data-toggle="dropdown">
+                <a class="nav-link-item dropdown-toggle" href="javascript:void(0);" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     ${ICONOS.user} MI CUENTA
                 </a>
-                <div class="dropdown-menu dropdown-menu-right menu-guinda-compacto">
+                <div class="dropdown-menu dropdown-menu-right menu-guinda-compacto" aria-labelledby="navbarDropdown">
                     <a class="dropdown-item nav-action-link" href="javascript:void(0);" data-sec="seccion-bienvenida"><i class="fas fa-home"></i> INICIO</a>
                     <a class="dropdown-item nav-action-link" href="javascript:void(0);" data-sec="estado-perfil"><i class="fas fa-info-circle"></i> ESTADO DE PERFIL</a>
                     <a class="dropdown-item nav-action-link" href="javascript:void(0);" data-sec="actualizar-datos"><i class="fas fa-edit"></i> ACTUALIZAR DATOS</a>
@@ -100,13 +149,12 @@ async function renderizarMenu() {
       }
     }
   } catch (e) {
-    console.error("Error en sesión:", e);
+    console.error("Error validando sesión en menú:", e);
   }
 
-  // Actualizamos la bandera del estado de sesión actual cargado
   estadoSesionActual = tieneSesion ? "CON_SESION" : "SIN_SESION";
 
-  const navbarHTML = `
+  navPlaceholder.innerHTML = `
     <nav class="mi-navbar">
         <div class="mi-container">
             <a href="javascript:void(0)" id="link-admin-secret" class="mi-brand">PADRÓN DE PROVEEDORES</a>
@@ -122,75 +170,14 @@ async function renderizarMenu() {
         </div>
     </nav>`;
 
-  navPlaceholder.innerHTML = navbarHTML;
   document.dispatchEvent(new CustomEvent("navbarCargada"));
-
-  // --- CONFIGURACIÓN DE EVENTOS DE LOGIN ---
-  const formaLogin = document.getElementById("FormaLogin");
-  if (formaLogin) {
-    formaLogin.onsubmit = async (e) => {
-      e.preventDefault();
-      const btnSubmit = document.getElementById("btn-submit-login");
-      const email = formaLogin.correo_login.value;
-      const password = formaLogin.password_login.value;
-
-      try {
-        btnSubmit.disabled = true;
-        btnSubmit.innerText = "VERIFICANDO...";
-
-        const { error } = await window.clientSupa.auth.signInWithPassword({
-          email,
-          password,
-        });
-        if (error) throw error;
-
-        // Ocultar modal de forma nativa antes de mover de ruta la pantalla
-        if (window.jQuery) {
-          $("#ModalLogin").modal("hide");
-        }
-
-        const baseDestino = enSubcarpeta ? "inicio.html" : "inicio/inicio.html";
-        window.location.href = `${baseDestino}?sec=seccion-bienvenida`;
-      } catch (err) {
-        alert("Error de acceso: " + err.message);
-        btnSubmit.disabled = false;
-        btnSubmit.innerText = "INICIAR SESIÓN";
-      }
-    };
-  }
-
-  // --- OTROS EVENTOS (LOGOUT Y NAVEGACIÓN) ---
-  document.querySelectorAll(".nav-action-link").forEach((link) => {
-    link.addEventListener("click", (e) => {
-      e.preventDefault();
-      const idObjetivo = e.currentTarget.getAttribute("data-sec");
-      if (esPaginaInicio) window.gestionarVisibilidadSeccion(idObjetivo);
-      else window.location.href = `${baseInicio}?sec=${idObjetivo}`;
-    });
-  });
-
-  const btnLogout = document.getElementById("btn-logout");
-  if (btnLogout) {
-    btnLogout.addEventListener("click", () => window.cerrarSesion());
-  }
-
-  const btnToggle = document.getElementById("btn-toggle");
-  const navMenu = document.getElementById("nav-menu");
-  if (btnToggle && navMenu) {
-    btnToggle.onclick = () => {
-      navMenu.classList.toggle("active");
-      btnToggle.classList.toggle("open");
-    };
-  }
-
-  // Renderizado finalizado por completo, abrimos candado
-  estaRenderizando = false;
+  estaRenderizandoMenu = false;
 }
-
 window.renderizarMenu = renderizarMenu;
 
-// --- 3. LÓGICA PRINCIPAL ---
+// --- 4. CONFIGURACIÓN E INICIALIZACIÓN DE EVENTOS GENERALES ---
 document.addEventListener("DOMContentLoaded", async function () {
+  // 1. Inyectar estilos estructurales fijos
   const headContenido = `
     <style>
         html, body { height: 100%; margin: 0; }
@@ -208,16 +195,15 @@ document.addEventListener("DOMContentLoaded", async function () {
     </style>`;
   document.head.insertAdjacentHTML("beforeend", headContenido);
 
-  // Ejecución única inicial controlada
+  // 2. Asegurar que el modal y el menú existan de entrada
+  asegurarModalLoginEnBody();
   await renderizarMenu();
 
+  // 3. Suscripción inteligente y blindada a cambios de autenticación en Supabase
   if (window.clientSupa) {
     window.clientSupa.auth.onAuthStateChange(async (event, session) => {
-      // Determinamos cuál debería ser el estado objetivo real
       const estadoObjetivo = session ? "CON_SESION" : "SIN_SESION";
-
-      // FILTRO INTELIGENTE: Solo vuelve a procesar el menú si el evento es correcto
-      // Y si la sesión verdaderamente cambió de estado respecto a la interfaz actual.
+      // Solo altera el DOM si de verdad hubo un cambio real en el estado de la sesión
       if (
         (event === "SIGNED_IN" || event === "SIGNED_OUT") &&
         estadoObjetivo !== estadoSesionActual
@@ -227,13 +213,54 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   }
 
+  // 4. Cargar Footer fijo
   const footerPlaceholder = document.getElementById("footer-placeholder");
   if (footerPlaceholder) {
     footerPlaceholder.innerHTML = `<footer class="mi-footer">© 2026 H. Ayuntamiento. Todos los derechos reservados.</footer>`;
   }
 });
 
-// --- 4. FUNCIONES GLOBALES ---
+// --- 5. DELEGACIÓN GLOBAL DE EVENTOS (Para clicks del menú dinámico) ---
+document.addEventListener("click", function (e) {
+  // Handler para links de navegación dinámicos (.nav-action-link)
+  const linkAccion = e.target.closest(".nav-action-link");
+  if (linkAccion) {
+    e.preventDefault();
+    const idObjetivo = linkAccion.getAttribute("data-sec");
+    const pathActual = window.location.pathname;
+    const esPaginaInicio = pathActual.includes("/inicio/inicio.html");
+
+    if (esPaginaInicio) {
+      window.gestionarVisibilidadSeccion(idObjetivo);
+    } else {
+      const enSubcarpeta =
+        pathActual.includes("/inicio/") || pathActual.includes("/paginas/");
+      const baseInicio = enSubcarpeta ? "inicio.html" : "inicio/inicio.html";
+      window.location.href = `${baseInicio}?sec=${idObjetivo}`;
+    }
+    return;
+  }
+
+  // Handler para el botón cerrar sesión (#btn-logout)
+  if (e.target.closest("#btn-logout")) {
+    e.preventDefault();
+    window.cerrarSesion();
+    return;
+  }
+
+  // Handler para el menú móvil adaptativo (#btn-toggle)
+  if (e.target.closest("#btn-toggle")) {
+    const btnToggle = document.getElementById("btn-toggle");
+    const navMenu = document.getElementById("nav-menu");
+    if (btnToggle && navMenu) {
+      navMenu.classList.toggle("active");
+      btnToggle.classList.toggle("open");
+    }
+    return;
+  }
+});
+
+// --- 6. FUNCIONES GLOBALES DE CONTROL ---
 function gestionarVisibilidadSeccion(idObjetivo, addToHistory = true) {
   const secciones = document.querySelectorAll(".contenido-seccion");
   secciones.forEach((sec) => (sec.style.display = "none"));
@@ -241,8 +268,9 @@ function gestionarVisibilidadSeccion(idObjetivo, addToHistory = true) {
   if (seccionAMostrar) {
     seccionAMostrar.style.display = "block";
     window.scrollTo({ top: 0, behavior: "smooth" });
-    if (addToHistory)
+    if (addToHistory) {
       history.pushState({ id: idObjetivo }, "", `?sec=${idObjetivo}`);
+    }
   }
 }
 window.gestionarVisibilidadSeccion = gestionarVisibilidadSeccion;
@@ -250,7 +278,9 @@ window.gestionarVisibilidadSeccion = gestionarVisibilidadSeccion;
 async function cerrarSesion() {
   if (window.clientSupa) {
     await window.clientSupa.auth.signOut();
-    const enSubcarpeta = window.location.pathname.includes("/inicio/");
+    const enSubcarpeta =
+      window.location.pathname.includes("/inicio/") ||
+      window.location.pathname.includes("/paginas/");
     window.location.href = enSubcarpeta ? "../index.html" : "index.html";
   }
 }
