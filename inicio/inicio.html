@@ -574,7 +574,6 @@
             <div id="Adicionales" class="tab-pane fade" role="tabpanel">
               <div class="p-4">
                 <form id="form-adicionales">
-                  <!-- Teléfono -->
                   <div class="form-group row">
                     <label class="col-md-3 col-form-label text-right"
                       ><span class="text-danger">*</span>
@@ -594,7 +593,6 @@
                     </div>
                   </div>
 
-                  <!-- Capacidad Crediticia -->
                   <div class="form-group row">
                     <label class="col-md-3 col-form-label text-right"
                       ><span class="text-danger">*</span>
@@ -610,12 +608,11 @@
                         <option value="50000">Hasta 50 Mil Pesos</option>
                         <option value="100000">Hasta 100 Mil Pesos</option>
                         <option value="200000">Hasta 200 Mil Pesos</option>
-                        <option value=">200000">Mayor a 200 Mil Pesos</option>
+                        <option value="mas_200k">Mayor a 200 Mil Pesos</option>
                       </select>
                     </div>
                   </div>
 
-                  <!-- Número de Empleados -->
                   <div class="form-group row">
                     <label class="col-md-3 col-form-label text-right"
                       ><span class="text-danger">*</span>
@@ -629,12 +626,11 @@
                         <option value="1-10">De 1 a 10 Empleados</option>
                         <option value="11-50">De 11 a 50 Empleados</option>
                         <option value="51-250">De 51 a 250 Empleados</option>
-                        <option value=">251">251 o Más Empleados</option>
+                        <option value="mas_251">251 o Más Empleados</option>
                       </select>
                     </div>
                   </div>
 
-                  <!-- Año de Inicio (Dinámico desde Supabase) -->
                   <div class="form-group row">
                     <label class="col-md-3 col-form-label text-right"
                       ><span class="text-danger">*</span>
@@ -662,7 +658,7 @@
                         LÍNEAS
                       </button>
                       <div
-                        id="lista-seleccionados"
+                        id="lista-lineas-seleccionadas"
                         class="mt-3 p-2 border rounded bg-light"
                         style="min-height: 50px"
                       >
@@ -673,7 +669,6 @@
                     </div>
                   </div>
 
-                  <!-- Botones -->
                   <div class="d-flex justify-content-center">
                     <button
                       type="button"

@@ -4,7 +4,8 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Padrón de Proveedores</title>
+    <title>Padrón de Proveedores - Admin</title>
+
     <link
       rel="icon"
       href="https://onckgyxtttcbddezmnsj.supabase.co/storage/v1/object/public/LOGO/Logotipo%20sin%20fondo.png"
@@ -19,31 +20,16 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
     />
+
     <link rel="stylesheet" href="admin-panel.css" />
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
-      #nav-placeholder {
-        min-height: 65px;
-      }
-      body {
-        margin: 0;
-        font-family: "Montserrat", sans-serif;
-        background-color: #f8f9fa;
-      }
-
-      /* DISEÑO DE TARJETAS MÉTRICAS */
-      .card {
-        border-radius: 15px;
-        border: none;
-      }
-      .bg-guinda {
-        background-color: #ab0a3d !important;
-      }
-
-      /* BOTÓN FLOTANTE DISCRETO (ADMIN MANAGEMENT) */
+      /* Se mantienen solo los estilos del botón flotante y modales de SweetAlert */
       .admin-tools-float {
         position: fixed;
         bottom: 20px;
@@ -54,44 +40,31 @@
         width: 50px;
         height: 50px;
         border-radius: 50%;
-        background-color: #2c3e50; /* Color oscuro discreto */
+        background-color: #323232;
         color: white;
         display: flex;
         align-items: center;
         justify-content: center;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
         cursor: pointer;
-        opacity: 0.3; /* Casi invisible hasta que pasas el mouse */
+        opacity: 0.3;
         transition: all 0.3s;
       }
       .btn-float-secret:hover {
         opacity: 1;
         transform: scale(1.1);
-        background-color: #ab0a3d;
+        background-color: #ab0a3d; /* Guinda institucional */
       }
-
-      /* Estilos para el modal institucional dentro del admin */
       .modal-institucional-admin {
         border-radius: 25px !important;
         overflow: hidden !important;
       }
-      .input-institucional-admin {
-        width: 100%;
-        padding: 12px;
-        margin-top: 8px;
-        border: 1px solid #d1d9e6;
-        border-radius: 10px;
-        background-color: #f0f5ff !important;
-      }
     </style>
   </head>
+
   <body>
     <div class="admin-tools-float">
-      <div
-        class="btn-float-secret"
-        onclick="abrirGestionAdmins()"
-        title="Gestión de Sistema"
-      >
+      <div class="btn-float-secret" title="Gestión de Sistema">
         <i class="fas fa-user-shield"></i>
       </div>
     </div>
@@ -99,51 +72,43 @@
     <main>
       <section id="seccion-admin-dashboard" class="container-fluid mt-4">
         <div class="d-flex justify-content-between align-items-center">
-          <h2>Panel de Control - Administración de Proveedores</h2>
-          <button
-            class="btn btn-outline-danger btn-sm"
-            onclick="
-              window.clientSupa.auth
-                .signOut()
-                .then(() => (window.location.href = 'index.html'))
-            "
-          >
+          <h2 class="titulo-admin">Panel de Control - Administración</h2>
+          <button class="btn btn-logout" id="btn-logout">
             <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
           </button>
         </div>
-        <hr />
+        <hr class="hr-dorada-admin" />
 
         <div class="row mb-4">
           <div class="col-md-3">
-            <div class="card card-metric bg-admin-total">
+            <div class="card card-metric">
               <h5>Total Proveedores</h5>
               <h2 id="count-total">0</h2>
             </div>
           </div>
           <div class="col-md-3">
-            <div class="card card-metric bg-admin-pendiente">
+            <div class="card card-metric">
               <h5>Pendientes Revisión</h5>
               <h2 id="count-pendientes">0</h2>
             </div>
           </div>
           <div class="col-md-3">
-            <div class="card card-metric bg-admin-validado">
+            <div class="card card-metric">
               <h5>Validados</h5>
               <h2 id="count-validados">0</h2>
             </div>
           </div>
           <div class="col-md-3">
-            <div class="card card-metric bg-admin-rechazado">
+            <div class="card card-metric">
               <h5>Rechazados</h5>
               <h2 id="count-rechazados">0</h2>
             </div>
           </div>
         </div>
-        <div class="card shadow">
-          <div
-            class="card-header bg-white d-flex justify-content-between align-items-center"
-          >
-            <span class="font-weight-bold text-uppercase"
+
+        <div class="card-tabla-container">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="font-weight-bold text-uppercase" style="color: #323232"
               >Listado de Expedientes</span
             >
             <input
@@ -153,9 +118,10 @@
               placeholder="Buscar por RFC o Nombre..."
             />
           </div>
-          <div class="card-body p-0">
+
+          <div class="table-responsive p-0">
             <table class="table table-hover mb-0">
-              <thead class="thead-light">
+              <thead>
                 <tr>
                   <th>RFC</th>
                   <th>Nombre / Razón Social</th>
@@ -173,6 +139,7 @@
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+
     <script src="admin/gestion-admin.js"></script>
   </body>
 </html>

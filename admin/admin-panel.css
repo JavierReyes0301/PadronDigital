@@ -37,10 +37,10 @@ body {
   background-color: #ffffff !important;
   border: 1px solid #e1e1e1 !important;
   border-radius: 12px !important;
-  padding: 20px !important;
+  padding: 5px !important;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
   transition: all 0.3s ease;
-  border-left: 6px solid #ab0a3d !important;
+  border-left: 4px solid #ab0a3d !important;
   display: flex;
   flex-direction: column;
   justify-content: center;

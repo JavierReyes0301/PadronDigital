@@ -1,5 +1,5 @@
 /**
- * LÓGICA DE REGISTRO DE PROVEEDORES - VERSIÓN INTEGRAL
+ * LÓGICA DE REGISTRO DE PROVEEDORES - VERSIÓN INTEGRAL CORREGIDA
  * Incluye: Datos Generales, Domicilio, Adicionales, Giros y Modal de Confirmación.
  */
 
@@ -142,7 +142,6 @@ async function cargarGirosGuardados() {
 }
 
 function confirmarSeleccionModal() {
-  // Asegúrate que los checkboxes en tu HTML tengan estos data-attributes
   const checkboxes = document.querySelectorAll(
     '#modalGiros input[type="checkbox"]:checked',
   );
@@ -162,8 +161,12 @@ function confirmarSeleccionModal() {
 }
 
 function renderizarListaLineas() {
-  const contenedor = document.getElementById("lista-lineas-seleccionadas");
+  // TOLERANCIA A ERRORES: Busca tanto el ID nuevo como el viejo del HTML para que nunca falle
+  const contenedor =
+    document.getElementById("lista-lineas-seleccionadas") ||
+    document.getElementById("lista-seleccionados");
   if (!contenedor) return;
+
   contenedor.innerHTML =
     lineasSeleccionadas.length === 0
       ? '<li class="list-group-item text-muted">Ninguna línea seleccionada</li>'
@@ -194,8 +197,9 @@ async function guardarGenerales() {
     rep_materno: document.getElementById("rep_materno").value,
     tipo_identificacion: document.getElementById("select_tipo_doc").value,
     num_identificacion: document.getElementById("num_identificacion").value,
-    updated_at: new Date(),
+    updated_at: new Date().toISOString(),
   };
+
   const { error } = await window.clientSupa.from("proveedores").upsert(payload);
   if (!error) {
     alert("✅ Datos Generales guardados.");
@@ -213,6 +217,8 @@ async function guardarGenerales() {
       ],
       "#Generales",
     );
+  } else {
+    alert("❌ Error en Datos Generales: " + error.message);
   }
 }
 
@@ -230,8 +236,9 @@ async function guardarDomicilio() {
     num_int: document.getElementById("num_int").value,
     colonia: document.getElementById("colonia").value,
     cp: document.getElementById("cp").value,
-    updated_at: new Date(),
+    updated_at: new Date().toISOString(),
   };
+
   const { error } = await window.clientSupa.from("proveedores").upsert(payload);
   if (!error) {
     alert("✅ Domicilio guardado.");
@@ -248,42 +255,74 @@ async function guardarDomicilio() {
       ],
       "#Domicilio",
     );
+  } else {
+    alert("❌ Error en Domicilio: " + error.message);
   }
 }
 
 async function guardarAdicionales() {
-  if (lineasSeleccionadas.length === 0)
-    return alert("Selecciona al menos un giro.");
+  if (!lineasSeleccionadas || lineasSeleccionadas.length === 0) {
+    return alert("⚠️ Selecciona al menos un giro.");
+  }
+
   const payload = {
     id: PROVEEDOR_ID,
+    rfc: USER_DATA.rfc,
+    correo: USER_DATA.correo,
+    tipo_persona: USER_DATA.tipo_persona,
     telefono: document.getElementById("input-telefono").value,
     capacidad_crediticia: document.getElementById("select-capacidad").value,
     num_empleados: document.getElementById("select-empleados").value,
     anio_inicio: document.getElementById("select-anio").value,
-    updated_at: new Date(),
+    updated_at: new Date().toISOString(),
   };
-  try {
-    await window.clientSupa.from("proveedores").upsert(payload);
-    await window.clientSupa
-      .from("proveedor_giros")
-      .delete()
-      .eq("proveedor_id", PROVEEDOR_ID);
-    const girosInsert = lineasSeleccionadas.map((l) => ({
-      proveedor_id: PROVEEDOR_ID,
-      giro_id: l.giro_id,
-      giro_nombre: l.giro_nombre,
-      linea_id: l.linea_id,
-      linea_nombre: l.linea_nombre,
-    }));
-    await window.clientSupa.from("proveedor_giros").insert(girosInsert);
-    alert("✅ Adicionales y Giros guardados.");
-    bloquearSeccionYPestaña(
-      ["input-telefono", "select-capacidad", "select-empleados", "select-anio"],
-      "#Adicionales",
-    );
-  } catch (e) {
-    alert("Error: " + e.message);
+
+  // 1. Guardar datos numéricos/texto en la tabla principal de proveedores
+  const { error: errorProv } = await window.clientSupa
+    .from("proveedores")
+    .upsert(payload);
+  if (errorProv) {
+    console.error("Error en proveedores:", errorProv);
+    return alert("❌ Error al guardar datos adicionales: " + errorProv.message);
   }
+
+  // 2. Limpiar asociaciones de giros previos para actualización limpia
+  const { error: errorDel } = await window.clientSupa
+    .from("proveedor_giros")
+    .delete()
+    .eq("proveedor_id", PROVEEDOR_ID);
+  if (errorDel) {
+    console.error("Error al limpiar giros:", errorDel);
+    return alert(
+      "❌ Error al limpiar líneas comerciales previas: " + errorDel.message,
+    );
+  }
+
+  // 3. Registrar la lista actual de giros seleccionados
+  const girosInsert = lineasSeleccionadas.map((l) => ({
+    proveedor_id: PROVEEDOR_ID,
+    giro_id: l.giro_id,
+    giro_nombre: l.giro_nombre,
+    linea_id: l.linea_id,
+    linea_nombre: l.linea_nombre,
+  }));
+
+  const { error: errorIns } = await window.clientSupa
+    .from("proveedor_giros")
+    .insert(girosInsert);
+  if (errorIns) {
+    console.error("Error al insertar giros:", errorIns);
+    return alert(
+      "❌ Error al registrar las nuevas líneas comerciales: " +
+        errorIns.message,
+    );
+  }
+
+  alert("✅ Adicionales y Giros guardados.");
+  bloquearSeccionYPestaña(
+    ["input-telefono", "select-capacidad", "select-empleados", "select-anio"],
+    "#Adicionales",
+  );
 }
 
 // --- 4. UTILIDADES DE INTERFAZ ---
