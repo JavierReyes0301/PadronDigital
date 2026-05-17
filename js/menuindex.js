@@ -1,5 +1,6 @@
 /**
  * LÓGICA DE NAVEGACIÓN Y AUTENTICACIÓN GLOBAL
+ * Versión Optimizada con Control de Estado Antimultirenderizado
  */
 
 // --- 1. ICONOS SVG ---
@@ -17,10 +18,20 @@ const ICONOS = {
   user: '<svg viewBox="0 0 448 512"><path d="M224 256c70.7 0 128-57.3 128-128S294.7 0 224 0 96 57.3 96 128s57.3 128 128 128zm89.6 32h-16.7c-22.2 10.2-46.9 16-72.9 16s-50.6-5.8-72.9-16h-16.7C60.2 288 0 348.2 0 422.4V464c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48v-41.6c0-74.2-60.2-134.4-134.4-134.4z"></path></svg>',
 };
 
+// --- CONTROL DE ESTADOS GLOBALES ---
+let estadoSesionActual = null; // Guardará el último estado conocido ('CON_SESION' o 'SIN_SESION')
+let estaRenderizando = false; // Candado de control asíncrono
+
 // --- 2. FUNCIÓN DE RENDERIZADO ---
 async function renderizarMenu() {
+  if (estaRenderizando) return; // Si hay un renderizado en proceso, bloquea solicitudes duplicadas
+  estaRenderizando = true;
+
   const navPlaceholder = document.getElementById("nav-placeholder");
-  if (!navPlaceholder) return;
+  if (!navPlaceholder) {
+    estaRenderizando = false;
+    return;
+  }
 
   const pathActual = window.location.pathname;
   const esPaginaInicio = pathActual.includes("/inicio/inicio.html");
@@ -31,7 +42,7 @@ async function renderizarMenu() {
   const baseInicio = esPaginaInicio ? "inicio.html" : "inicio/inicio.html";
   const rutaRestaurar = enSubcarpeta ? "../restaurar.html" : "restaurar.html";
 
-  // INTEGRACIÓN DEL MODAL DE LOGIN
+  // INTEGRACIÓN COMPACTA DEL MODAL DE LOGIN (Se mantiene en body de forma segura)
   if (!document.getElementById("ModalLogin")) {
     const modalLoginHTML = `
         <div class="modal fade" id="ModalLogin" tabindex="-1" role="dialog" aria-hidden="true">
@@ -64,6 +75,7 @@ async function renderizarMenu() {
   }
 
   let itemUsuarioHTML = `<li><a href="#" data-toggle="modal" data-target="#ModalLogin" class="nav-link-item">${ICONOS.user} Acceder</a></li>`;
+  let tieneSesion = false;
 
   try {
     if (window.clientSupa) {
@@ -71,29 +83,33 @@ async function renderizarMenu() {
         data: { session },
       } = await window.clientSupa.auth.getSession();
       if (session) {
+        tieneSesion = true;
         itemUsuarioHTML = `
-                <li class="nav-item dropdown">
-                    <a class="nav-link-item dropdown-toggle" href="javascript:void(0);" id="navbarDropdown" role="button" data-toggle="dropdown">
-                        ${ICONOS.user} MI CUENTA
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right menu-guinda-compacto">
-                        <a class="dropdown-item nav-action-link" href="javascript:void(0);" data-sec="seccion-bienvenida"><i class="fas fa-home"></i> INICIO</a>
-                        <a class="dropdown-item nav-action-link" href="javascript:void(0);" data-sec="estado-perfil"><i class="fas fa-info-circle"></i> ESTADO DE PERFIL</a>
-                        <a class="dropdown-item nav-action-link" href="javascript:void(0);" data-sec="actualizar-datos"><i class="fas fa-edit"></i> ACTUALIZAR DATOS</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="javascript:void(0);" id="btn-logout"><i class="fas fa-external-link-alt"></i> CERRAR SESIÓN</a>
-                    </div>
-                </li>`;
+            <li class="nav-item dropdown">
+                <a class="nav-link-item dropdown-toggle" href="javascript:void(0);" id="navbarDropdown" role="button" data-toggle="dropdown">
+                    ${ICONOS.user} MI CUENTA
+                </a>
+                <div class="dropdown-menu dropdown-menu-right menu-guinda-compacto">
+                    <a class="dropdown-item nav-action-link" href="javascript:void(0);" data-sec="seccion-bienvenida"><i class="fas fa-home"></i> INICIO</a>
+                    <a class="dropdown-item nav-action-link" href="javascript:void(0);" data-sec="estado-perfil"><i class="fas fa-info-circle"></i> ESTADO DE PERFIL</a>
+                    <a class="dropdown-item nav-action-link" href="javascript:void(0);" data-sec="actualizar-datos"><i class="fas fa-edit"></i> ACTUALIZAR DATOS</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="javascript:void(0);" id="btn-logout"><i class="fas fa-external-link-alt"></i> CERRAR SESIÓN</a>
+                </div>
+            </li>`;
       }
     }
   } catch (e) {
     console.error("Error en sesión:", e);
   }
 
+  // Actualizamos la bandera del estado de sesión actual cargado
+  estadoSesionActual = tieneSesion ? "CON_SESION" : "SIN_SESION";
+
   const navbarHTML = `
     <nav class="mi-navbar">
         <div class="mi-container">
-            <a href="javascript:void(0)" id="link-admin-secret" class="mi-brand">PADRÓN DE PROVEEDORES</a></a>
+            <a href="javascript:void(0)" id="link-admin-secret" class="mi-brand">PADRÓN DE PROVEEDORES</a>
             <button class="menu-toggle" id="btn-toggle"><span class="bar"></span><span class="bar"></span><span class="bar"></span></button>
             <ul class="mi-menu" id="nav-menu">
                 <li><a href="${baseRaiz}#inicio" class="nav-link-item">${ICONOS.inicio}Inicio</a></li>
@@ -107,10 +123,9 @@ async function renderizarMenu() {
     </nav>`;
 
   navPlaceholder.innerHTML = navbarHTML;
-
   document.dispatchEvent(new CustomEvent("navbarCargada"));
 
-  // --- CONFIGURACIÓN DE EVENTOS DE LOGIN (DIRECCIÓN EXACTA A BIENVENIDA) ---
+  // --- CONFIGURACIÓN DE EVENTOS DE LOGIN ---
   const formaLogin = document.getElementById("FormaLogin");
   if (formaLogin) {
     formaLogin.onsubmit = async (e) => {
@@ -129,14 +144,15 @@ async function renderizarMenu() {
         });
         if (error) throw error;
 
-        $("#ModalLogin").modal("hide");
+        // Ocultar modal de forma nativa antes de mover de ruta la pantalla
+        if (window.jQuery) {
+          $("#ModalLogin").modal("hide");
+        }
 
-        // --- AQUÍ SE ASIGNA LA REDIRECCIÓN CON PARÁMETRO ---
         const baseDestino = enSubcarpeta ? "inicio.html" : "inicio/inicio.html";
         window.location.href = `${baseDestino}?sec=seccion-bienvenida`;
       } catch (err) {
         alert("Error de acceso: " + err.message);
-      } finally {
         btnSubmit.disabled = false;
         btnSubmit.innerText = "INICIAR SESIÓN";
       }
@@ -166,6 +182,9 @@ async function renderizarMenu() {
       btnToggle.classList.toggle("open");
     };
   }
+
+  // Renderizado finalizado por completo, abrimos candado
+  estaRenderizando = false;
 }
 
 window.renderizarMenu = renderizarMenu;
@@ -189,11 +208,22 @@ document.addEventListener("DOMContentLoaded", async function () {
     </style>`;
   document.head.insertAdjacentHTML("beforeend", headContenido);
 
+  // Ejecución única inicial controlada
   await renderizarMenu();
 
   if (window.clientSupa) {
-    window.clientSupa.auth.onAuthStateChange((event) => {
-      if (event === "SIGNED_IN" || event === "SIGNED_OUT") renderizarMenu();
+    window.clientSupa.auth.onAuthStateChange(async (event, session) => {
+      // Determinamos cuál debería ser el estado objetivo real
+      const estadoObjetivo = session ? "CON_SESION" : "SIN_SESION";
+
+      // FILTRO INTELIGENTE: Solo vuelve a procesar el menú si el evento es correcto
+      // Y si la sesión verdaderamente cambió de estado respecto a la interfaz actual.
+      if (
+        (event === "SIGNED_IN" || event === "SIGNED_OUT") &&
+        estadoObjetivo !== estadoSesionActual
+      ) {
+        await renderizarMenu();
+      }
     });
   }
 
