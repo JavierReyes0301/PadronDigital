@@ -545,8 +545,12 @@
           throw new Error("No tienes permisos de administrador");
         }
 
-        if (window.jQuery && $("#ModalLoginAdmin").length) {
-          $("#ModalLoginAdmin").modal("hide");
+        // Cerrar modal usando jQuery contemplando ambas variantes de ID
+        if (window.jQuery) {
+          const mAdmin = $("#ModalLoginAdmin").length
+            ? $("#ModalLoginAdmin")
+            : $("#modalLoginAdmin");
+          mAdmin.modal("hide");
         }
 
         window
@@ -680,9 +684,25 @@
   window.abrirLogin = () => {
     if (window.jQuery) $("#ModalLogin").modal("show");
   };
+
   window.abrirLoginAdmin = () => {
-    if (window.jQuery) $("#ModalLoginAdmin").modal("show");
+    if (window.jQuery) {
+      // Busca de forma elástica tanto si empieza por mayúscula como si no
+      const modalAdmin = $("#ModalLoginAdmin").length
+        ? $("#ModalLoginAdmin")
+        : $("#modalLoginAdmin");
+      if (modalAdmin.length) {
+        modalAdmin.modal("show");
+      } else {
+        console.error(
+          "Error: El contenedor HTML del modal admin (#ModalLoginAdmin) no se encuentra en esta página.",
+        );
+      }
+    } else {
+      console.error("Error: jQuery no está inicializado.");
+    }
   };
+
   window.abrirRequisitos = () => {
     if (window.jQuery) $("#modalRequisitos").modal("show");
   };
