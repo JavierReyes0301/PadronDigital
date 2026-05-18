@@ -1,8 +1,3 @@
-/**
- * LOGINADMIN.JS - Versión Final Institucional
- * Control de acceso y anuncios con identidad visual unificada.
- */
-
 (function () {
   const inyectarEstilosInstitucionales = () => {
     if (document.getElementById("estilos-admin-custom")) return;
@@ -97,12 +92,14 @@
     if (brandLink && !brandLink.dataset.adminViculado) {
       brandLink.dataset.adminViculado = "true";
       inyectarEstilosInstitucionales();
-      brandLink.addEventListener("dblclick", (e) => {
-        e.preventDefault();
-        abrirLoginAdmin();
-      });
+
       brandLink.addEventListener("click", (e) => {
-        if (e.detail === 1) window.location.hash = "inicio";
+        if (e.ctrlKey && e.altKey) {
+          e.preventDefault();
+          abrirLoginAdmin();
+        } else {
+          window.location.hash = "inicio";
+        }
       });
     }
   };
@@ -129,7 +126,7 @@ function AlertaAdmin(titulo, mensaje, icono = "info") {
 async function abrirLoginAdmin() {
   const { value: formValues } = await Swal.fire({
     showConfirmButton: false,
-    showCloseButton: true,
+    showCloseButton: false, // <-- CAMBIADO A FALSE PARA ELIMINAR LA 'X'
     customClass: { popup: "modal-institucional-admin" },
     html: `
       <div class="modal-header-admin">
@@ -189,7 +186,6 @@ async function ejecutarAuthAdmin(email, password) {
       throw new Error("No tienes permisos de administrador");
     }
 
-    // Éxito con estilo guinda
     AlertaAdmin(
       "¡Bienvenido!",
       "Accediendo al panel de administración...",
