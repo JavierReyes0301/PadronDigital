@@ -260,6 +260,7 @@
 
     document.body.insertAdjacentHTML("beforeend", modalesHTML);
   }
+
   // --- 3. RENDERIZADO DEL MENÚ NAVBAR ---
   async function renderizarMenu() {
     if (estaRenderizandoMenu) return;
@@ -282,10 +283,7 @@
       if (window.clientSupa) {
         const {
           data: { session },
-          error,
         } = await window.clientSupa.auth.getSession();
-        if (error) throw error;
-
         if (session) {
           tieneSesion = true;
           itemUsuarioHTML = `
@@ -394,6 +392,7 @@
         }
       });
 
+      // Evitamos la redirección si intentan hacer el truco usando clics normales combinados
       brandLink.addEventListener("click", (e) => {
         if (e.ctrlKey && e.altKey) {
           e.preventDefault();
@@ -498,10 +497,10 @@
       }
     }
 
-    // CONTROL DE ACCESO ADMIN (FormaLoginAdmin)
+    // CONTROL DE ACCESO ADMIND (FormaLoginAdmin)
     if (targetId === "FormaLoginAdmin") {
-      const adminUser = document.getElementById("admin-user")?.value;
-      const adminPass = document.getElementById("admin-pass")?.value;
+      const adminUser = document.getElementById("admin-user").value;
+      const adminPass = document.getElementById("admin-pass").value;
 
       if (!adminUser || !adminPass) {
         window.AlertaAdmin(
@@ -527,30 +526,27 @@
           });
         }
 
-        const { data, error: authError } =
-          await window.clientSupa.auth.signInWithPassword({
+        const { data, error } = await window.clientSupa.auth.signInWithPassword(
+          {
             email: adminUser.toLowerCase().trim(),
             password: adminPass,
-          });
-        if (authError) throw new Error("Credenciales inválidas");
+          },
+        );
+        if (error) throw new Error("Credenciales inválidas");
 
-        const { data: perfil, error: dbError } = await window.clientSupa
+        const { data: perfil } = await window.clientSupa
           .from("usuarios")
           .select("rol")
           .eq("id", data.user.id)
           .single();
 
-        if (dbError || !perfil || perfil.rol !== "ADMIN") {
+        if (!perfil || perfil.rol !== "ADMIN") {
           await window.clientSupa.auth.signOut();
           throw new Error("No tienes permisos de administrador");
         }
 
-        // Cerrar modal usando jQuery contemplando ambas variantes de ID
-        if (window.jQuery) {
-          const mAdmin = $("#ModalLoginAdmin").length
-            ? $("#ModalLoginAdmin")
-            : $("#modalLoginAdmin");
-          mAdmin.modal("hide");
+        if (window.jQuery && $("#ModalLoginAdmin").length) {
+          $("#ModalLoginAdmin").modal("hide");
         }
 
         window
@@ -559,9 +555,7 @@
             "Accediendo al panel de administración...",
             "success",
           )
-          .then(() => {
-            window.location.href = "admin/admin_panel.html";
-          });
+          .then(() => (window.location.href = "admin/admin_panel.html"));
       } catch (err) {
         if (window.Swal) Swal.close();
         window.AlertaAdmin("Acceso Denegado", err.message, "error");
@@ -574,28 +568,21 @@
 
     // REGISTRO DE NUEVO PROVEEDOR (FormRegistro)
     if (targetId === "FormRegistro") {
-      const rfcLimpio =
-        datos.rfc
-          ?.trim()
-          .toUpperCase()
-          .replace(/[^A-Z0-9]/g, "") || "";
+      const rfcLimpio = datos.rfc
+        .trim()
+        .toUpperCase()
+        .replace(/[^A-Z0-9]/g, "");
 
-      if (!document.getElementById("checkAviso")?.checked) {
+      if (!document.getElementById("checkAviso").checked)
         return alert("Debe aceptar el aviso de privacidad.");
-      }
-      if (!datos.pwd || datos.pwd.length < 8) {
+      if (datos.pwd.length < 8)
         return alert("La contraseña debe tener al menos 8 caracteres.");
-      }
-      if (datos.pwd !== datos["confirm-pwd"]) {
+      if (datos.pwd !== datos["confirm-pwd"])
         return alert("Las contraseñas no coinciden.");
-      }
 
       try {
-        if (btnSubmit) {
-          btnSubmit.disabled = true;
-          btnSubmit.innerText = "PROCESANDO...";
-        }
-
+        btnSubmit.disabled = true;
+        btnSubmit.innerText = "PROCESANDO...";
         const { error } = await window.clientSupa.auth.signUp({
           email: datos.correo.toLowerCase().trim(),
           password: datos.pwd,
@@ -604,25 +591,22 @@
           },
         });
         if (error) throw error;
-
         alert(
           "¡Registro enviado! Por favor, revise su correo para confirmar su cuenta.",
         );
-        if (window.jQuery) $("#ModalRegistro").modal("hide");
+        $("#ModalRegistro").modal("hide");
         e.target.reset();
       } catch (err) {
         if (err.message && err.message.includes("changedAccessToken")) {
           alert("¡Registro completado! Revise su correo.");
-          if (window.jQuery) $("#ModalRegistro").modal("hide");
+          $("#ModalRegistro").modal("hide");
           e.target.reset();
         } else {
           alert("Error: " + (err.message || "Error desconocido"));
         }
       } finally {
-        if (btnSubmit) {
-          btnSubmit.disabled = false;
-          btnSubmit.innerText = "CONTINUAR REGISTRO";
-        }
+        btnSubmit.disabled = false;
+        btnSubmit.innerText = "CONTINUAR REGISTRO";
       }
     }
   });
@@ -633,10 +617,7 @@
     addToHistory = true,
   ) {
     const secciones = document.querySelectorAll(".contenido-seccion");
-    secciones.forEach((sec) => {
-      sec.style.display = "none";
-    });
-
+    secciones.forEach((sec) => (sec.style.display = "none"));
     const seccionAMostrar = document.getElementById(idObjetivo);
     if (seccionAMostrar) {
       seccionAMostrar.style.display = "block";
@@ -649,16 +630,11 @@
 
   window.cerrarSesion = async function () {
     if (window.clientSupa) {
-      try {
-        await window.clientSupa.auth.signOut();
-      } catch (e) {
-        console.error("Error al cerrar sesión:", e);
-      } finally {
-        const enSubcarpeta =
-          window.location.pathname.includes("/inicio/") ||
-          window.location.pathname.includes("/paginas/");
-        window.location.href = enSubcarpeta ? "../index.html" : "index.html";
-      }
+      await window.clientSupa.auth.signOut();
+      const enSubcarpeta =
+        window.location.pathname.includes("/inicio/") ||
+        window.location.pathname.includes("/paginas/");
+      window.location.href = enSubcarpeta ? "../index.html" : "index.html";
     }
   };
 
@@ -679,37 +655,21 @@
   };
 
   window.abrirRegistro = () => {
-    if (window.jQuery) $("#ModalRegistro").modal("show");
+    $("#ModalRegistro").modal("show");
   };
   window.abrirLogin = () => {
-    if (window.jQuery) $("#ModalLogin").modal("show");
+    $("#ModalLogin").modal("show");
   };
-
   window.abrirLoginAdmin = () => {
-    if (window.jQuery) {
-      // Busca de forma elástica tanto si empieza por mayúscula como si no
-      const modalAdmin = $("#ModalLoginAdmin").length
-        ? $("#ModalLoginAdmin")
-        : $("#modalLoginAdmin");
-      if (modalAdmin.length) {
-        modalAdmin.modal("show");
-      } else {
-        console.error(
-          "Error: El contenedor HTML del modal admin (#ModalLoginAdmin) no se encuentra en esta página.",
-        );
-      }
-    } else {
-      console.error("Error: jQuery no está inicializado.");
-    }
+    $("#ModalLoginAdmin").modal("show");
   };
-
   window.abrirRequisitos = () => {
-    if (window.jQuery) $("#modalRequisitos").modal("show");
+    $("#modalRequisitos").modal("show");
   };
   window.abrirFormatos = () => {
-    if (window.jQuery) $("#modalFormatos").modal("show");
+    $("#modalFormatos").modal("show");
   };
   window.abrirPreguntas = () => {
-    if (window.jQuery) $("#ModalPreguntas").modal("show");
+    $("#ModalPreguntas").modal("show");
   };
 })();
