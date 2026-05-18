@@ -17,7 +17,7 @@
   let estadoSesionActual = null;
   let estaRenderizandoMenu = false;
 
-  // --- 2. INYECCIÓN DINÁMICA DE TODOS LOS MODALES (INCLUYENDO MODAL ADMIN NUEVO) ---
+  // --- 2. INYECCIÓN DINÁMICA DE TODOS LOS MODALES ---
   function asegurarTodosLosModalesEnBody() {
     if (document.getElementById("ModalRegistro")) return;
 
@@ -202,64 +202,64 @@
         </div>
 
         <div class="modal fade" id="ModalPreguntas" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h2 class="modal-title">Preguntas Frecuentes</h2>
-                </div>
-                <div class="modal-body">
-                    <div class="faq-container">
-                        <div class="faq-item">
-                            <h4 class="faq-pregunta">1. ¿Cuál es el dato que debo ingresar como usuario para iniciar sesión?</h4>
-                            <p class="faq-respuesta">El RFC de la persona física o moral.</p>
-                        </div>
-                        <div class="faq-item">
-                            <h4 class="faq-pregunta">2. ¿Cómo puedo recuperar mi contraseña?</h4>
-                            <p class="faq-respuesta">En su cuenta, presione el botón <strong>“¿Olvidaste tu contraseña?”</strong>.</p>
-                        </div>
-                        <div class="faq-item">
-                            <h4 class="faq-pregunta">3. Si no tengo acceso al correo registrado, ¿cómo puedo cambiarlo?</h4>
-                            <p class="faq-respuesta text-justify">
-                                Debe enviar una solicitud al correo institucional, dirigida a la <strong>Contraloría Municipal</strong>, exponiendo el motivo del cambio e indicando el nuevo correo. La solicitud debe estar firmada por el representante legal y adjuntar:
-                            </p>
-                            <div class="faq-sub-list">
-                                <p><strong>Persona Moral:</strong> Acta Constitutiva, Poder Notarial, Constancia de Situación Fiscal (vigencia 30 días), Comprobante de Domicilio (vigencia 3 meses) e INE vigente.</p>
-                                <p><strong>Persona Física:</strong> Acta de Nacimiento, Constancia de Situación Fiscal (vigencia 30 días), Comprobante de Domicilio (vigencia 3 meses) e INE vigente.</p>
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h2 class="modal-title">Preguntas Frecuentes</h2>
+                    </div>
+                    <div class="modal-body">
+                        <div class="faq-container">
+                            <div class="faq-item">
+                                <h4 class="faq-pregunta">1. ¿Cuál es el dato que debo ingresar como usuario para iniciar sesión?</h4>
+                                <p class="faq-respuesta">El RFC de la persona física o moral.</p>
                             </div>
-                        </div>
-                        <div class="faq-item">
-                            <h4 class="faq-pregunta">4. ¿En qué tiempo obtengo respuesta a mi solicitud?</h4>
-                            <p class="faq-respuesta">De <strong>1 a 3 días hábiles</strong>. En caso de observaciones, el tiempo se reinicia al momento de solventarlas.</p>
-                        </div>
-                        <div class="faq-item">
-                            <h4 class="faq-pregunta">7. ¿En qué se basan para rechazar los giros y líneas seleccionados?</h4>
-                            <p class="faq-respuesta text-justify">
-                                Se basan estrictamente en las <strong>actividades económicas</strong> registradas en su Constancia de Situación Fiscal (SAT).
-                            </p>
-                            <div class="faq-fundamento">
-                                <strong>FUNDAMENTO LEGAL:</strong><br />
-                                Código Fiscal de la Federación, Art. 17-D y 27.<br />
-                                Reglamento del CFF, Art. 29 y 30.
+                            <div class="faq-item">
+                                <h4 class="faq-pregunta">2. ¿Cómo puedo recuperar mi contraseña?</h4>
+                                <p class="faq-respuesta">En su cuenta, presione el botón <strong>“¿Olvidaste tu contraseña?”</strong>.</p>
                             </div>
-                        </div>
-                        <div class="faq-item no-border">
-                            <h4 class="faq-pregunta">8. ¿Cuál es la vigencia de mi registro?</h4>
-                            <p class="faq-respuesta">De la fecha de inscripción al 31 de diciembre del año en curso.</p>
-                            <h4 class="faq-pregunta">9. ¿Cuándo puedo renovar mi registro?</h4>
-                            <p class="faq-respuesta">A partir del 1 de enero del siguiente año.</p>
-                            <h4 class="faq-pregunta">11. ¿Cómo imprimo mi cédula de inscripción?</h4>
-                            <p class="faq-respuesta">En la opción: <strong>Mi cuenta / Estado de su perfil</strong>.</p>
+                            <div class="faq-item">
+                                <h4 class="faq-pregunta">3. Si no tengo acceso al correo registrado, ¿cómo puedo cambiarlo?</h4>
+                                <p class="faq-respuesta text-justify">
+                                    Debe enviar una solicitud al correo institucional, dirigida a la <strong>Contraloría Municipal</strong>, exponiendo el motivo del cambio e indicando el nuevo correo. La solicitud debe estar firmada por el representante legal y adjuntar:
+                                </p>
+                                <div class="faq-sub-list">
+                                    <p><strong>Persona Moral:</strong> Acta Constitutiva, Poder Notarial, Constancia de Situación Fiscal (vigencia 30 días), Comprobante de Domicilio (vigencia 3 meses) e INE vigente.</p>
+                                    <p><strong>Persona Física:</strong> Acta de Nacimiento, Constancia de Situación Fiscal (vigencia 30 días), Comprobante de Domicilio (vigencia 3 meses) e INE vigente.</p>
+                                </div>
+                            </div>
+                            <div class="faq-item">
+                                <h4 class="faq-pregunta">4. ¿En qué tiempo obtengo respuesta a mi solicitud?</h4>
+                                <p class="faq-respuesta">De <strong>1 a 3 días hábiles</strong>. En caso de observaciones, el tiempo se reinicia al momento de solventarlas.</p>
+                            </div>
+                            <div class="faq-item">
+                                <h4 class="faq-pregunta">7. ¿En qué se basan para rechazar los giros y líneas seleccionados?</h4>
+                                <p class="faq-respuesta text-justify">
+                                    Se basan estrictamente en las <strong>actividades económicas</strong> registradas en su Constancia de Situación Fiscal (SAT).
+                                </p>
+                                <div class="faq-fundamento">
+                                    <strong>FUNDAMENTO LEGAL:</strong><br />
+                                    Código Fiscal de la Federación, Art. 17-D y 27.<br />
+                                    Reglamento del CFF, Art. 29 y 30.
+                                </div>
+                            </div>
+                            <div class="faq-item no-border">
+                                <h4 class="faq-pregunta">8. ¿Cuál es la vigencia de mi registro?</h4>
+                                <p class="faq-respuesta">De la fecha de inscripción al 31 de diciembre del año en curso.</p>
+                                <h4 class="faq-pregunta">9. ¿Cuándo puedo renovar mi registro?</h4>
+                                <p class="faq-respuesta">A partir del 1 de enero del siguiente año.</p>
+                                <h4 class="faq-pregunta">11. ¿Cómo imprimo mi cédula de inscripción?</h4>
+                                <p class="faq-respuesta">En la opción: <strong>Mi cuenta / Estado de su perfil</strong>.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        </div>`;
+    `;
 
     document.body.insertAdjacentHTML("beforeend", modalesHTML);
   }
-
   // --- 3. RENDERIZADO DEL MENÚ NAVBAR ---
   async function renderizarMenu() {
     if (estaRenderizandoMenu) return;
@@ -282,7 +282,10 @@
       if (window.clientSupa) {
         const {
           data: { session },
+          error,
         } = await window.clientSupa.auth.getSession();
+        if (error) throw error;
+
         if (session) {
           tieneSesion = true;
           itemUsuarioHTML = `
@@ -391,7 +394,6 @@
         }
       });
 
-      // Evitamos la redirección si intentan hacer el truco usando clics normales combinados
       brandLink.addEventListener("click", (e) => {
         if (e.ctrlKey && e.altKey) {
           e.preventDefault();
@@ -496,10 +498,10 @@
       }
     }
 
-    // CONTROL DE ACCESO ADMIND (FormaLoginAdmin)
+    // CONTROL DE ACCESO ADMIN (FormaLoginAdmin)
     if (targetId === "FormaLoginAdmin") {
-      const adminUser = document.getElementById("admin-user").value;
-      const adminPass = document.getElementById("admin-pass").value;
+      const adminUser = document.getElementById("admin-user")?.value;
+      const adminPass = document.getElementById("admin-pass")?.value;
 
       if (!adminUser || !adminPass) {
         window.AlertaAdmin(
@@ -525,21 +527,20 @@
           });
         }
 
-        const { data, error } = await window.clientSupa.auth.signInWithPassword(
-          {
+        const { data, error: authError } =
+          await window.clientSupa.auth.signInWithPassword({
             email: adminUser.toLowerCase().trim(),
             password: adminPass,
-          },
-        );
-        if (error) throw new Error("Credenciales inválidas");
+          });
+        if (authError) throw new Error("Credenciales inválidas");
 
-        const { data: perfil } = await window.clientSupa
+        const { data: perfil, error: dbError } = await window.clientSupa
           .from("usuarios")
           .select("rol")
           .eq("id", data.user.id)
           .single();
 
-        if (!perfil || perfil.rol !== "ADMIN") {
+        if (dbError || !perfil || perfil.rol !== "ADMIN") {
           await window.clientSupa.auth.signOut();
           throw new Error("No tienes permisos de administrador");
         }
@@ -554,7 +555,9 @@
             "Accediendo al panel de administración...",
             "success",
           )
-          .then(() => (window.location.href = "admin/admin_panel.html"));
+          .then(() => {
+            window.location.href = "admin/admin_panel.html";
+          });
       } catch (err) {
         if (window.Swal) Swal.close();
         window.AlertaAdmin("Acceso Denegado", err.message, "error");
@@ -567,21 +570,28 @@
 
     // REGISTRO DE NUEVO PROVEEDOR (FormRegistro)
     if (targetId === "FormRegistro") {
-      const rfcLimpio = datos.rfc
-        .trim()
-        .toUpperCase()
-        .replace(/[^A-Z0-9]/g, "");
+      const rfcLimpio =
+        datos.rfc
+          ?.trim()
+          .toUpperCase()
+          .replace(/[^A-Z0-9]/g, "") || "";
 
-      if (!document.getElementById("checkAviso").checked)
+      if (!document.getElementById("checkAviso")?.checked) {
         return alert("Debe aceptar el aviso de privacidad.");
-      if (datos.pwd.length < 8)
+      }
+      if (!datos.pwd || datos.pwd.length < 8) {
         return alert("La contraseña debe tener al menos 8 caracteres.");
-      if (datos.pwd !== datos["confirm-pwd"])
+      }
+      if (datos.pwd !== datos["confirm-pwd"]) {
         return alert("Las contraseñas no coinciden.");
+      }
 
       try {
-        btnSubmit.disabled = true;
-        btnSubmit.innerText = "PROCESANDO...";
+        if (btnSubmit) {
+          btnSubmit.disabled = true;
+          btnSubmit.innerText = "PROCESANDO...";
+        }
+
         const { error } = await window.clientSupa.auth.signUp({
           email: datos.correo.toLowerCase().trim(),
           password: datos.pwd,
@@ -590,22 +600,25 @@
           },
         });
         if (error) throw error;
+
         alert(
           "¡Registro enviado! Por favor, revise su correo para confirmar su cuenta.",
         );
-        $("#ModalRegistro").modal("hide");
+        if (window.jQuery) $("#ModalRegistro").modal("hide");
         e.target.reset();
       } catch (err) {
         if (err.message && err.message.includes("changedAccessToken")) {
           alert("¡Registro completado! Revise su correo.");
-          $("#ModalRegistro").modal("hide");
+          if (window.jQuery) $("#ModalRegistro").modal("hide");
           e.target.reset();
         } else {
           alert("Error: " + (err.message || "Error desconocido"));
         }
       } finally {
-        btnSubmit.disabled = false;
-        btnSubmit.innerText = "CONTINUAR REGISTRO";
+        if (btnSubmit) {
+          btnSubmit.disabled = false;
+          btnSubmit.innerText = "CONTINUAR REGISTRO";
+        }
       }
     }
   });
@@ -616,7 +629,10 @@
     addToHistory = true,
   ) {
     const secciones = document.querySelectorAll(".contenido-seccion");
-    secciones.forEach((sec) => (sec.style.display = "none"));
+    secciones.forEach((sec) => {
+      sec.style.display = "none";
+    });
+
     const seccionAMostrar = document.getElementById(idObjetivo);
     if (seccionAMostrar) {
       seccionAMostrar.style.display = "block";
@@ -629,11 +645,16 @@
 
   window.cerrarSesion = async function () {
     if (window.clientSupa) {
-      await window.clientSupa.auth.signOut();
-      const enSubcarpeta =
-        window.location.pathname.includes("/inicio/") ||
-        window.location.pathname.includes("/paginas/");
-      window.location.href = enSubcarpeta ? "../index.html" : "index.html";
+      try {
+        await window.clientSupa.auth.signOut();
+      } catch (e) {
+        console.error("Error al cerrar sesión:", e);
+      } finally {
+        const enSubcarpeta =
+          window.location.pathname.includes("/inicio/") ||
+          window.location.pathname.includes("/paginas/");
+        window.location.href = enSubcarpeta ? "../index.html" : "index.html";
+      }
     }
   };
 
@@ -654,21 +675,21 @@
   };
 
   window.abrirRegistro = () => {
-    $("#ModalRegistro").modal("show");
+    if (window.jQuery) $("#ModalRegistro").modal("show");
   };
   window.abrirLogin = () => {
-    $("#ModalLogin").modal("show");
+    if (window.jQuery) $("#ModalLogin").modal("show");
   };
   window.abrirLoginAdmin = () => {
-    $("#ModalLoginAdmin").modal("show");
+    if (window.jQuery) $("#ModalLoginAdmin").modal("show");
   };
   window.abrirRequisitos = () => {
-    $("#modalRequisitos").modal("show");
+    if (window.jQuery) $("#modalRequisitos").modal("show");
   };
   window.abrirFormatos = () => {
-    $("#modalFormatos").modal("show");
+    if (window.jQuery) $("#modalFormatos").modal("show");
   };
   window.abrirPreguntas = () => {
-    $("#ModalPreguntas").modal("show");
+    if (window.jQuery) $("#ModalPreguntas").modal("show");
   };
 })();
