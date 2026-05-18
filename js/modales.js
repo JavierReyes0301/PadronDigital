@@ -17,9 +17,8 @@
   let estadoSesionActual = null;
   let estaRenderizandoMenu = false;
 
-  // --- 2. FUNCIÓN DE INYECCIÓN UNIFICADA DE MODALES ---
-  function asegurarModalesEnBody() {
-    // Si ya existe el de registro, asumimos que todos están inyectados para evitar duplicaciones
+  // --- 2. INYECCIÓN DINÁMICA DE TODOS LOS MODALES (INCLUYENDO MODAL ADMIN NUEVO) ---
+  function asegurarTodosLosModalesEnBody() {
     if (document.getElementById("ModalRegistro")) return;
 
     const pathActual = window.location.pathname;
@@ -27,8 +26,7 @@
       pathActual.includes("/inicio/") || pathActual.includes("/paginas/");
     const rutaRestaurar = enSubcarpeta ? "../restaurar.html" : "restaurar.html";
 
-    // Unimos el ModalLogin de tu menú con los Modales de tu Padrón en un solo string
-    const modalesPadron = `
+    const modalesHTML = `
         <div class="modal fade" id="ModalLogin" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content modal-caja-login">
@@ -51,6 +49,30 @@
                         <div style="text-align:center; margin-top:20px;">
                             <a href="${rutaRestaurar}" style="font-size:0.9rem; color:#ab0a3d; font-weight:700; text-decoration:none;">¿Olvidó su contraseña?</a>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="ModalLoginAdmin" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content modal-caja-login">
+                    <div class="modal-header-login">
+                        <h2>Panel de Administración</h2>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body" style="padding: 30px;">
+                        <form id="FormaLoginAdmin">
+                            <div class="form-group-custom">
+                                <label>Correo Electrónico:</label>
+                                <input type="email" id="admin-user" name="correo_admin" class="input-institucional" placeholder="ejemplo@correo.com" required />
+                            </div>
+                            <div class="form-group-custom">
+                                <label>Contraseña:</label>
+                                <input type="password" id="admin-pass" name="password_admin" class="input-institucional" placeholder="********" required />
+                            </div>
+                            <button type="submit" id="btn-submit-admin" class="btn-registro-continuar" style="width:100%; margin-top:10px;">INICIAR SESIÓN ADMIN</button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -168,26 +190,11 @@
                   Seleccione el formato correspondiente para su descarga. Todos los documentos deben ser requisitados y firmados.
                 </div>
                 <div class="contenedor-lista-anexos">
-                  <div class="item-anexo">
-                    <h5 class="nombre-anexo">Solicitud de registro / revalidación.</h5>
-                    <a href="https://maopuzbvxucsarrydmte.supabase.co/storage/v1/object/public/Formatos/ANEXO%20I%20-%20IA.docx" download class="btn-anexo">ANEXO I</a>
-                  </div>
-                  <div class="item-anexo">
-                    <h5 class="nombre-anexo">Carta bajo protesta de decir verdad de no estar impedido para contratar (Art. 77 Ley de Adquisiciones y Art. 69-B CFF).</h5>
-                    <a href="https://maopuzbvxucsarrydmte.supabase.co/storage/v1/object/public/Formatos/ANEXO%20II.docx" download class="btn-anexo">ANEXO II</a>
-                  </div>
-                  <div class="item-anexo">
-                    <h5 class="nombre-anexo">Carta de manifiesto bajo protesta de decir verdad de no estar inhabilitado para procedimientos de adjudicación.</h5>
-                    <a href="https://maopuzbvxucsarrydmte.supabase.co/storage/v1/object/public/Formatos/ANEXO%20III.docx" download class="btn-anexo">ANEXO III</a>
-                  </div>
-                  <div class="item-anexo">
-                    <h5 class="nombre-anexo">Carta de manifiesto de no desempeñar cargo público o incurrir en conflicto de interés con la Administración Pública Municipal.</h5>
-                    <a href="https://maopuzbvxucsarrydmte.supabase.co/storage/v1/object/public/Formatos/ANEXO%20IV.docx" download class="btn-anexo">ANEXO IV</a>
-                  </div>
-                  <div class="item-anexo no-border">
-                    <h5 class="nombre-anexo">Carta bajo protesta de decir verdad de encontrarse al corriente de las obligaciones fiscales.</h5>
-                    <a href="https://maopuzbvxucsarrydmte.supabase.co/storage/v1/object/public/Formatos/ANEXO%20V.docx" download class="btn-anexo">ANEXO V</a>
-                  </div>
+                  <div class="item-anexo"><h5 class="nombre-anexo">Solicitud de registro / revalidación.</h5><a href="https://maopuzbvxucsarrydmte.supabase.co/storage/v1/object/public/Formatos/ANEXO%20I%20-%20IA.docx" download class="btn-anexo">ANEXO I</a></div>
+                  <div class="item-anexo"><h5 class="nombre-anexo">Carta bajo protesta de decir verdad de no estar impedido para contratar (Art. 77 Ley de Adquisiciones y Art. 69-B CFF).</h5><a href="https://maopuzbvxucsarrydmte.supabase.co/storage/v1/object/public/Formatos/ANEXO%20II.docx" download class="btn-anexo">ANEXO II</a></div>
+                  <div class="item-anexo"><h5 class="nombre-anexo">Carta de manifiesto bajo protesta de decir verdad de no estar inhabilitado para procedimientos de adjudicación.</h5><a href="https://maopuzbvxucsarrydmte.supabase.co/storage/v1/object/public/Formatos/ANEXO%20III.docx" download class="btn-anexo">ANEXO III</a></div>
+                  <div class="item-anexo"><h5 class="nombre-anexo">Carta de manifiesto de no desempeñar cargo público o incurrir en conflicto de interés con la Administración Pública Municipal.</h5><a href="https://maopuzbvxucsarrydmte.supabase.co/storage/v1/object/public/Formatos/ANEXO%20IV.docx" download class="btn-anexo">ANEXO IV</a></div>
+                  <div class="item-anexo no-border"><h5 class="nombre-anexo">Carta bajo protesta de decir verdad de encontrarse al corriente de las obligaciones fiscales.</h5><a href="https://maopuzbvxucsarrydmte.supabase.co/storage/v1/object/public/Formatos/ANEXO%20V.docx" download class="btn-anexo">ANEXO V</a></div>
                 </div>
               </div>
             </div>
@@ -195,41 +202,62 @@
         </div>
 
         <div class="modal fade" id="ModalPreguntas" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h2 class="modal-title">Preguntas Frecuentes</h2>
-                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="faq-container">
-                            <div class="faq-item">
-                                <h4 class="faq-pregunta">1. ¿Cuál es el dato que debo ingresar como usuario para iniciar sesión?</h4>
-                                <p class="faq-respuesta">El RFC de la persona física o moral.</p>
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h2 class="modal-title">Preguntas Frecuentes</h2>
+                </div>
+                <div class="modal-body">
+                    <div class="faq-container">
+                        <div class="faq-item">
+                            <h4 class="faq-pregunta">1. ¿Cuál es el dato que debo ingresar como usuario para iniciar sesión?</h4>
+                            <p class="faq-respuesta">El RFC de la persona física o moral.</p>
+                        </div>
+                        <div class="faq-item">
+                            <h4 class="faq-pregunta">2. ¿Cómo puedo recuperar mi contraseña?</h4>
+                            <p class="faq-respuesta">En su cuenta, presione el botón <strong>“¿Olvidaste tu contraseña?”</strong>.</p>
+                        </div>
+                        <div class="faq-item">
+                            <h4 class="faq-pregunta">3. Si no tengo acceso al correo registrado, ¿cómo puedo cambiarlo?</h4>
+                            <p class="faq-respuesta text-justify">
+                                Debe enviar una solicitud al correo institucional, dirigida a la <strong>Contraloría Municipal</strong>, exponiendo el motivo del cambio e indicando el nuevo correo. La solicitud debe estar firmada por el representante legal y adjuntar:
+                            </p>
+                            <div class="faq-sub-list">
+                                <p><strong>Persona Moral:</strong> Acta Constitutiva, Poder Notarial, Constancia de Situación Fiscal (vigencia 30 días), Comprobante de Domicilio (vigencia 3 meses) e INE vigente.</p>
+                                <p><strong>Persona Física:</strong> Acta de Nacimiento, Constancia de Situación Fiscal (vigencia 30 días), Comprobante de Domicilio (vigencia 3 meses) e INE vigente.</p>
                             </div>
-                            <div class="faq-item">
-                                <h4 class="faq-pregunta">2. ¿Cómo puedo recuperar mi contraseña?</h4>
-                                <p class="faq-respuesta">En su cuenta, presione el botón <strong>“¿Olvidaste tu contraseña?”</strong>.</p>
+                        </div>
+                        <div class="faq-item">
+                            <h4 class="faq-pregunta">4. ¿En qué tiempo obtengo respuesta a mi solicitud?</h4>
+                            <p class="faq-respuesta">De <strong>1 a 3 días hábiles</strong>. En caso de observaciones, el tiempo se reinicia al momento de solventarlas.</p>
+                        </div>
+                        <div class="faq-item">
+                            <h4 class="faq-pregunta">7. ¿En qué se basan para rechazar los giros y líneas seleccionados?</h4>
+                            <p class="faq-respuesta text-justify">
+                                Se basan estrictamente en las <strong>actividades económicas</strong> registradas en su Constancia de Situación Fiscal (SAT).
+                            </p>
+                            <div class="faq-fundamento">
+                                <strong>FUNDAMENTO LEGAL:</strong><br />
+                                Código Fiscal de la Federación, Art. 17-D y 27.<br />
+                                Reglamento del CFF, Art. 29 y 30.
                             </div>
-                            <div class="faq-item">
-                                <h4 class="faq-pregunta">3. Si no tengo acceso al correo registrado, ¿cómo puedo cambiarlo?</h4>
-                                <p class="faq-respuesta text-justify">Debe enviar una solicitud al correo institucional, dirigida a la <strong>Contraloría Municipal</strong>...</p>
-                            </div>
-                            <div class="faq-item">
-                                <h4 class="faq-pregunta">4. ¿En qué tiempo obtengo respuesta a mi solicitud?</h4>
-                                <p class="faq-respuesta">De <strong>1 a 3 días hábiles</strong>.</p>
-                            </div>
-                            <div class="faq-item">
-                                <h4 class="faq-pregunta">7. ¿En qué se basan para rechazar los giros y líneas seleccionados?</h4>
-                                <p class="faq-respuesta text-justify">Se basan estrictamente en las actividades económicas registradas en su SAT.</p>
-                            </div>
+                        </div>
+                        <div class="faq-item no-border">
+                            <h4 class="faq-pregunta">8. ¿Cuál es la vigencia de mi registro?</h4>
+                            <p class="faq-respuesta">De la fecha de inscripción al 31 de diciembre del año en curso.</p>
+                            <h4 class="faq-pregunta">9. ¿Cuándo puedo renovar mi registro?</h4>
+                            <p class="faq-respuesta">A partir del 1 de enero del siguiente año.</p>
+                            <h4 class="faq-pregunta">11. ¿Cómo imprimo mi cédula de inscripción?</h4>
+                            <p class="faq-respuesta">En la opción: <strong>Mi cuenta / Estado de su perfil</strong>.</p>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
         </div>`;
 
-    document.body.insertAdjacentHTML("beforeend", modalesPadron);
+    document.body.insertAdjacentHTML("beforeend", modalesHTML);
   }
 
   // --- 3. RENDERIZADO DEL MENÚ NAVBAR ---
@@ -295,6 +323,7 @@
         </nav>`;
 
     document.dispatchEvent(new CustomEvent("navbarCargada"));
+    vincularAccesoAdmin(); // Se vincula el atajo tras renderizar la marca
     estaRenderizandoMenu = false;
   }
   window.renderizarMenu = renderizarMenu;
@@ -315,12 +344,20 @@
             .mi-footer { background-color: #ab0a3d; padding: 20px 0; color: white; text-align: center; text-transform: uppercase; font-weight: 700; width: 100%; }
             .contenido-seccion { display: none; }
             .contenido-seccion.activa { display: block !important; }
+            
+            /* Clases añadidas para estilización nativa de SweetAlert en el flujo Admin */
+            .modal-institucional-admin { border-radius: 25px !important; overflow: hidden !important; border: none !important; padding: 0 !important; font-family: 'Montserrat', sans-serif, Arial; }
+            .swal2-styled.swal2-confirm { background-color: #ab0a3d !important; border-radius: 10px !important; padding: 10px 30px !important; }
+            .swal2-icon.swal2-success { border-color: #ab0a3d !important; color: #ab0a3d !important; }
+            .swal2-icon.swal2-success [class^='swal2-success-line'] { background-color: #ab0a3d !important; }
+            .swal2-icon.swal2-success .swal2-success-ring { border: 4px solid rgba(171, 10, 61, 0.3) !important; }
+            .swal2-icon.swal2-error { border-color: #ab0a3d !important; color: #ab0a3d !important; }
+            .swal2-icon.swal2-error [class^='swal2-x-mark-line'] { background-color: #ab0a3d !important; }
+            .swal2-loader { border-color: #ab0a3d transparent #ab0a3d transparent !important; }
         </style>`;
     document.head.insertAdjacentHTML("beforeend", headContenido);
 
-    // IMPORTANTE: Primero inyectamos todos los modales para que existan físicamente en el DOM
-    asegurarModalesEnBody();
-    // Luego pintamos el menú
+    asegurarTodosLosModalesEnBody();
     await renderizarMenu();
 
     if (window.clientSupa) {
@@ -341,16 +378,43 @@
     }
   });
 
-  // --- 5. CONTROLADOR CLAVE: ESCUCHADOR Y DELEGACIÓN DE EVENTOS ---
-  // Este bloque escucha los clicks globales del documento. Al usarse de esta manera,
-  // levantará los modales dinámicos sin importar si el click viene desde el menú o desde el index.html
+  // --- 5. ATENCION DE ACCESO ADMIN: CONTROL + ALT + DOBLE CLIC ---
+  const vincularAccesoAdmin = () => {
+    const brandLink = document.getElementById("link-admin-secret");
+    if (brandLink && !brandLink.dataset.adminVinculado) {
+      brandLink.dataset.adminVinculado = "true";
+
+      brandLink.addEventListener("dblclick", (e) => {
+        if (e.ctrlKey && e.altKey) {
+          e.preventDefault();
+          window.abrirLoginAdmin();
+        }
+      });
+
+      // Evitamos la redirección si intentan hacer el truco usando clics normales combinados
+      brandLink.addEventListener("click", (e) => {
+        if (e.ctrlKey && e.altKey) {
+          e.preventDefault();
+        }
+      });
+    }
+  };
+
+  const observer = new MutationObserver(() => vincularAccesoAdmin());
+  observer.observe(document.body, { childList: true, subtree: true });
+
+  // --- 6. CONTROLADOR CRÍTICO: DELEGACIÓN GLOBAL DE EVENTOS ---
   document.addEventListener("click", function (e) {
-    const trigger = e.target.closest('[data-toggle="modal"]');
-    if (trigger) {
+    const triggerModal = e.target.closest('[data-toggle="modal"]');
+    if (triggerModal) {
       e.preventDefault();
-      const targetId = trigger.getAttribute("data-target");
-      if (window.jQuery) {
+      const targetId = triggerModal.getAttribute("data-target");
+      if (window.jQuery && $(targetId).length) {
         $(targetId).modal("show");
+      } else {
+        console.warn(
+          `Bootstrap/jQuery no está listo o el target ${targetId} no existe.`,
+        );
       }
       return;
     }
@@ -390,17 +454,18 @@
     }
   });
 
-  // --- 6. PROCESAMIENTO DE SUBMITS (Supabase) ---
+  // --- 7. PROCESAMIENTO DE SUBMITS (Formularios dinámicos) ---
   document.addEventListener("submit", async (e) => {
     const targetId = e.target.id;
-    if (!["FormaLogin", "FormRegistro"].includes(targetId)) return;
+    if (!["FormaLogin", "FormRegistro", "FormaLoginAdmin"].includes(targetId))
+      return;
     e.preventDefault();
 
     const btnSubmit = e.target.querySelector('button[type="submit"]');
     const formData = new FormData(e.target);
     const datos = Object.fromEntries(formData);
 
-    // Submit de Login
+    // CONTROL DE ACCESO USUARIOS (FormaLogin)
     if (targetId === "FormaLogin") {
       try {
         if (btnSubmit) {
@@ -431,7 +496,76 @@
       }
     }
 
-    // Submit de Registro
+    // CONTROL DE ACCESO ADMIND (FormaLoginAdmin)
+    if (targetId === "FormaLoginAdmin") {
+      const adminUser = document.getElementById("admin-user").value;
+      const adminPass = document.getElementById("admin-pass").value;
+
+      if (!adminUser || !adminPass) {
+        window.AlertaAdmin(
+          "Atención",
+          "Por favor llene todos los campos",
+          "warning",
+        );
+        return;
+      }
+
+      try {
+        if (btnSubmit) {
+          btnSubmit.disabled = true;
+          btnSubmit.innerText = "VERIFICANDO...";
+        }
+
+        if (window.Swal) {
+          Swal.fire({
+            title: "VERIFICANDO",
+            customClass: { popup: "modal-institucional-admin" },
+            didOpen: () => Swal.showLoading(),
+            allowOutsideClick: false,
+          });
+        }
+
+        const { data, error } = await window.clientSupa.auth.signInWithPassword(
+          {
+            email: adminUser.toLowerCase().trim(),
+            password: adminPass,
+          },
+        );
+        if (error) throw new Error("Credenciales inválidas");
+
+        const { data: perfil } = await window.clientSupa
+          .from("usuarios")
+          .select("rol")
+          .eq("id", data.user.id)
+          .single();
+
+        if (!perfil || perfil.rol !== "ADMIN") {
+          await window.clientSupa.auth.signOut();
+          throw new Error("No tienes permisos de administrador");
+        }
+
+        if (window.jQuery && $("#ModalLoginAdmin").length) {
+          $("#ModalLoginAdmin").modal("hide");
+        }
+
+        window
+          .AlertaAdmin(
+            "¡Bienvenido!",
+            "Accediendo al panel de administración...",
+            "success",
+          )
+          .then(() => (window.location.href = "admin/admin_panel.html"));
+      } catch (err) {
+        if (window.Swal) Swal.close();
+        window.AlertaAdmin("Acceso Denegado", err.message, "error");
+        if (btnSubmit) {
+          btnSubmit.disabled = false;
+          btnSubmit.innerText = "INICIAR SESIÓN ADMIN";
+        }
+      }
+    }
+
+    // REGISTRO DE NUEVO PROVEEDOR (FormRegistro)
     if (targetId === "FormRegistro") {
       const rfcLimpio = datos.rfc
         .trim()
@@ -476,7 +610,7 @@
     }
   });
 
-  // --- 7. AYUDANTES GLOBALES MANTENIDOS ---
+  // --- 8. AYUDANTES GLOBALES Y MANEJO DE MODALES ---
   window.gestionarVisibilidadSeccion = function (
     idObjetivo,
     addToHistory = true,
@@ -503,11 +637,30 @@
     }
   };
 
+  window.AlertaAdmin = function (titulo, mensaje, icono = "info") {
+    if (window.Swal) {
+      return Swal.fire({
+        title: titulo.toUpperCase(),
+        text: mensaje,
+        icon: icono,
+        customClass: { popup: "modal-institucional-admin" },
+        confirmButtonText: "ACEPTAR",
+        buttonsStyling: true,
+      });
+    } else {
+      alert(`${titulo}: ${mensaje}`);
+      return Promise.resolve();
+    }
+  };
+
   window.abrirRegistro = () => {
     $("#ModalRegistro").modal("show");
   };
   window.abrirLogin = () => {
     $("#ModalLogin").modal("show");
+  };
+  window.abrirLoginAdmin = () => {
+    $("#ModalLoginAdmin").modal("show");
   };
   window.abrirRequisitos = () => {
     $("#modalRequisitos").modal("show");
