@@ -1,33 +1,11 @@
 /**
- * LÓGICA DE REGISTRO DE PROVEEDORES - VERSIÓN INTEGRAL PRO
+ * LÓGICA DE REGISTRO DE PROVEEDORES - VERSIÓN INTEGRAL CORREGIDA
  * Incluye: Datos Generales, Domicilio, Adicionales, Giros y Modal de Confirmación.
- * Optimizado contra errores de DOM Null y unificado estéticamente.
  */
 
 let PROVEEDOR_ID = null;
 let USER_DATA = {};
 let lineasSeleccionadas = []; // Variable global para manejar los giros
-
-// Función auxiliar segura para obtener valores del DOM sin romper el script
-const obtenerValorInput = (id) => {
-  const elemento = document.getElementById(id);
-  return elemento ? elemento.value.trim() : "";
-};
-
-// Función auxiliar para lanzar alertas institucionales uniformes
-function AlertaFormulario(titulo, mensaje, icono = "info") {
-  if (window.Swal) {
-    return Swal.fire({
-      title: titulo.toUpperCase(),
-      text: mensaje,
-      icon: icono,
-      customClass: { popup: "modal-institucional-admin" },
-      confirmButtonText: "ACEPTAR",
-      confirmButtonColor: "#ab0a3d",
-    });
-  }
-  return alert(`${titulo}: ${mensaje}`);
-}
 
 document.addEventListener("DOMContentLoaded", async () => {
   // 1. Navegación Inicial
@@ -53,7 +31,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  // 3. Inicio de Sesión y Carga Asíncrona
+  // 3. Inicio de Sesión y Carga
   setTimeout(async () => {
     if (!window.clientSupa) return;
     const {
@@ -61,7 +39,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     } = await window.clientSupa.auth.getSession();
     if (session) {
       PROVEEDOR_ID = session.user.id;
-      // Cargar catálogos concurrentes para ahorrar tiempo
+      // Cargar catálogos y datos
       await Promise.all([cargarEstados(), cargarAnios()]);
       configurarEscuchadores();
       await inicializarPagina();
@@ -85,15 +63,11 @@ async function inicializarPagina() {
       USER_DATA.tipo_persona = usuario.tipo_persona
         ? usuario.tipo_persona.toUpperCase().trim()
         : "";
-
-      const elRfc = document.getElementById("info-rfc");
-      const elCorreo = document.getElementById("info-correo");
-      const elTipo = document.getElementById("info-tipo-persona");
-
-      if (elRfc) elRfc.innerText = usuario.rfc || "---";
-      if (elCorreo) elCorreo.innerText = usuario.correo || "---";
-      if (elTipo) elTipo.innerText = USER_DATA.tipo_persona || "---";
-
+      document.getElementById("info-rfc").innerText = usuario.rfc || "---";
+      document.getElementById("info-correo").innerText =
+        usuario.correo || "---";
+      document.getElementById("info-tipo-persona").innerText =
+        USER_DATA.tipo_persona || "---";
       actualizarInterfazDocumentos();
     }
 
@@ -111,7 +85,7 @@ async function inicializarPagina() {
         elFolio.className = "text-success font-weight-bold";
       }
 
-      // Mapeo masivo de campos asistido
+      // Mapeo masivo de campos
       const campos = {
         num_acta: prov.num_acta,
         poder_notarial: prov.poder_notarial,
@@ -146,6 +120,7 @@ async function inicializarPagina() {
         }
       }
       actualizarInterfazDocumentos();
+      // Cargar giros guardados
       await cargarGirosGuardados();
     }
   } catch (e) {
@@ -186,6 +161,7 @@ function confirmarSeleccionModal() {
 }
 
 function renderizarListaLineas() {
+  // TOLERANCIA A ERRORES: Busca tanto el ID nuevo como el viejo del HTML para que nunca falle
   const contenedor =
     document.getElementById("lista-lineas-seleccionadas") ||
     document.getElementById("lista-seleccionados");
@@ -197,43 +173,36 @@ function renderizarListaLineas() {
       : lineasSeleccionadas
           .map(
             (l) => `
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-            <div><small class="text-primary">${l.giro_nombre}</small><br><b>${l.linea_nombre}</b></div>
-        </li>
-    `,
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div><small class="text-primary">${l.giro_nombre}</small><br><b>${l.linea_nombre}</b></div>
+            </li>
+        `,
           )
           .join("");
 }
 
-// --- 3. FUNCIONES DE GUARDADO SEGURO ---
+// --- 3. FUNCIONES DE GUARDADO ---
 
 async function guardarGenerales() {
-  if (window.Swal) Swal.showLoading();
-
   const payload = {
     id: PROVEEDOR_ID,
     rfc: USER_DATA.rfc,
     correo: USER_DATA.correo,
     tipo_persona: USER_DATA.tipo_persona,
-    num_acta: obtenerValorInput("num_acta"),
-    poder_notarial: obtenerValorInput("poder_notarial"),
-    nombre_comercial: obtenerValorInput("nombre_comercial"),
-    rep_nombre: obtenerValorInput("rep_nombre"),
-    rep_paterno: obtenerValorInput("rep_paterno"),
-    rep_materno: obtenerValorInput("rep_materno"),
-    tipo_identificacion: obtenerValorInput("select_tipo_doc"),
-    num_identificacion: obtenerValorInput("num_identificacion"),
+    num_acta: document.getElementById("num_acta").value,
+    poder_notarial: document.getElementById("poder_notarial").value,
+    nombre_comercial: document.getElementById("nombre_comercial").value,
+    rep_nombre: document.getElementById("rep_nombre").value,
+    rep_paterno: document.getElementById("rep_paterno").value,
+    rep_materno: document.getElementById("rep_materno").value,
+    tipo_identificacion: document.getElementById("select_tipo_doc").value,
+    num_identificacion: document.getElementById("num_identificacion").value,
     updated_at: new Date().toISOString(),
   };
 
   const { error } = await window.clientSupa.from("proveedores").upsert(payload);
-
   if (!error) {
-    AlertaFormulario(
-      "Éxito",
-      "Datos Generales guardados correctamente.",
-      "success",
-    );
+    alert("✅ Datos Generales guardados.");
     actualizarInterfazDocumentos();
     bloquearSeccionYPestaña(
       [
@@ -249,37 +218,30 @@ async function guardarGenerales() {
       "#Generales",
     );
   } else {
-    AlertaFormulario(
-      "Error",
-      "No se guardaron los Datos Generales: " + error.message,
-      "error",
-    );
+    alert("❌ Error en Datos Generales: " + error.message);
   }
 }
 
 async function guardarDomicilio() {
-  if (window.Swal) Swal.showLoading();
-
   const payload = {
     id: PROVEEDOR_ID,
     rfc: USER_DATA.rfc,
     correo: USER_DATA.correo,
     tipo_persona: USER_DATA.tipo_persona,
-    estado: obtenerValorInput("select-estado"),
-    municipio: obtenerValorInput("select-municipio"),
-    localidad: obtenerValorInput("localidad"),
-    vialidad: obtenerValorInput("vialidad"),
-    num_ext: obtenerValorInput("num_ext"),
-    num_int: obtenerValorInput("num_int"),
-    colonia: obtenerValorInput("colonia"),
-    cp: obtenerValorInput("cp"),
+    estado: document.getElementById("select-estado").value,
+    municipio: document.getElementById("select-municipio").value,
+    localidad: document.getElementById("localidad").value,
+    vialidad: document.getElementById("vialidad").value,
+    num_ext: document.getElementById("num_ext").value,
+    num_int: document.getElementById("num_int").value,
+    colonia: document.getElementById("colonia").value,
+    cp: document.getElementById("cp").value,
     updated_at: new Date().toISOString(),
   };
 
   const { error } = await window.clientSupa.from("proveedores").upsert(payload);
-
   if (!error) {
-    AlertaFormulario("Éxito", "Domicilio guardado con éxito.", "success");
+    alert("✅ Domicilio guardado.");
     bloquearSeccionYPestaña(
       [
         "select-estado",
@@ -294,63 +256,49 @@ async function guardarDomicilio() {
       "#Domicilio",
     );
   } else {
-    AlertaFormulario(
-      "Error",
-      "No se guardó el Domicilio: " + error.message,
-      "error",
-    );
+    alert("❌ Error en Domicilio: " + error.message);
   }
 }
 
 async function guardarAdicionales() {
   if (!lineasSeleccionadas || lineasSeleccionadas.length === 0) {
-    return AlertaFormulario(
-      "Atención",
-      "Selecciona al menos un giro comercial antes de guardar.",
-      "warning",
-    );
+    return alert("⚠️ Selecciona al menos un giro.");
   }
-
-  if (window.Swal) Swal.showLoading();
 
   const payload = {
     id: PROVEEDOR_ID,
     rfc: USER_DATA.rfc,
     correo: USER_DATA.correo,
     tipo_persona: USER_DATA.tipo_persona,
-    telefono: obtenerValorInput("input-telefono"),
-    capacidad_crediticia: obtenerValorInput("select-capacidad"),
-    num_empleados: obtenerValorInput("select-empleados"),
-    anio_inicio: obtenerValorInput("select-anio"),
+    telefono: document.getElementById("input-telefono").value,
+    capacidad_crediticia: document.getElementById("select-capacidad").value,
+    num_empleados: document.getElementById("select-empleados").value,
+    anio_inicio: document.getElementById("select-anio").value,
     updated_at: new Date().toISOString(),
   };
 
-  // 1. Guardar metadatos del proveedor
+  // 1. Guardar datos numéricos/texto en la tabla principal de proveedores
   const { error: errorProv } = await window.clientSupa
     .from("proveedores")
     .upsert(payload);
   if (errorProv) {
-    return AlertaFormulario(
-      "Error",
-      "Error al guardar adicionales: " + errorProv.message,
-      "error",
-    );
+    console.error("Error en proveedores:", errorProv);
+    return alert("❌ Error al guardar datos adicionales: " + errorProv.message);
   }
 
-  // 2. Limpiar asociaciones de giros previos
+  // 2. Limpiar asociaciones de giros previos para actualización limpia
   const { error: errorDel } = await window.clientSupa
     .from("proveedor_giros")
     .delete()
     .eq("proveedor_id", PROVEEDOR_ID);
   if (errorDel) {
-    return AlertaFormulario(
-      "Error",
-      "Error al actualizar líneas comerciales: " + errorDel.message,
-      "error",
+    console.error("Error al limpiar giros:", errorDel);
+    return alert(
+      "❌ Error al limpiar líneas comerciales previas: " + errorDel.message,
     );
   }
 
-  // 3. Registrar los giros actuales masivamente
+  // 3. Registrar la lista actual de giros seleccionados
   const girosInsert = lineasSeleccionadas.map((l) => ({
     proveedor_id: PROVEEDOR_ID,
     giro_id: l.giro_id,
@@ -362,20 +310,15 @@ async function guardarAdicionales() {
   const { error: errorIns } = await window.clientSupa
     .from("proveedor_giros")
     .insert(girosInsert);
-
   if (errorIns) {
-    return AlertaFormulario(
-      "Error",
-      "Error al registrar giros: " + errorIns.message,
-      "error",
+    console.error("Error al insertar giros:", errorIns);
+    return alert(
+      "❌ Error al registrar las nuevas líneas comerciales: " +
+        errorIns.message,
     );
   }
 
-  AlertaFormulario(
-    "Éxito",
-    "Datos Adicionales y Giros guardados correctamente.",
-    "success",
-  );
+  alert("✅ Adicionales y Giros guardados.");
   bloquearSeccionYPestaña(
     ["input-telefono", "select-capacidad", "select-empleados", "select-anio"],
     "#Adicionales",
@@ -388,9 +331,9 @@ function actualizarInterfazDocumentos() {
   const tipo = USER_DATA.tipo_persona;
   const esMoral = tipo === "MORAL";
 
+  // Cambiar etiquetas de Actas
   const lblActaGen = document.getElementById("label-acta");
   const lblActaFin = document.getElementById("label-acta-texto");
-
   if (lblActaGen)
     lblActaGen.innerHTML = esMoral
       ? '<span class="text-danger">*</span> Acta Constitutiva:'
@@ -400,11 +343,13 @@ function actualizarInterfazDocumentos() {
       ? "Adjuntar Acta Constitutiva:"
       : "Adjuntar Acta de Nacimiento:";
 
+  // Poder Notarial
   const cPoderGen = document.getElementById("contenedor-poder-notarial");
   const cPoderFin = document.getElementById("seccion-poder-notarial");
   if (cPoderGen) cPoderGen.style.display = esMoral ? "flex" : "none";
   if (cPoderFin) cPoderFin.style.display = esMoral ? "flex" : "none";
 
+  // Identificaciones
   const selDoc = document.getElementById("select_tipo_doc");
   if (selDoc && selDoc.selectedIndex !== -1) {
     const txt = selDoc.options[selDoc.selectedIndex].text;
@@ -444,7 +389,6 @@ async function cargarMunicipios(id) {
 }
 
 async function cargarAnios() {
-  // Nota: Se lee desde la tabla 'años' configurada en Supabase
   const { data } = await window.clientSupa
     .from("años")
     .select("año")
@@ -470,7 +414,6 @@ function bloquearSeccionYPestaña(camposIds, idTab) {
     document.querySelector(`a[href="${idTab}"] i.fa-circle`) ||
     document.querySelector(`a[href="${idTab}"] i.fa-check-circle`);
   if (icono) icono.className = "fas fa-check-circle mr-1 text-success";
-
   camposIds.forEach((id) => {
     const el = document.getElementById(id);
     if (el) {

@@ -9,11 +9,6 @@
       rel="icon"
       href="https://onckgyxtttcbddezmnsj.supabase.co/storage/v1/object/public/LOGO/Logotipo%20sin%20fondo.png"
     />
-
-    <link rel="preconnect" href="https://cdn.jsdelivr.net" />
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
-    <link rel="preconnect" href="https://onckgyxtttcbddezmnsj.supabase.co" />
-
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
@@ -27,16 +22,11 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
-
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="/css/style-modales.css" />
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
       #nav-placeholder {
@@ -959,15 +949,17 @@
         </div>
       </section>
     </main>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.105.1/dist/umd/supabase.min.js"></script>
+
+    <script src="/js/conexion-supabase.js"></script>
+    <script src="/js/menu.js"></script>
+    <script src="/js/modal.js"></script>
+    <script src="/inicio/formularios.js"></script>
+
     <script>
-      window.esUsuarioNuevo = true; // Esto vendrá de tu base de datos después
+      window.esUsuarioNuevo = true; // Esto debería venir de tu base de datos después
     </script>
 
-    <script src="js/conexion-supabase.js"></script>
-
-    <script src="js/menu.js"></script>
-    <script src="js/modales.js"></script>
-
-    <script src="inicio/formularios.js"></script>
+    <div id="footer-placeholder"></div>
   </body>
 </html>
