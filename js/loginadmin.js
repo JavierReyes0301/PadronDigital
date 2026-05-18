@@ -130,7 +130,7 @@ async function abrirLoginAdmin() {
     customClass: { popup: "modal-institucional-admin" },
     html: `
       <div class="modal-header-admin">
-          <h2>Acceso al Panel de Administración</h2>
+          <h2>Panel de Administración</h2>
       </div>
       <div style="padding: 30px;">
           <form id="FormaLoginAdmin">
