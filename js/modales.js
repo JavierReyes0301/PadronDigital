@@ -260,6 +260,10 @@
 
     document.body.insertAdjacentHTML("beforeend", modalesHTML);
   }
+
+  // --- VARIABLES DE CONTROL DE FLUJO (Asegurar Ámbito) ---
+  let estadoSesionActual = "SIN_SESION";
+
   // --- 3. RENDERIZADO DEL MENÚ NAVBAR ---
   async function renderizarMenu() {
     if (estaRenderizandoMenu) return;
@@ -280,10 +284,7 @@
 
     try {
       if (window.clientSupa) {
-        const {
-          data: { session },
-          error,
-        } = await window.clientSupa.auth.getSession();
+        const { data: { session }, error } = await window.clientSupa.auth.getSession();
         if (error) throw error;
 
         if (session) {
@@ -326,7 +327,7 @@
         </nav>`;
 
     document.dispatchEvent(new CustomEvent("navbarCargada"));
-    vincularAccesoAdmin(); // Se vincula el atajo tras renderizar la marca
+    vincularAccesoAdmin(); 
     estaRenderizandoMenu = false;
   }
   window.renderizarMenu = renderizarMenu;
@@ -348,7 +349,6 @@
             .contenido-seccion { display: none; }
             .contenido-seccion.activa { display: block !important; }
             
-            /* Clases añadidas para estilización nativa de SweetAlert en el flujo Admin */
             .modal-institucional-admin { border-radius: 25px !important; overflow: hidden !important; border: none !important; padding: 0 !important; font-family: 'Montserrat', sans-serif, Arial; }
             .swal2-styled.swal2-confirm { background-color: #ab0a3d !important; border-radius: 10px !important; padding: 10px 30px !important; }
             .swal2-icon.swal2-success { border-color: #ab0a3d !important; color: #ab0a3d !important; }
@@ -409,14 +409,16 @@
   document.addEventListener("click", function (e) {
     const triggerModal = e.target.closest('[data-toggle="modal"]');
     if (triggerModal) {
-      e.preventDefault();
+      // Dejar que Bootstrap maneje el modal de forma nativa. Solo intervenimos si jQuery no responde automáticamente.
       const targetId = triggerModal.getAttribute("data-target");
-      if (window.jQuery && $(targetId).length) {
-        $(targetId).modal("show");
+      if (window.jQuery && typeof $.fn.modal === 'function') {
+        const modalElement = $(targetId);
+        if (modalElement.length && !modalElement.hasClass('show')) {
+          e.preventDefault();
+          modalElement.modal("show");
+        }
       } else {
-        console.warn(
-          `Bootstrap/jQuery no está listo o el target ${targetId} no existe.`,
-        );
+        console.warn(`Librerías de Bootstrap/jQuery no detectadas para inicializar: ${targetId}`);
       }
       return;
     }
@@ -431,8 +433,7 @@
       if (esPaginaInicio) {
         window.gestionarVisibilidadSeccion(idObjetivo);
       } else {
-        const enSubcarpeta =
-          pathActual.includes("/inicio/") || pathActual.includes("/paginas/");
+        const enSubcarpeta = pathActual.includes("/inicio/") || pathActual.includes("/paginas/");
         const baseInicio = enSubcarpeta ? "inicio.html" : "inicio/inicio.html";
         window.location.href = `${baseInicio}?sec=${idObjetivo}`;
       }
@@ -459,8 +460,7 @@
   // --- 7. PROCESAMIENTO DE SUBMITS (Formularios dinámicos) ---
   document.addEventListener("submit", async (e) => {
     const targetId = e.target.id;
-    if (!["FormaLogin", "FormRegistro", "FormaLoginAdmin"].includes(targetId))
-      return;
+    if (!["FormaLogin", "FormRegistro", "FormaLoginAdmin"].includes(targetId)) return;
     e.preventDefault();
 
     const btnSubmit = e.target.querySelector('button[type="submit"]');
@@ -480,13 +480,12 @@
         });
         if (error) throw error;
 
-        if (window.jQuery && $("#ModalLogin").length) {
-          $("#ModalLogin").modal("hide");
+        if (window.jQuery) {
+          const mLogin = $("#ModalLogin").length ? $("#ModalLogin") : $("#modalLogin");
+          mLogin.modal("hide");
         }
 
-        const enSubcarpeta =
-          window.location.pathname.includes("/inicio/") ||
-          window.location.pathname.includes("/paginas/");
+        const enSubcarpeta = window.location.pathname.includes("/inicio/") || window.location.pathname.includes("/paginas/");
         const baseDestino = enSubcarpeta ? "inicio.html" : "inicio/inicio.html";
         window.location.href = `${baseDestino}?sec=seccion-bienvenida`;
       } catch (err) {
@@ -504,11 +503,7 @@
       const adminPass = document.getElementById("admin-pass")?.value;
 
       if (!adminUser || !adminPass) {
-        window.AlertaAdmin(
-          "Atención",
-          "Por favor llene todos los campos",
-          "warning",
-        );
+        window.AlertaAdmin("Atención", "Por favor llene todos los campos", "warning");
         return;
       }
 
@@ -527,11 +522,10 @@
           });
         }
 
-        const { data, error: authError } =
-          await window.clientSupa.auth.signInWithPassword({
-            email: adminUser.toLowerCase().trim(),
-            password: adminPass,
-          });
+        const { data, error: authError } = await window.clientSupa.auth.signInWithPassword({
+          email: adminUser.toLowerCase().trim(),
+          password: adminPass,
+        });
         if (authError) throw new Error("Credenciales inválidas");
 
         const { data: perfil, error: dbError } = await window.clientSupa
@@ -545,16 +539,12 @@
           throw new Error("No tienes permisos de administrador");
         }
 
-        if (window.jQuery && $("#ModalLoginAdmin").length) {
-          $("#ModalLoginAdmin").modal("hide");
+        if (window.jQuery) {
+          const mAdmin = $("#ModalLoginAdmin").length ? $("#ModalLoginAdmin") : $("#modalLoginAdmin");
+          mAdmin.modal("hide");
         }
 
-        window
-          .AlertaAdmin(
-            "¡Bienvenido!",
-            "Accediendo al panel de administración...",
-            "success",
-          )
+        window.AlertaAdmin("¡Bienvenido!", "Accediendo al panel de administración...", "success")
           .then(() => {
             window.location.href = "admin/admin_panel.html";
           });
@@ -570,11 +560,7 @@
 
     // REGISTRO DE NUEVO PROVEEDOR (FormRegistro)
     if (targetId === "FormRegistro") {
-      const rfcLimpio =
-        datos.rfc
-          ?.trim()
-          .toUpperCase()
-          .replace(/[^A-Z0-9]/g, "") || "";
+      const rfcLimpio = datos.rfc?.trim().toUpperCase().replace(/[^A-Z0-9]/g, "") || "";
 
       if (!document.getElementById("checkAviso")?.checked) {
         return alert("Debe aceptar el aviso de privacidad.");
@@ -601,20 +587,24 @@
         });
         if (error) throw error;
 
-        alert(
-          "¡Registro enviado! Por favor, revise su correo para confirmar su cuenta.",
-        );
-        if (window.jQuery) $("#ModalRegistro").modal("hide");
+        alert("¡Registro enviado! Por favor, revise su correo para confirmar su cuenta.");
+        if (window.jQuery) {
+          const mReg = $("#ModalRegistro").length ? $("#ModalRegistro") : $("#modalRegistro");
+          mReg.modal("hide");
+        }
         e.target.reset();
       } catch (err) {
         if (err.message && err.message.includes("changedAccessToken")) {
           alert("¡Registro completado! Revise su correo.");
-          if (window.jQuery) $("#ModalRegistro").modal("hide");
+          if (window.jQuery) {
+            const mReg = $("#ModalRegistro").length ? $("#ModalRegistro") : $("#modalRegistro");
+            mReg.modal("hide");
+          }
           e.target.reset();
         } else {
           alert("Error: " + (err.message || "Error desconocido"));
         }
-      } finally {
+      } finaly {
         if (btnSubmit) {
           btnSubmit.disabled = false;
           btnSubmit.innerText = "CONTINUAR REGISTRO";
@@ -624,14 +614,9 @@
   });
 
   // --- 8. AYUDANTES GLOBALES Y MANEJO DE MODALES ---
-  window.gestionarVisibilidadSeccion = function (
-    idObjetivo,
-    addToHistory = true,
-  ) {
+  window.gestionarVisibilidadSeccion = function (idObjetivo, addToHistory = true) {
     const secciones = document.querySelectorAll(".contenido-seccion");
-    secciones.forEach((sec) => {
-      sec.style.display = "none";
-    });
+    secciones.forEach((sec) => { sec.style.display = "none"; });
 
     const seccionAMostrar = document.getElementById(idObjetivo);
     if (seccionAMostrar) {
@@ -650,9 +635,7 @@
       } catch (e) {
         console.error("Error al cerrar sesión:", e);
       } finally {
-        const enSubcarpeta =
-          window.location.pathname.includes("/inicio/") ||
-          window.location.pathname.includes("/paginas/");
+        const enSubcarpeta = window.location.pathname.includes("/inicio/") || window.location.pathname.includes("/paginas/");
         window.location.href = enSubcarpeta ? "../index.html" : "index.html";
       }
     }
@@ -674,22 +657,11 @@
     }
   };
 
-  window.abrirRegistro = () => {
-    if (window.jQuery) $("#ModalRegistro").modal("show");
-  };
-  window.abrirLogin = () => {
-    if (window.jQuery) $("#ModalLogin").modal("show");
-  };
-  window.abrirLoginAdmin = () => {
-    if (window.jQuery) $("#ModalLoginAdmin").modal("show");
-  };
-  window.abrirRequisitos = () => {
-    if (window.jQuery) $("#modalRequisitos").modal("show");
-  };
-  window.abrirFormatos = () => {
-    if (window.jQuery) $("#modalFormatos").modal("show");
-  };
-  window.abrirPreguntas = () => {
-    if (window.jQuery) $("#ModalPreguntas").modal("show");
-  };
+  // Manejo de modales flexible (Acepta variaciones de ID en mayúsculas/minúsculas)
+  window.abrirRegistro = () => { if (window.jQuery) ($("#ModalRegistro").length ? $("#ModalRegistro") : $("#modalRegistro")).modal("show"); };
+  window.abrirLogin = () => { if (window.jQuery) ($("#ModalLogin").length ? $("#ModalLogin") : $("#modalLogin")).modal("show"); };
+  window.abrirLoginAdmin = () => { if (window.jQuery) ($("#ModalLoginAdmin").length ? $("#ModalLoginAdmin") : $("#modalLoginAdmin")).modal("show"); };
+  window.abrirRequisitos = () => { if (window.jQuery) ($("#modalRequisitos").length ? $("#modalRequisitos") : $("#modalRequisitos")).modal("show"); };
+  window.abrirFormatos = () => { if (window.jQuery) ($("#modalFormatos").length ? $("#modalFormatos") : $("#modalFormatos")).modal("show"); };
+  window.abrirPreguntas = () => { if (window.jQuery) ($("#ModalPreguntas").length ? $("#ModalPreguntas") : $("#modalPreguntas")).modal("show"); };
 })();
