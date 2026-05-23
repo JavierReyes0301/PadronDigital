@@ -1,7 +1,7 @@
 /**
  * ============================================================================
- * ARCHIVO: LOGIC_GLOBAL_NAV.JS
- * NÚCLEO DE NAVEGACIÓN Y AUTENTICACIÓN - ARCHIVO PROTEGIDO (NO MODIFICAR)
+ * ARCHIVO UNIFICADO: LOGIC_GLOBAL_NAV.JS
+ * NÚCLEO DE NAVEGACIÓN, AUTENTICACIÓN DE USUARIOS Y CONTROL ADMINISTRATIVO
  * ============================================================================
  */
 
@@ -24,48 +24,79 @@ const ICONOS = {
 let estadoSesionActual = null;
 let estaRenderizandoMenu = false;
 
-// --- 2. INYECCIÓN DEL MODAL (Aislado completamente del Menú) ---
-function asegurarModalLoginEnBody() {
-  if (document.getElementById("ModalLogin")) return;
-
+// --- 2. INYECCIÓN DE MODALES (Estructura visual idéntica para ambos) ---
+function asegurarModalesEnBody() {
   const pathActual = window.location.pathname;
   const enSubcarpeta =
     pathActual.includes("/inicio/") || pathActual.includes("/paginas/");
   const rutaRestaurar = enSubcarpeta ? "../restaurar.html" : "restaurar.html";
 
-  const modalLoginHTML = `
-    <div class="modal fade" id="ModalLogin" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content modal-caja-login">
-                <div class="modal-header-login">
-                    <h2>Inicio de Sesión</h2>
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                </div>
-                <div class="modal-body" style="padding: 30px;">
-                    <form id="FormaLogin">
-                        <div class="form-group-custom">
-                            <label>Correo Electrónico:</label>
-                            <input type="email" name="correo_login" class="input-institucional" placeholder="ejemplo@correo.com" required />
-                        </div>
-                        <div class="form-group-custom">
-                            <label>Contraseña:</label>
-                            <input type="password" name="password_login" class="input-institucional" placeholder="********" required />
-                        </div>
-                        <button type="submit" id="btn-submit-login" class="btn-registro-continuar" style="width:100%; margin-top:10px;">INICIAR SESIÓN</button>
-                    </form>
-                    <div style="text-align:center; margin-top:20px;">
-                        <a href="${rutaRestaurar}" style="font-size:0.9rem; color:#ab0a3d; font-weight:700; text-decoration:none;">¿Olvidó su contraseña?</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>`;
+  // Inyectar Modal de Usuario General si no existe
+  if (!document.getElementById("ModalLogin")) {
+    const modalLoginHTML = `
+      <div class="modal fade" id="ModalLogin" tabindex="-1" role="dialog" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content modal-caja-login">
+                  <div class="modal-header-login">
+                      <h2>Inicio de Sesión</h2>
+                      <button type="button" class="close" data-dismiss="modal">&times;</button>
+                  </div>
+                  <div class="modal-body" style="padding: 30px;">
+                      <form id="FormaLogin">
+                          <div class="form-group-custom">
+                              <label>Correo Electrónico:</label>
+                              <input type="email" name="correo_login" class="input-institucional" placeholder="ejemplo@correo.com" required />
+                          </div>
+                          <div class="form-group-custom">
+                              <label>Contraseña:</label>
+                              <input type="password" name="password_login" class="input-institucional" placeholder="********" required />
+                          </div>
+                          <button type="submit" id="btn-submit-login" class="btn-registro-continuar" style="width:100%; margin-top:10px;">INICIAR SESIÓN</button>
+                      </form>
+                      <div style="text-align:center; margin-top:20px;">
+                          <a href="${rutaRestaurar}" style="font-size:0.9rem; color:#ab0a3d; font-weight:700; text-decoration:none;">¿Olvidó su contraseña?</a>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>`;
+    document.body.insertAdjacentHTML("beforeend", modalLoginHTML);
+    configurarEventoSubmitLogin();
+  }
 
-  document.body.insertAdjacentHTML("beforeend", modalLoginHTML);
-  configurarEventoSubmitLogin();
+  // Inyectar Modal de Administrador (Reutilizando las clases idénticas del menú index)
+  if (!document.getElementById("ModalLoginAdmin")) {
+    const modalAdminHTML = `
+      <div class="modal fade" id="ModalLoginAdmin" tabindex="-1" role="dialog" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content modal-caja-login">
+                  <div class="modal-header-login">
+                      <h2>Acceso Administrativo</h2>
+                      <button type="button" class="close" data-dismiss="modal">&times;</button>
+                  </div>
+                  <div class="modal-body" style="padding: 30px;">
+                      <form id="FormaLoginAdmin">
+                          <div class="form-group-custom">
+                              <label>Correo Electrónico:</label>
+                              <input type="email" name="correo_admin" id="admin-user" class="input-institucional" placeholder="admin@correo.com" required />
+                          </div>
+                          <div class="form-group-custom">
+                              <label>Contraseña:</label>
+                              <input type="password" name="password_admin" id="admin-pass" class="input-institucional" placeholder="********" required />
+                          </div>
+                          <button type="submit" id="btn-submit-admin" class="btn-registro-continuar" style="width:100%; margin-top:10px;">INICIAR SESIÓN PANEL</button>
+                      </form>
+                  </div>
+              </div>
+          </div>
+      </div>`;
+    document.body.insertAdjacentHTML("beforeend", modalAdminHTML);
+    configurarEventoSubmitAdmin();
+  }
 }
 
-// Escuchador del formulario de login (Se vincula una sola vez de forma segura)
+// --- 3. PROCESOS DE AUTENTICACIÓN (SUBMITS) ---
+
 function configurarEventoSubmitLogin() {
   const formaLogin = document.getElementById("FormaLogin");
   if (!formaLogin) return;
@@ -88,7 +119,6 @@ function configurarEventoSubmitLogin() {
       });
       if (error) throw error;
 
-      // Cerrar modal limpiamente usando jQuery nativo de Bootstrap antes de redirigir
       if (window.jQuery && $("#ModalLogin").length) {
         $("#ModalLogin").modal("hide");
       }
@@ -108,7 +138,56 @@ function configurarEventoSubmitLogin() {
   };
 }
 
-// --- 3. RENDERIZADO DEL MENÚ NAVBAR ---
+function configurarEventoSubmitAdmin() {
+  const formaAdmin = document.getElementById("FormaLoginAdmin");
+  if (!formaAdmin) return;
+
+  formaAdmin.onsubmit = async (e) => {
+    e.preventDefault();
+    const btnSubmit = document.getElementById("btn-submit-admin");
+    const email = document.getElementById("admin-user").value;
+    const password = document.getElementById("admin-pass").value;
+
+    try {
+      if (btnSubmit) {
+        btnSubmit.disabled = true;
+        btnSubmit.innerText = "VALIDANDO ROL...";
+      }
+
+      const { data, error } = await window.clientSupa.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (error) throw new Error("Credenciales inválidas");
+
+      const { data: perfil, error: errorPerfil } = await window.clientSupa
+        .from("usuarios")
+        .select("rol")
+        .eq("id", data.user.id)
+        .single();
+
+      if (errorPerfil || !perfil || perfil.rol !== "ADMIN") {
+        await window.clientSupa.auth.signOut();
+        throw new Error("No cuentas con privilegios de Administrador.");
+      }
+
+      if (window.jQuery && $("#ModalLoginAdmin").length) {
+        $("#ModalLoginAdmin").modal("hide");
+      }
+
+      alert("¡Bienvenido al Panel de Control!");
+      window.location.href = "admin/admin_panel.html";
+    } catch (err) {
+      alert("Acceso Denegado: " + err.message);
+      if (btnSubmit) {
+        btnSubmit.disabled = false;
+        btnSubmit.innerText = "INICIAR SESIÓN PANEL";
+      }
+    }
+  };
+}
+
+// --- 4. RENDERIZADO DEL MENÚ NAVBAR ---
 async function renderizarMenu() {
   if (estaRenderizandoMenu) return;
   estaRenderizandoMenu = true;
@@ -175,9 +254,8 @@ async function renderizarMenu() {
 }
 window.renderizarMenu = renderizarMenu;
 
-// --- 4. CONFIGURACIÓN E INICIALIZACIÓN DE EVENTOS GENERALES ---
+// --- 5. CONFIGURACIÓN E INICIALIZACIÓN DE EVENTOS GENERALES ---
 document.addEventListener("DOMContentLoaded", async function () {
-  // 1. Inyectar estilos estructurales fijos
   const headContenido = `
     <style>
         html, body { height: 100%; margin: 0; }
@@ -195,15 +273,12 @@ document.addEventListener("DOMContentLoaded", async function () {
     </style>`;
   document.head.insertAdjacentHTML("beforeend", headContenido);
 
-  // 2. Asegurar que el modal y el menú existan de entrada
-  asegurarModalLoginEnBody();
+  asegurarModalesEnBody();
   await renderizarMenu();
 
-  // 3. Suscripción inteligente y blindada a cambios de autenticación en Supabase
   if (window.clientSupa) {
     window.clientSupa.auth.onAuthStateChange(async (event, session) => {
       const estadoObjetivo = session ? "CON_SESION" : "SIN_SESION";
-      // Solo altera el DOM si de verdad hubo un cambio real en el estado de la sesión
       if (
         (event === "SIGNED_IN" || event === "SIGNED_OUT") &&
         estadoObjetivo !== estadoSesionActual
@@ -213,16 +288,14 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   }
 
-  // 4. Cargar Footer fijo
   const footerPlaceholder = document.getElementById("footer-placeholder");
   if (footerPlaceholder) {
     footerPlaceholder.innerHTML = `<footer class="mi-footer">© 2026 H. Ayuntamiento. Todos los derechos reservados.</footer>`;
   }
 });
 
-// --- 5. DELEGACIÓN GLOBAL DE EVENTOS (Para clicks del menú dinámico) ---
+// --- 6. DELEGACIÓN GLOBAL DE EVENTOS ---
 document.addEventListener("click", function (e) {
-  // Handler para links de navegación dinámicos (.nav-action-link)
   const linkAccion = e.target.closest(".nav-action-link");
   if (linkAccion) {
     e.preventDefault();
@@ -241,14 +314,18 @@ document.addEventListener("click", function (e) {
     return;
   }
 
-  // Handler para el botón cerrar sesión (#btn-logout)
+  const brandLink = e.target.closest("#link-admin-secret");
+  if (brandLink) {
+    window.location.hash = "inicio";
+    return;
+  }
+
   if (e.target.closest("#btn-logout")) {
     e.preventDefault();
     window.cerrarSesion();
     return;
   }
 
-  // Handler para el menú móvil adaptativo (#btn-toggle)
   if (e.target.closest("#btn-toggle")) {
     const btnToggle = document.getElementById("btn-toggle");
     const navMenu = document.getElementById("nav-menu");
@@ -260,7 +337,17 @@ document.addEventListener("click", function (e) {
   }
 });
 
-// --- 6. FUNCIONES GLOBALES DE CONTROL ---
+// Handler global para atajo de teclado puro (Ctrl + Alt + A) -> Única vía de acceso administrativo
+document.addEventListener("keydown", function (e) {
+  if (e.ctrlKey && e.altKey && (e.key === "a" || e.key === "A")) {
+    e.preventDefault();
+    if (window.jQuery) {
+      $("#ModalLoginAdmin").modal("show");
+    }
+  }
+});
+
+// --- 7. FUNCIONES GLOBALES DE CONTROL ---
 function gestionarVisibilidadSeccion(idObjetivo, addToHistory = true) {
   const secciones = document.querySelectorAll(".contenido-seccion");
   secciones.forEach((sec) => (sec.style.display = "none"));
