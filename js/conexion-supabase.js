@@ -27,22 +27,39 @@ if (typeof supabase !== "undefined") {
   window.clientSupa = instanciaSupa;
   console.log("🟢 Supabase: Cliente inicializado correctamente.");
 
-  // 3. ESCUCHADOR DE CAMBIOS DE SESIÓN (AJUSTADO)
+  // 3. ESCUCHADOR DE CAMBIOS DE SESIÓN CENTRALIZADO
   window.clientSupa.auth.onAuthStateChange((event, session) => {
     console.log("⚡ Supabase Evento detectado:", event);
 
-    // Buscamos la función de redibujar el menú en el ámbito global (window)
-    // Esto soluciona el conflicto si la función se llama renderizarMenu o actualizarMenuUsuario
-    const funcActualizar =
-      window.renderizarMenu || window.actualizarMenuUsuario;
+    // Creamos una función interna para intentar ejecutar la actualización visual
+    const intentarActualizarUI = () => {
+      const funcActualizar =
+        window.renderizarMenu || window.actualizarMenuUsuario;
 
-    if (typeof funcActualizar === "function") {
-      console.log("🔄 Actualizando interfaz de usuario...");
-      funcActualizar();
-    } else {
+      if (typeof funcActualizar === "function") {
+        console.log(
+          "🔄 Actualizando interfaz de usuario desde el nodo central...",
+        );
+        funcActualizar();
+        return true; // Éxito
+      }
+      return false; // Aún no está lista la función
+    };
+
+    // 1er intento: Ejecución inmediata
+    if (!intentarActualizarUI()) {
       console.warn(
-        "⚠️ Advertencia: No se encontró la función para redibujar el menú (renderizarMenu).",
+        "⚠️ Interfaz no lista en memoria. Programando reintento dinámico...",
       );
+
+      // 2do intento: Si la función no existe, esperamos a que el DOM esté completamente listo
+      // y cedemos el turno en la cola de ejecución (Event Loop) para que carguen los otros JS
+      document.addEventListener("DOMContentLoaded", () => {
+        if (!intentarActualizarUI()) {
+          // 3er intento defensivo: Un micro-retraso técnico (0ms) solo si el JS de la UI viene muy pesado
+          setTimeout(intentarActualizarUI, 0);
+        }
+      });
     }
   });
 } else {
@@ -53,9 +70,9 @@ if (typeof supabase !== "undefined") {
     nav.insertAdjacentHTML(
       "afterbegin",
       ` <div class="alert alert-danger text-center mb-0" style="z-index: 9999; position: relative;"> 
-                <strong>Error de Conexión:</strong> Los servicios de base de datos no están disponibles. 
-                <button onclick="location.reload()" class="btn btn-sm btn-outline-danger ml-2">Reintentar</button> 
-              </div> `,
+              <strong>Error de Conexión:</strong> Los servicios de base de datos no están disponibles. 
+              <button onclick="location.reload()" class="btn btn-sm btn-outline-danger ml-2">Reintentar</button> 
+            </div> `,
     );
   }
 }
