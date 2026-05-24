@@ -1,8 +1,3 @@
-/**
- * LÓGICA DE REGISTRO DE PROVEEDORES - VERSIÓN INTEGRAL CORREGIDA
- * Incluye: Datos Generales, Domicilio, Adicionales, Giros y Modal de Confirmación.
- */
-
 let PROVEEDOR_ID = null;
 let USER_DATA = {};
 let lineasSeleccionadas = []; // Variable global para manejar los giros
@@ -31,20 +26,23 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  // 3. Inicio de Sesión y Carga
-  setTimeout(async () => {
-    if (!window.clientSupa) return;
-    const {
-      data: { session },
-    } = await window.clientSupa.auth.getSession();
-    if (session) {
-      PROVEEDOR_ID = session.user.id;
-      // Cargar catálogos y datos
-      await Promise.all([cargarEstados(), cargarAnios()]);
-      configurarEscuchadores();
-      await inicializarPagina();
-    }
-  }, 400);
+  // 3. Control de Sesión Seguro mediante Eventos (Sustituye al setTimeout)
+  if (window.clientSupa) {
+    window.clientSupa.auth.onAuthStateChange(async (event, session) => {
+      if (session && !PROVEEDOR_ID) {
+        // El usuario está autenticado y no hemos cargado sus datos aún
+        PROVEEDOR_ID = session.user.id;
+
+        // Cargar catálogos y datos
+        await Promise.all([cargarEstados(), cargarAnios()]);
+        configurarEscuchadores();
+        await inicializarPagina();
+      } else if (!session) {
+        // Si no hay sesión, puedes mandarlo al login de manera segura
+        window.location.href = "login.html";
+      }
+    });
+  }
 });
 
 // --- 1. CARGA INICIAL DE DATOS ---
