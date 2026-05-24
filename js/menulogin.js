@@ -168,7 +168,6 @@ function configurarEventoSubmitLogin() {
   };
 }
 
-// --- 4. RENDERIZADO DEL MENÚ NAVBAR ---
 function configurarEventoSubmitAdmin() {
   const formaAdmin = document.getElementById("FormaLoginAdmin");
   if (!formaAdmin) return;
@@ -219,6 +218,7 @@ function configurarEventoSubmitAdmin() {
   };
 }
 
+// --- 4. RENDERIZADO DEL MENÚ NAVBAR ---
 async function renderizarMenu() {
   if (estaRenderizandoMenu) return;
   estaRenderizandoMenu = true;
@@ -230,7 +230,7 @@ async function renderizarMenu() {
   }
 
   const pathActual = window.location.pathname;
-  const esPaginaInicio = pathActual.includes("/inicio/inicio.html");
+  const esPaginaInicio = pathActual.includes("/inicio");
   const baseRaiz = esPaginaInicio ? "../index.html" : "index.html";
 
   let itemUsuarioHTML = `<li><a href="#" data-toggle="modal" data-target="#ModalLogin" class="nav-link-item">${ICONOS.user} Acceder</a></li>`;
@@ -285,8 +285,8 @@ async function renderizarMenu() {
 }
 window.renderizarMenu = renderizarMenu;
 
-// --- 5. CONFIGURACIÓN E INICIALIZACIÓN DE EVENTOS GENERALES ---
-document.addEventListener("DOMContentLoaded", async function () {
+// --- 5. CONFIGURACIÓN E INICIALIZACIÓN INMUNE A LATENCIA ---
+async function inicializarTodo() {
   const headContenido = `
     <style>
         html, body { height: 100%; margin: 0; }
@@ -305,10 +305,25 @@ document.addEventListener("DOMContentLoaded", async function () {
         .modal.show { display: block; opacity: 1; }
         .dropdown-menu.show { display: block !important; }
     </style>`;
-  document.head.insertAdjacentHTML("beforeend", headContenido);
+
+  if (!document.getElementById("estilos-inyectados-menu")) {
+    const styleEl = document.createElement("div");
+    styleEl.id = "estilos-inyectados-menu";
+    styleEl.innerHTML = headContenido;
+    document.head.appendChild(styleEl);
+  }
 
   asegurarModalesEnBody();
   await renderizarMenu();
+
+  // Capturar parámetros de la URL de forma segura sin romper sintaxis
+  const parametrosURL = new URLSearchParams(window.location.search);
+  const seccionInicial = parametrosURL.get("sec");
+  if (seccionInicial) {
+    gestionarVisibilidadSeccion(seccionInicial, false);
+  } else {
+    gestionarVisibilidadSeccion("seccion-bienvenida", false);
+  }
 
   if (window.clientSupa) {
     window.clientSupa.auth.onAuthStateChange(async (event, session) => {
@@ -326,29 +341,31 @@ document.addEventListener("DOMContentLoaded", async function () {
   if (footerPlaceholder) {
     footerPlaceholder.innerHTML = `<footer class="mi-footer">© 2026 H. Ayuntamiento. Todos los derechos reservados.</footer>`;
   }
-});
+}
+
+// Inicialización segura del ciclo de vida
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", inicializarTodo);
+} else {
+  inicializarTodo();
+}
 
 // --- 6. DELEGACIÓN GLOBAL DE EVENTOS ---
 document.addEventListener("click", function (e) {
-  // Manejador alternativo para DROPDOWNS (Mi Cuenta) si jQuery falla o se retrasa
   const dropdownBtn = e.target.closest('[data-toggle="dropdown"]');
   if (dropdownBtn && !window.jQuery) {
     e.preventDefault();
     const menu = dropdownBtn.parentElement.querySelector(".dropdown-menu");
     if (menu) {
       const estaMostrado = menu.classList.contains("show");
-      // Limpiar otros dropdowns abiertos en la vista
       document
         .querySelectorAll(".dropdown-menu.show")
         .forEach((m) => m.classList.remove("show"));
-      if (!estaMostrado) {
-        menu.classList.add("show");
-      }
+      if (!estaMostrado) menu.classList.add("show");
     }
     return;
   }
 
-  // Cerrar dropdown si se hace clic fuera de las opciones (Modo Vanilla JS)
   if (
     !window.jQuery &&
     !e.target.closest('[data-toggle="dropdown"]') &&
@@ -359,7 +376,6 @@ document.addEventListener("click", function (e) {
       .forEach((m) => m.classList.remove("show"));
   }
 
-  // Manejador alternativo de apertura de modales si jQuery falla por completo
   const modalBtn = e.target.closest('[data-toggle="modal"]');
   if (modalBtn && !window.jQuery) {
     e.preventDefault();
@@ -368,16 +384,13 @@ document.addEventListener("click", function (e) {
     return;
   }
 
-  // Manejador alternativo de cierre de modales si jQuery falla por completo
   const closeBtn =
     e.target.closest('[data-dismiss="modal"]') ||
     e.target.closest(".modal-backdrop");
   if (closeBtn && !window.jQuery) {
     e.preventDefault();
     const activeModal = document.querySelector(".modal.show");
-    if (activeModal) {
-      cerrarModalManual(activeModal.id);
-    }
+    if (activeModal) cerrarModalManual(activeModal.id);
     return;
   }
 
@@ -385,34 +398,32 @@ document.addEventListener("click", function (e) {
   if (linkAccion) {
     e.preventDefault();
     const idObjetivo = linkAccion.getAttribute("data-sec");
-    const pathActual = window.location.pathname;
-    const esPaginaInicio = pathActual.includes("/inicio/inicio.html");
 
-    // Cerrar el menú desplegable automáticamente tras hacer clic en una sección (Modo Vanilla JS)
     document
       .querySelectorAll(".dropdown-menu.show")
       .forEach((m) => m.classList.remove("show"));
 
+    const esPaginaInicio = window.location.pathname.includes("/inicio");
     if (esPaginaInicio) {
-      window.gestionarVisibilidadSeccion(idObjetivo);
+      gestionarVisibilidadSeccion(idObjetivo);
     } else {
       const enSubcarpeta =
-        pathActual.includes("/inicio/") || pathActual.includes("/paginas/");
+        window.location.pathname.includes("/inicio/") ||
+        window.location.pathname.includes("/paginas/");
       const baseInicio = enSubcarpeta ? "inicio.html" : "inicio/inicio.html";
       window.location.href = `${baseInicio}?sec=${idObjetivo}`;
     }
     return;
   }
 
-  const brandLink = e.target.closest("#link-admin-secret");
-  if (brandLink) {
+  if (e.target.closest("#link-admin-secret")) {
     window.location.hash = "inicio";
     return;
   }
 
   if (e.target.closest("#btn-logout")) {
     e.preventDefault();
-    window.cerrarSesion();
+    cerrarSesion();
     return;
   }
 
@@ -427,7 +438,7 @@ document.addEventListener("click", function (e) {
   }
 });
 
-// Handler global para atajo de teclado puro (Ctrl + Alt + A) -> Única vía de acceso administrativo
+// Atajo global para el panel de administración (Ctrl + Alt + A)
 document.addEventListener("keydown", function (e) {
   if (e.ctrlKey && e.altKey && (e.key === "a" || e.key === "A")) {
     e.preventDefault();
@@ -438,10 +449,15 @@ document.addEventListener("keydown", function (e) {
 // --- 7. FUNCIONES GLOBALES DE CONTROL ---
 function gestionarVisibilidadSeccion(idObjetivo, addToHistory = true) {
   const secciones = document.querySelectorAll(".contenido-seccion");
-  secciones.forEach((sec) => (sec.style.display = "none"));
+  secciones.forEach((sec) => {
+    sec.style.display = "none";
+    sec.classList.remove("activa");
+  });
+
   const seccionAMostrar = document.getElementById(idObjetivo);
   if (seccionAMostrar) {
     seccionAMostrar.style.display = "block";
+    seccionAMostrar.classList.add("activa");
     window.scrollTo({ top: 0, behavior: "smooth" });
     if (addToHistory) {
       history.pushState({ id: idObjetivo }, "", `?sec=${idObjetivo}`);
