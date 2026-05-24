@@ -1,10 +1,3 @@
-/**
- * ============================================================================
- * ARCHIVO UNIFICADO: LOGIC_GLOBAL_NAV.JS (menulogin.js)
- * NÚCLEO DE NAVEGACIÓN, AUTENTICACIÓN DE USUARIOS Y CONTROL ADMINISTRATIVO
- * ============================================================================
- */
-
 // --- 1. ICONOS SVG COMPACTOS ---
 const ICONOS = {
   inicio:
@@ -175,6 +168,7 @@ function configurarEventoSubmitLogin() {
   };
 }
 
+// --- 4. RENDERIZADO DEL MENÚ NAVBAR ---
 function configurarEventoSubmitAdmin() {
   const formaAdmin = document.getElementById("FormaLoginAdmin");
   if (!formaAdmin) return;
@@ -225,7 +219,6 @@ function configurarEventoSubmitAdmin() {
   };
 }
 
-// --- 4. RENDERIZADO DEL MENÚ NAVBAR ---
 async function renderizarMenu() {
   if (estaRenderizandoMenu) return;
   estaRenderizandoMenu = true;
@@ -310,6 +303,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         .contenido-seccion.activa { display: block !important; }
         /* Clases de apoyo para ejecución manual sin jQuery */
         .modal.show { display: block; opacity: 1; }
+        .dropdown-menu.show { display: block !important; }
     </style>`;
   document.head.insertAdjacentHTML("beforeend", headContenido);
 
@@ -336,6 +330,35 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 // --- 6. DELEGACIÓN GLOBAL DE EVENTOS ---
 document.addEventListener("click", function (e) {
+  // Manejador alternativo para DROPDOWNS (Mi Cuenta) si jQuery falla o se retrasa
+  const dropdownBtn = e.target.closest('[data-toggle="dropdown"]');
+  if (dropdownBtn && !window.jQuery) {
+    e.preventDefault();
+    const menu = dropdownBtn.parentElement.querySelector(".dropdown-menu");
+    if (menu) {
+      const estaMostrado = menu.classList.contains("show");
+      // Limpiar otros dropdowns abiertos en la vista
+      document
+        .querySelectorAll(".dropdown-menu.show")
+        .forEach((m) => m.classList.remove("show"));
+      if (!estaMostrado) {
+        menu.classList.add("show");
+      }
+    }
+    return;
+  }
+
+  // Cerrar dropdown si se hace clic fuera de las opciones (Modo Vanilla JS)
+  if (
+    !window.jQuery &&
+    !e.target.closest('[data-toggle="dropdown"]') &&
+    !e.target.closest(".dropdown-menu")
+  ) {
+    document
+      .querySelectorAll(".dropdown-menu.show")
+      .forEach((m) => m.classList.remove("show"));
+  }
+
   // Manejador alternativo de apertura de modales si jQuery falla por completo
   const modalBtn = e.target.closest('[data-toggle="modal"]');
   if (modalBtn && !window.jQuery) {
@@ -364,6 +387,11 @@ document.addEventListener("click", function (e) {
     const idObjetivo = linkAccion.getAttribute("data-sec");
     const pathActual = window.location.pathname;
     const esPaginaInicio = pathActual.includes("/inicio/inicio.html");
+
+    // Cerrar el menú desplegable automáticamente tras hacer clic en una sección (Modo Vanilla JS)
+    document
+      .querySelectorAll(".dropdown-menu.show")
+      .forEach((m) => m.classList.remove("show"));
 
     if (esPaginaInicio) {
       window.gestionarVisibilidadSeccion(idObjetivo);
