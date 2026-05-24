@@ -1,6 +1,6 @@
 /**
  * ============================================================================
- * ARCHIVO UNIFICADO: LOGIC_GLOBAL_NAV.JS
+ * ARCHIVO UNIFICADO: LOGIC_GLOBAL_NAV.JS (menulogin.js)
  * NÚCLEO DE NAVEGACIÓN, AUTENTICACIÓN DE USUARIOS Y CONTROL ADMINISTRATIVO
  * ============================================================================
  */
@@ -20,21 +20,56 @@ const ICONOS = {
   user: '<svg viewBox="0 0 448 512"><path d="M224 256c70.7 0 128-57.3 128-128S294.7 0 224 0 96 57.3 96 128s57.3 128 128 128zm89.6 32h-16.7c-22.2 10.2-46.9 16-72.9 16s-50.6-5.8-72.9-16h-16.7C60.2 288 0 348.2 0 422.4V464c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48v-41.6c0-74.2-60.2-134.4-134.4-134.4z"></path></svg>',
 };
 
-// Flags de control de estado estricto
 let estadoSesionActual = null;
 let estaRenderizandoMenu = false;
 
-// --- 2. INYECCIÓN DE MODALES (Estructura visual idéntica para ambos) ---
+// Auxiliar para cerrar modales manualmente en Vanilla JS si Bootstrap falla
+function cerrarModalManual(idModal) {
+  if (window.jQuery && $(`#${idModal}`).length) {
+    $(`#${idModal}`).modal("hide");
+  } else {
+    const modal = document.getElementById(idModal);
+    if (modal) {
+      modal.classList.remove("show");
+      modal.style.display = "none";
+      document.body.classList.remove("modal-open");
+      const backdrop = document.getElementById("custom-modal-backdrop");
+      if (backdrop) backdrop.remove();
+    }
+  }
+}
+
+// Auxiliar para abrir modales manualmente en Vanilla JS si Bootstrap falla
+function abrirModalManual(idModal) {
+  if (window.jQuery) {
+    $(`#${idModal}`).modal("show");
+  } else {
+    const modalEl = document.getElementById(idModal);
+    if (modalEl) {
+      modalEl.classList.add("show");
+      modalEl.style.display = "block";
+      document.body.classList.add("modal-open");
+      let backdrop = document.getElementById("custom-modal-backdrop");
+      if (!backdrop) {
+        backdrop = document.createElement("div");
+        backdrop.className = "modal-backdrop fade show";
+        backdrop.id = "custom-modal-backdrop";
+        document.body.appendChild(backdrop);
+      }
+    }
+  }
+}
+
+// --- 2. INYECCIÓN DE MODALES ---
 function asegurarModalesEnBody() {
   const pathActual = window.location.pathname;
   const enSubcarpeta =
     pathActual.includes("/inicio/") || pathActual.includes("/paginas/");
   const rutaRestaurar = enSubcarpeta ? "../restaurar.html" : "restaurar.html";
 
-  // Inyectar Modal de Usuario General si no existe
   if (!document.getElementById("ModalLogin")) {
     const modalLoginHTML = `
-      <div class="modal fade" id="ModalLogin" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal fade" id="ModalLogin" tabindex="-1" role="dialog" aria-hidden="true" style="background: rgba(0,0,0,0.5);">
           <div class="modal-dialog modal-dialog-centered">
               <div class="modal-content modal-caja-login">
                   <div class="modal-header-login">
@@ -64,10 +99,9 @@ function asegurarModalesEnBody() {
     configurarEventoSubmitLogin();
   }
 
-  // Inyectar Modal de Administrador (Reutilizando las clases idénticas del menú index)
   if (!document.getElementById("ModalLoginAdmin")) {
     const modalAdminHTML = `
-      <div class="modal fade" id="ModalLoginAdmin" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal fade" id="ModalLoginAdmin" tabindex="-1" role="dialog" aria-hidden="true" style="background: rgba(0,0,0,0.5);">
           <div class="modal-dialog modal-dialog-centered">
               <div class="modal-content modal-caja-login">
                   <div class="modal-header-login">
@@ -96,7 +130,6 @@ function asegurarModalesEnBody() {
 }
 
 // --- 3. PROCESOS DE AUTENTICACIÓN (SUBMITS) ---
-
 function configurarEventoSubmitLogin() {
   const formaLogin = document.getElementById("FormaLogin");
   if (!formaLogin) return;
@@ -113,15 +146,19 @@ function configurarEventoSubmitLogin() {
         btnSubmit.innerText = "VERIFICANDO...";
       }
 
+      if (!window.clientSupa) {
+        throw new Error(
+          "El cliente de Supabase no se ha inicializado correctamente.",
+        );
+      }
+
       const { error } = await window.clientSupa.auth.signInWithPassword({
         email,
         password,
       });
       if (error) throw error;
 
-      if (window.jQuery && $("#ModalLogin").length) {
-        $("#ModalLogin").modal("hide");
-      }
+      cerrarModalManual("ModalLogin");
 
       const enSubcarpeta =
         window.location.pathname.includes("/inicio/") ||
@@ -154,6 +191,10 @@ function configurarEventoSubmitAdmin() {
         btnSubmit.innerText = "VALIDANDO ROL...";
       }
 
+      if (!window.clientSupa) {
+        throw new Error("El cliente de Supabase no está disponible.");
+      }
+
       const { data, error } = await window.clientSupa.auth.signInWithPassword({
         email,
         password,
@@ -171,10 +212,7 @@ function configurarEventoSubmitAdmin() {
         throw new Error("No cuentas con privilegios de Administrador.");
       }
 
-      if (window.jQuery && $("#ModalLoginAdmin").length) {
-        $("#ModalLoginAdmin").modal("hide");
-      }
-
+      cerrarModalManual("ModalLoginAdmin");
       alert("¡Bienvenido al Panel de Control!");
       window.location.href = "admin/admin_panel.html";
     } catch (err) {
@@ -270,6 +308,8 @@ document.addEventListener("DOMContentLoaded", async function () {
         .mi-footer { background-color: #ab0a3d; padding: 20px 0; color: white; text-align: center; text-transform: uppercase; font-weight: 700; width: 100%; }
         .contenido-seccion { display: none; }
         .contenido-seccion.activa { display: block !important; }
+        /* Clases de apoyo para ejecución manual sin jQuery */
+        .modal.show { display: block; opacity: 1; }
     </style>`;
   document.head.insertAdjacentHTML("beforeend", headContenido);
 
@@ -296,6 +336,28 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 // --- 6. DELEGACIÓN GLOBAL DE EVENTOS ---
 document.addEventListener("click", function (e) {
+  // Manejador alternativo de apertura de modales si jQuery falla por completo
+  const modalBtn = e.target.closest('[data-toggle="modal"]');
+  if (modalBtn && !window.jQuery) {
+    e.preventDefault();
+    const targetId = modalBtn.getAttribute("data-target").replace("#", "");
+    abrirModalManual(targetId);
+    return;
+  }
+
+  // Manejador alternativo de cierre de modales si jQuery falla por completo
+  const closeBtn =
+    e.target.closest('[data-dismiss="modal"]') ||
+    e.target.closest(".modal-backdrop");
+  if (closeBtn && !window.jQuery) {
+    e.preventDefault();
+    const activeModal = document.querySelector(".modal.show");
+    if (activeModal) {
+      cerrarModalManual(activeModal.id);
+    }
+    return;
+  }
+
   const linkAccion = e.target.closest(".nav-action-link");
   if (linkAccion) {
     e.preventDefault();
@@ -341,9 +403,7 @@ document.addEventListener("click", function (e) {
 document.addEventListener("keydown", function (e) {
   if (e.ctrlKey && e.altKey && (e.key === "a" || e.key === "A")) {
     e.preventDefault();
-    if (window.jQuery) {
-      $("#ModalLoginAdmin").modal("show");
-    }
+    abrirModalManual("ModalLoginAdmin");
   }
 });
 
