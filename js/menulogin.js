@@ -325,17 +325,7 @@ async function inicializarTodo() {
     gestionarVisibilidadSeccion("seccion-bienvenida", false);
   }
 
-  if (window.clientSupa) {
-    window.clientSupa.auth.onAuthStateChange(async (event, session) => {
-      const estadoObjetivo = session ? "CON_SESION" : "SIN_SESION";
-      if (
-        (event === "SIGNED_IN" || event === "SIGNED_OUT") &&
-        estadoObjetivo !== estadoSesionActual
-      ) {
-        await renderizarMenu();
-      }
-    });
-  }
+  // 🔴 AQUÍ SE ELIMINÓ EL BLOQUE DUPLICADO DE ONAUTHSTATECHANGE QUE CAUSABA EL CONFLICTO DE RENDERIZADO
 
   const footerPlaceholder = document.getElementById("footer-placeholder");
   if (footerPlaceholder) {

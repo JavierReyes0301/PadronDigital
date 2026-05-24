@@ -31,7 +31,6 @@ if (typeof supabase !== "undefined") {
   window.clientSupa.auth.onAuthStateChange((event, session) => {
     console.log("⚡ Supabase Evento detectado:", event);
 
-    // Creamos una función interna para intentar ejecutar la actualización visual
     const intentarActualizarUI = () => {
       const funcActualizar =
         window.renderizarMenu || window.actualizarMenuUsuario;
@@ -43,23 +42,23 @@ if (typeof supabase !== "undefined") {
         funcActualizar();
         return true; // Éxito
       }
-      return false; // Aún no está lista la función
+      return false; // Aún no está lista en memoria
     };
 
-    // 1er intento: Ejecución inmediata
+    // Si no se puede ejecutar de inmediato porque menulogin.js no ha cargado...
     if (!intentarActualizarUI()) {
-      console.warn(
-        "⚠️ Interfaz no lista en memoria. Programando reintento dinámico...",
-      );
+      console.warn("⚠️ Interfaz no lista. Buscando registro de funciones...");
 
-      // 2do intento: Si la función no existe, esperamos a que el DOM esté completamente listo
-      // y cedemos el turno en la cola de ejecución (Event Loop) para que carguen los otros JS
-      document.addEventListener("DOMContentLoaded", () => {
-        if (!intentarActualizarUI()) {
-          // 3er intento defensivo: Un micro-retraso técnico (0ms) solo si el JS de la UI viene muy pesado
-          setTimeout(intentarActualizarUI, 0);
+      // Sondeo activo de ráfaga corta (revisa cada 20ms si la función ya apareció)
+      // Esto es inmune a si el DOM ya cargó o si va lento.
+      const ráfagaChequeo = setInterval(() => {
+        if (intentarActualizarUI()) {
+          clearInterval(ráfagaChequeo); // Se detiene inmediatamente al tener éxito
         }
-      });
+      }, 20);
+
+      // Cancelación defensiva tras 3 segundos para no consumir recursos si la página no lleva menú
+      setTimeout(() => clearInterval(ráfagaChequeo), 3000);
     }
   });
 } else {
